@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Dine2Destiny</string>
+    <string name="_123456789">123456789</string>
+    <string name="_91">+91-</string>
+    <string name="enter_your_mobile_number">Enter your mobile number</string>
+    <string name="we_will_send_you_a_one_time_password_on_this_mobile_number">We will send you a one time password on this mobile number</string>
+    <string name="login">Verify Your Number to Login</string>
+    <string name="otp_verification">OTP Verification</string>
+    <string name="get_otp">Send OTP</string>
+    <string name="enter_the_6_digit_otp_sent_to_your_mobile_number">Enter the 6-digit OTP sent to your mobile number</string>
+    <string name="didn_t_receive_the_otp">Didn\'t receive the OTP ?</string>
+    <string name="resend_otp">Resend OTP</string>
+    <string name="verify">Verify</string>
+    <string name="resend_otp_in">Resend OTP in %1$d seconds</string>
+</resources>

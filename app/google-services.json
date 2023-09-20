@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "1046743252832",
+    "firebase_url": "https://creators-cuisine-default-rtdb.firebaseio.com",
+    "project_id": "creators-cuisine",
+    "storage_bucket": "creators-cuisine.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1046743252832:android:542eb8da7caf1c4b3e6805",
+        "android_client_info": {
+          "package_name": "com.example.dine2destiny"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPWmyqlfOkd0B2gIcz_cR_aPn_HarFkkU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1046743252832:android:e4db14f61e86f5f33e6805",
+        "android_client_info": {
+          "package_name": "com.example.hotelrecommendation"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPWmyqlfOkd0B2gIcz_cR_aPn_HarFkkU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1046743252832:android:de6abda0e7c5d0763e6805",
+        "android_client_info": {
+          "package_name": "com.example.userverifier"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPWmyqlfOkd0B2gIcz_cR_aPn_HarFkkU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
