@@ -92,6 +92,7 @@ public class VerifyOTPActivity extends AppCompatActivity {
                                     progressBar.setVisibility(View.GONE);
                                     verifyOTp.setVisibility(View.VISIBLE);
                                     if (task.isSuccessful()) {
+                                        savePhoneNumberInDatabase(FirebaseAuth.getInstance().getCurrentUser().getUid());
                                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                         startActivity(intent);
@@ -290,6 +291,14 @@ public class VerifyOTPActivity extends AppCompatActivity {
         });
     }
 
+    private void savePhoneNumberInDatabase(String userId) {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+        DatabaseReference userReference = databaseReference.child(userId);
+
+        String phoneNumber = getIntent().getStringExtra("mobile");
+
+        userReference.child("phoneNumber").setValue(phoneNumber);
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();
