@@ -10,9 +10,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -20,6 +18,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -38,10 +42,15 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -75,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         locationDetailsContainer = findViewById(R.id.locationDetailsContainer);
     }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -140,6 +150,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         valueEventListener = new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                List<LatLng> destinationsList = new ArrayList<>(); // List to store destination locations
+                                List<String> names = new ArrayList<>();
+                                List<String> creators = new ArrayList<>();
+
                                 for (DataSnapshot creatorSnapshot : dataSnapshot.getChildren()) {
                                     DataSnapshot recommendationSnapshot = creatorSnapshot.child("recommendation");
                                     String creatorName = creatorSnapshot.child("name").getValue(String.class);
@@ -149,29 +163,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                         double longitude = Double.parseDouble(locationStr.split(", ")[1].split(": ")[1]);
                                         LatLng locationLatLng = new LatLng(latitude, longitude);
 
+                                        // Calculate distance between user location and recommendation location
                                         float[] distanceResult = new float[1];
                                         Location.distanceBetween(
                                                 userLocation.latitude, userLocation.longitude,
                                                 locationLatLng.latitude, locationLatLng.longitude,
                                                 distanceResult);
 
-                                        // Check if the location is open
+                                        // Check if the location is open and within 5 kilometers
                                         String timings = recSnapshot.child("timings").getValue(String.class);
                                         if (distanceResult[0] <= 5000 && isLocationOpen(timings)) {
-                                            String name = recSnapshot.child("name").getValue(String.class);
-                                            double rating = recSnapshot.child("rating").getValue(Double.class);
-                                            String snippet = "Rating: " + String.format("%.1f/5", rating);
-
-                                            MarkerOptions markerOptions = new MarkerOptions()
-                                                    .position(locationLatLng)
-                                                    .title(name)
-                                                    .snippet(snippet);
-                                            mMap.addMarker(markerOptions);
-
-                                            addLocationDetails(name, creatorName, distanceResult[0]);
+                                            destinationsList.add(locationLatLng); // Add location to the list
+                                            names.add(recSnapshot.child("name").getValue(String.class));
+                                            creators.add(creatorName);
                                         }
                                     }
                                 }
+
+                                // Calculate distance using the Distance Matrix API for filtered destinations
+                                calculateDistance(userLocation, destinationsList, names, creators);
                                 locationDetailsLoaded = true;
                             }
 
@@ -289,6 +299,67 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         }
                     });
         }
+    }
+
+    private void calculateDistance(LatLng origin, List<LatLng> destinations, List<String> names, List<String> creators) {
+        String apiKey = "AIzaSyDHoXOg6fB7_Aj9u9hCCkM76W0CzN5pZHE";
+        StringBuilder destinationsStr = new StringBuilder();
+
+        for (LatLng destination : destinations) {
+            destinationsStr.append(destination.latitude).append(",").append(destination.longitude).append("|");
+        }
+
+        String url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=" +
+                origin.latitude + "," + origin.longitude +
+                "&destinations=" + destinationsStr.toString() +
+                "&key=" + apiKey;
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            JSONArray rows = response.getJSONArray("rows");
+                            if (rows.length() > 0) {
+                                JSONArray elements = rows.getJSONObject(0).getJSONArray("elements");
+                                for (int i = 0; i < elements.length(); i++) {
+                                    JSONObject element = elements.getJSONObject(i);
+                                    if (element.has("distance")) {
+                                        String distanceText = element.getJSONObject("distance").getString("text");
+                                        float distanceValue = element.getJSONObject("distance").getInt("value");
+
+                                        // Use distanceText and distanceValue as needed
+                                        String name = names.get(i);
+                                        String creator = creators.get(i);
+                                        String snippet = "Distance: " + distanceText;
+
+                                        LatLng destinationLatLng = destinations.get(i);
+
+                                        MarkerOptions markerOptions = new MarkerOptions()
+                                                .position(destinationLatLng)
+                                                .title(name)
+                                                .snippet(snippet);
+                                        mMap.addMarker(markerOptions);
+
+                                        addLocationDetails(name, creator, distanceValue);
+                                    }
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Handle error
+                        error.printStackTrace();
+                    }
+                });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        requestQueue.add(jsonObjectRequest);
     }
 
     private void addLocationDetails(String name, String creator, float distance) {
