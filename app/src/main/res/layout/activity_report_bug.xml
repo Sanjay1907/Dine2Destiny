@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:openDrawer="start"
-    tools:context=".MainActivity">
+    tools:context=".ReportBug">
 
     <!-- Content View -->
     <RelativeLayout
@@ -17,63 +17,62 @@
         android:layout_height="match_parent"
         android:fitsSystemWindows="true">
 
-        <!-- Your existing content goes here -->
-        <fragment
-            android:id="@+id/mapFragment"
-            android:name="com.google.android.gms.maps.SupportMapFragment"
-            android:layout_width="match_parent"
-            android:layout_height="550dp" />
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/distitle"
-            android:layout_below="@id/mapFragment"
-            android:text="Choose distance range"
+            android:id="@+id/title"
+            android:text="Report Bug"
+            android:textAlignment="center"
+            android:textSize="20dp"
+            android:textColor="@android:color/darker_gray"
+            android:textStyle="bold"
+            android:layout_marginTop="70dp"/>
+
+        <EditText
+            android:id="@+id/bugDescriptionEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Describe the bug"
             android:textColor="@color/black"
+            android:layout_below="@id/title"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="25dp"
             android:textSize="16dp"
-            android:gravity="center"
-            android:layout_marginTop="5dp"/>
+            android:layout_marginTop="20dp"
+            android:inputType="textLongMessage"/>
 
         <LinearLayout
-            android:id="@+id/distancefilter"
+            android:id="@+id/media"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_below="@id/distitle">
-        <SeekBar
-            android:id="@+id/distanceSeekBar"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:max="9"
-            android:progress="0"
-            android:layout_margin="16dp" />
+            android:layout_below="@id/bugDescriptionEditText"
+            android:layout_marginLeft="10dp">
 
-        <TextView
-            android:id="@+id/distanceText"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:text="1 km"
-            android:textSize="16sp"
-            android:textColor="#000"
-            android:layout_marginTop="10dp"/>
-        </LinearLayout>
-
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/distancefilter">
-
-            <!-- Add a LinearLayout to hold location details -->
-            <LinearLayout
-                android:id="@+id/locationDetailsContainer"
-                android:layout_width="match_parent"
+            <Button
+                android:id="@+id/attachMediaButton"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_below="@id/distancefilter"
-                android:padding="16dp">
-                <!-- Location details will be added dynamically here -->
-            </LinearLayout>
-        </ScrollView>
+                android:text="Choose File"
+                style="@style/Widget.Material3.Button.TextButton.Dialog.Icon"
+                android:textColor="@color/black"/>
+            <TextView
+                android:id="@+id/attachedMediaTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12dp"
+                android:textColor="@android:color/darker_gray"/>
+
+        </LinearLayout>
+        <Button
+            android:id="@+id/submitBugButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Report Bug"
+            android:layout_below="@id/media"
+            android:backgroundTint="@color/black"
+            android:layout_marginTop="30dp"
+            android:layout_centerHorizontal="true" />
 
         <LinearLayout
             android:layout_width="match_parent"

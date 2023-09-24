@@ -12,4 +12,6 @@
     <string name="resend_otp">Resend OTP</string>
     <string name="verify">Verify</string>
     <string name="resend_otp_in">Resend OTP in %1$d seconds</string>
+    <string name="open_nav">Open Navigation Drawer</string>
+    <string name="close_nav">Close Navigation Drawer</string>
 </resources>

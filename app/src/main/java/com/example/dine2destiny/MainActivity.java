@@ -2,22 +2,29 @@ package com.example.dine2destiny;
 
 import android.Manifest;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -34,8 +41,10 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -52,20 +61,29 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+import android.widget.SeekBar;
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
 
     private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationClient;
-    private LocationCallback locationCallback;
     private SupportMapFragment mapFragment;
     private DatabaseReference databaseReference;
-    private ValueEventListener valueEventListener;
     private boolean cameraMoved = false;
     private LinearLayout locationDetailsContainer;
+    private DrawerLayout drawerLayout;
+    private SeekBar distanceSeekBar;
+    private TextView distanceText;
+    private LocationCallback locationCallback;
+
     private boolean locationDetailsLoaded = false; // Flag to control location details loading
+    private LocationRequest locationRequest;
+
+    private int selectedDistance = 1;
+
+    // List to store markers on the map
+    private List<Marker> locationMarkers = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +91,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_main);
 
         checkUserName();
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        drawerLayout = findViewById(R.id.drawerLayout);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_nav,
+                R.string.close_nav);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapFragment);
@@ -83,6 +113,39 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         databaseReference = FirebaseDatabase.getInstance().getReference().child("Creators");
 
         locationDetailsContainer = findViewById(R.id.locationDetailsContainer);
+        distanceSeekBar = findViewById(R.id.distanceSeekBar);
+        distanceText = findViewById(R.id.distanceText);
+        locationRequest = new LocationRequest();
+        locationRequest.setInterval(10000);
+        locationRequest.setFastestInterval(5000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                // Handle location updates here
+            }
+        };
+        distanceSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                selectedDistance = progress + 1; // Add 1 to make it 1-10 km
+                // Round down the distance to the nearest integer
+                int roundedDistance = (int) Math.floor(selectedDistance);
+                distanceText.setText(roundedDistance + " km");
+                locationDetailsLoaded = false;
+                mMap.clear(); // Clear existing markers
+                locationMarkers.clear(); // Clear the list of markers
+                loadUserLocation();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
     }
 
     @Override
@@ -111,6 +174,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             layoutParams.setMargins(0, 0, 30, 30);
         } else {
             requestLocationPermission();
+            loadUserLocation();
         }
 
         mMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
@@ -128,79 +192,72 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void loadUserLocation() {
-        LocationRequest locationRequest = new LocationRequest();
-        locationRequest.setInterval(10000);
-        locationRequest.setFastestInterval(5000);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            if (location != null) {
+                                LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
 
-        locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                if (locationResult != null && locationResult.getLastLocation() != null) {
-                    Location lastLocation = locationResult.getLastLocation();
-                    LatLng userLocation = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
-
-                    if (!cameraMoved) {
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15f));
-                    }
-
-                    if (!locationDetailsLoaded) {
-                        locationDetailsContainer.removeAllViews();
-
-                        valueEventListener = new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                List<LatLng> destinationsList = new ArrayList<>(); // List to store destination locations
-                                List<String> names = new ArrayList<>();
-                                List<String> creators = new ArrayList<>();
-
-                                for (DataSnapshot creatorSnapshot : dataSnapshot.getChildren()) {
-                                    DataSnapshot recommendationSnapshot = creatorSnapshot.child("recommendation");
-                                    String creatorName = creatorSnapshot.child("name").getValue(String.class);
-                                    for (DataSnapshot recSnapshot : recommendationSnapshot.getChildren()) {
-                                        String locationStr = recSnapshot.child("location").getValue(String.class);
-                                        double latitude = Double.parseDouble(locationStr.split(", ")[0].split(": ")[1]);
-                                        double longitude = Double.parseDouble(locationStr.split(", ")[1].split(": ")[1]);
-                                        LatLng locationLatLng = new LatLng(latitude, longitude);
-
-                                        // Calculate distance between user location and recommendation location
-                                        float[] distanceResult = new float[1];
-                                        Location.distanceBetween(
-                                                userLocation.latitude, userLocation.longitude,
-                                                locationLatLng.latitude, locationLatLng.longitude,
-                                                distanceResult);
-
-                                        // Check if the location is open and within 5 kilometers
-                                        String timings = recSnapshot.child("timings").getValue(String.class);
-                                        if (distanceResult[0] <= 5000 && isLocationOpen(timings)) {
-                                            destinationsList.add(locationLatLng); // Add location to the list
-                                            names.add(recSnapshot.child("name").getValue(String.class));
-                                            creators.add(creatorName);
-                                        }
-                                    }
+                                if (!cameraMoved) {
+                                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15f));
+                                    cameraMoved = true;
                                 }
 
-                                // Calculate distance using the Distance Matrix API for filtered destinations
-                                calculateDistance(userLocation, destinationsList, names, creators);
-                                locationDetailsLoaded = true;
+                                if (!locationDetailsLoaded) {
+                                    locationDetailsContainer.removeAllViews();
+
+                                    ValueEventListener valueEventListener = new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                            List<LatLng> destinationsList = new ArrayList<>(); // List to store destination locations
+                                            List<String> names = new ArrayList<>();
+                                            List<String> creators = new ArrayList<>();
+
+                                            for (DataSnapshot creatorSnapshot : dataSnapshot.getChildren()) {
+                                                DataSnapshot recommendationSnapshot = creatorSnapshot.child("recommendation");
+                                                String creatorName = creatorSnapshot.child("name").getValue(String.class);
+                                                for (DataSnapshot recSnapshot : recommendationSnapshot.getChildren()) {
+                                                    String locationStr = recSnapshot.child("location").getValue(String.class);
+                                                    double latitude = Double.parseDouble(locationStr.split(", ")[0].split(": ")[1]);
+                                                    double longitude = Double.parseDouble(locationStr.split(", ")[1].split(": ")[1]);
+                                                    LatLng locationLatLng = new LatLng(latitude, longitude);
+
+                                                    // Calculate distance between user location and recommendation location
+                                                    float[] distanceResult = new float[1];
+                                                    Location.distanceBetween(
+                                                            userLocation.latitude, userLocation.longitude,
+                                                            locationLatLng.latitude, locationLatLng.longitude,
+                                                            distanceResult);
+
+                                                    // Check if the location is open and within the selected distance
+                                                    String timings = recSnapshot.child("timings").getValue(String.class);
+                                                    if (distanceResult[0] <= selectedDistance * 1000 && isLocationOpen(timings)) {
+                                                        destinationsList.add(locationLatLng); // Add location to the list
+                                                        names.add(recSnapshot.child("name").getValue(String.class));
+                                                        creators.add(creatorName);
+                                                    }
+                                                }
+                                            }
+
+                                            // Calculate distance using the Distance Matrix API for filtered destinations
+                                            calculateDistance(userLocation, destinationsList, names, creators);
+                                            locationDetailsLoaded = true;
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                                            // Handle database error
+                                        }
+                                    };
+
+                                    databaseReference.addListenerForSingleValueEvent(valueEventListener);
+                                }
                             }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-                                // Handle database error
-                            }
-                        };
-
-                        databaseReference.addListenerForSingleValueEvent(valueEventListener);
-                    }
-                }
-            }
-        };
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestLocationPermission();
-        } else {
-            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+                        }
+                    });
         }
     }
 
@@ -302,10 +359,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void calculateDistance(LatLng origin, List<LatLng> destinations, List<String> names, List<String> creators) {
-        String apiKey = "AIzaSyDHoXOg6fB7_Aj9u9hCCkM76W0CzN5pZHE";
+        String apiKey = "AIzaSyDHoXOg6fB7_Aj9u9hCCkM76W0CzN5pZHE"; // Replace with your Google Maps API Key
         StringBuilder destinationsStr = new StringBuilder();
 
-        for (LatLng destination : destinations) {
+        for (int i = 0; i < destinations.size(); i++) {
+            LatLng destination = destinations.get(i);
+
             destinationsStr.append(destination.latitude).append(",").append(destination.longitude).append("|");
         }
 
@@ -328,20 +387,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                         String distanceText = element.getJSONObject("distance").getString("text");
                                         float distanceValue = element.getJSONObject("distance").getInt("value");
 
-                                        // Use distanceText and distanceValue as needed
-                                        String name = names.get(i);
-                                        String creator = creators.get(i);
-                                        String snippet = "Distance: " + distanceText;
+                                        // Convert meters to kilometers
+                                        float distanceInKm = distanceValue / 1000.0f;
 
-                                        LatLng destinationLatLng = destinations.get(i);
+                                        // Check if the location is open and within the selected distance
+                                        String timings = getTimingsForLocation(names.get(i), creators.get(i)); // Replace with your method to get timings
+                                        if (distanceInKm <= selectedDistance && isLocationOpen(timings)) {
+                                            String name = names.get(i);
+                                            String creator = creators.get(i);
+                                            String snippet = "Distance: " + distanceText;
 
-                                        MarkerOptions markerOptions = new MarkerOptions()
-                                                .position(destinationLatLng)
-                                                .title(name)
-                                                .snippet(snippet);
-                                        mMap.addMarker(markerOptions);
+                                            LatLng destinationLatLng = destinations.get(i);
 
-                                        addLocationDetails(name, creator, distanceValue);
+                                            MarkerOptions markerOptions = new MarkerOptions()
+                                                    .position(destinationLatLng)
+                                                    .title(name)
+                                                    .snippet(snippet);
+
+                                            // Add a marker to the map and store it in the locationMarkers list
+                                            Marker marker = mMap.addMarker(markerOptions);
+                                            locationMarkers.add(marker);
+
+                                            // Pass the correct distanceInKm to addLocationDetails
+                                            addLocationDetails(name, creator, distanceInKm);
+                                        }
                                     }
                                 }
                             }
@@ -362,7 +431,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         requestQueue.add(jsonObjectRequest);
     }
 
+    private String getTimingsForLocation(String name, String creator) {
+        // Implement your logic to get timings for a specific location here
+        // You may use the name and creator to query your database or another data source
+        // and return the timings as a string in the format "HH:mm - HH:mm"
+        return "09:00 - 17:00"; // Replace with your actual timings retrieval logic
+    }
+
     private void addLocationDetails(String name, String creator, float distance) {
+        // Round the distance to 2 decimal places
+        float roundedDistance = roundDistance(distance, 2);
+
         View locationDetailsView = getLayoutInflater().inflate(R.layout.location_details, null);
 
         TextView locationName = locationDetailsView.findViewById(R.id.locationName);
@@ -371,16 +450,43 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         locationName.setText(name);
         creatorName.setText("Creator: " + creator); // Set the creator's name correctly
-        locationDistance.setText(String.format("%.2f km", distance / 1000));
+        locationDistance.setText(String.format("%.2f km", roundedDistance)); // Display the rounded distance
 
-        locationDetailsContainer.addView(locationDetailsView);
+
+        // Check if the location details view is not already added
+        if (!isLocationDetailsAlreadyAdded(name, creator)) {
+            locationDetailsContainer.addView(locationDetailsView);
+        }
+    }
+
+    private float roundDistance(float distance, int decimalPlaces) {
+        float multiplier = (float) Math.pow(10, decimalPlaces);
+        return Math.round(distance * multiplier) / multiplier;
+    }
+
+    private boolean isLocationDetailsAlreadyAdded(String name, String creator) {
+        // Check if a location with the same name and creator has already been added
+        for (int i = 0; i < locationDetailsContainer.getChildCount(); i++) {
+            View childView = locationDetailsContainer.getChildAt(i);
+            TextView locationNameTextView = childView.findViewById(R.id.locationName);
+            TextView creatorNameTextView = childView.findViewById(R.id.locationRating); // Change the ID if needed
+
+            String existingName = locationNameTextView.getText().toString();
+            String existingCreator = creatorNameTextView.getText().toString();
+
+            if (name.equals(existingName) && ("Creator: " + creator).equals(existingCreator)) {
+                return true; // Location details already added
+            }
+        }
+        return false; // Location details not added yet
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (valueEventListener != null) {
-            databaseReference.removeEventListener(valueEventListener);
+        // Remove the location callback when the activity is destroyed
+        if (fusedLocationClient != null) {
+            fusedLocationClient.removeLocationUpdates(locationCallback);
         }
     }
 
@@ -393,11 +499,35 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     requestLocationPermission();
                 } else {
-                    fusedLocationClient.requestLocationUpdates(new LocationRequest(), locationCallback, null);
+                    // Initialize the fusedLocationClient here before using it
+                    fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+                    // Request location updates using the initialized fusedLocationClient
+                    fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
                 }
             } else {
                 Toast.makeText(this, "Location permission denied. App cannot function properly.", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.nav_home) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            return true;
+        } else if (item.getItemId() == R.id.nav_settings) {
+            startActivity(new Intent(MainActivity.this, FavCreator.class));
+            finish();
+        } else if (item.getItemId() == R.id.nav_share) {
+            startActivity(new Intent(MainActivity.this, ReportBug.class));
+            finish();
+        }  else if (item.getItemId() == R.id.nav_logout) {
+            FirebaseAuth.getInstance().signOut();
+            startActivity(new Intent(this, SendOTPActivity.class));
+            finish();
+        }
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
 }

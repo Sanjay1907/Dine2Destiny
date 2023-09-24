@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -21,6 +22,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Dine2Destiny"
         tools:targetApi="31">
+        <activity
+            android:name=".ReportBug"
+            android:exported="false" />
+        <activity
+            android:name=".FavCreator"
+            android:exported="false" />
         <activity
             android:name=".FollowCreatorsActivity"
             android:exported="false" />
