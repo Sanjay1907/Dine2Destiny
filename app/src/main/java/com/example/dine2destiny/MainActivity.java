@@ -339,7 +339,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         DatabaseReference usersReference = FirebaseDatabase.getInstance().getReference().child("Users").child(currentUserId);
         usersReference.child("name").setValue(userName);
 
-        // You can also update the user's name in your app UI if needed
     }
 
     private void moveToUserLocation() {
@@ -384,18 +383,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 for (int i = 0; i < elements.length(); i++) {
                                     JSONObject element = elements.getJSONObject(i);
                                     if (element.has("distance")) {
-                                        String distanceText = element.getJSONObject("distance").getString("text");
                                         float distanceValue = element.getJSONObject("distance").getInt("value");
 
                                         // Convert meters to kilometers
                                         float distanceInKm = distanceValue / 1000.0f;
 
                                         // Check if the location is open and within the selected distance
-                                        String timings = getTimingsForLocation(names.get(i), creators.get(i)); // Replace with your method to get timings
-                                        if (distanceInKm <= selectedDistance && isLocationOpen(timings)) {
+                                        // Replace this with your own logic for determining if a location is open
+                                        boolean isLocationOpen = true; // Replace with your logic
+
+                                        if (distanceInKm <= selectedDistance && isLocationOpen) {
                                             String name = names.get(i);
                                             String creator = creators.get(i);
-                                            String snippet = "Distance: " + distanceText;
+                                            String snippet = "Creator: " + creator;
 
                                             LatLng destinationLatLng = destinations.get(i);
 
@@ -431,14 +431,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         requestQueue.add(jsonObjectRequest);
     }
 
-    private String getTimingsForLocation(String name, String creator) {
-        // Implement your logic to get timings for a specific location here
-        // You may use the name and creator to query your database or another data source
-        // and return the timings as a string in the format "HH:mm - HH:mm"
-        return "09:00 - 17:00"; // Replace with your actual timings retrieval logic
-    }
-
     private void addLocationDetails(String name, String creator, float distance) {
+
         // Round the distance to 2 decimal places
         float roundedDistance = roundDistance(distance, 2);
 
