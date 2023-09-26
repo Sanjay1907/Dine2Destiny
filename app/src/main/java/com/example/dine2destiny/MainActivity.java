@@ -46,6 +46,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -209,57 +210,146 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 if (!locationDetailsLoaded) {
                                     locationDetailsContainer.removeAllViews();
 
-                                    ValueEventListener valueEventListener = new ValueEventListener() {
+                                    // Retrieve the list of creators that the user follows
+                                    getFollowedCreators(new OnCompleteListener<List<String>>() {
                                         @Override
-                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                            List<LatLng> destinationsList = new ArrayList<>(); // List to store destination locations
-                                            List<String> names = new ArrayList<>();
-                                            List<String> creators = new ArrayList<>();
+                                        public void onComplete(List<String> followedCreators) {
+                                            if (followedCreators != null && !followedCreators.isEmpty()) {
+                                                ValueEventListener valueEventListener = new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                        List<LatLng> destinationsList = new ArrayList<>(); // List to store destination locations
+                                                        List<String> names = new ArrayList<>();
+                                                        List<String> creators = new ArrayList<>();
 
-                                            for (DataSnapshot creatorSnapshot : dataSnapshot.getChildren()) {
-                                                DataSnapshot recommendationSnapshot = creatorSnapshot.child("recommendation");
-                                                String creatorName = creatorSnapshot.child("name").getValue(String.class);
-                                                for (DataSnapshot recSnapshot : recommendationSnapshot.getChildren()) {
-                                                    String locationStr = recSnapshot.child("location").getValue(String.class);
-                                                    double latitude = Double.parseDouble(locationStr.split(", ")[0].split(": ")[1]);
-                                                    double longitude = Double.parseDouble(locationStr.split(", ")[1].split(": ")[1]);
-                                                    LatLng locationLatLng = new LatLng(latitude, longitude);
+                                                        for (DataSnapshot creatorSnapshot : dataSnapshot.getChildren()) {
+                                                            String creatorName = creatorSnapshot.child("name").getValue(String.class);
 
-                                                    // Calculate distance between user location and recommendation location
-                                                    float[] distanceResult = new float[1];
-                                                    Location.distanceBetween(
-                                                            userLocation.latitude, userLocation.longitude,
-                                                            locationLatLng.latitude, locationLatLng.longitude,
-                                                            distanceResult);
+                                                            // Check if the creator is in the list of followed creators
+                                                            if (followedCreators.contains(creatorName)) {
+                                                                DataSnapshot recommendationSnapshot = creatorSnapshot.child("recommendation");
+                                                                for (DataSnapshot recSnapshot : recommendationSnapshot.getChildren()) {
+                                                                    String locationStr = recSnapshot.child("location").getValue(String.class);
+                                                                    double latitude = Double.parseDouble(locationStr.split(", ")[0].split(": ")[1]);
+                                                                    double longitude = Double.parseDouble(locationStr.split(", ")[1].split(": ")[1]);
+                                                                    LatLng locationLatLng = new LatLng(latitude, longitude);
 
-                                                    // Check if the location is open and within the selected distance
-                                                    String timings = recSnapshot.child("timings").getValue(String.class);
-                                                    if (distanceResult[0] <= selectedDistance * 1000 && isLocationOpen(timings)) {
-                                                        destinationsList.add(locationLatLng); // Add location to the list
-                                                        names.add(recSnapshot.child("name").getValue(String.class));
-                                                        creators.add(creatorName);
+                                                                    // Calculate distance between user location and recommendation location
+                                                                    float[] distanceResult = new float[1];
+                                                                    Location.distanceBetween(
+                                                                            userLocation.latitude, userLocation.longitude,
+                                                                            locationLatLng.latitude, locationLatLng.longitude,
+                                                                            distanceResult);
+
+                                                                    // Check if the location is open and within the selected distance
+                                                                    String timings = recSnapshot.child("timings").getValue(String.class);
+                                                                    if (distanceResult[0] <= selectedDistance * 1000 && isLocationOpen(timings)) {
+                                                                        destinationsList.add(locationLatLng); // Add location to the list
+                                                                        names.add(recSnapshot.child("name").getValue(String.class));
+                                                                        creators.add(creatorName);
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+
+                                                        if (destinationsList.isEmpty()) {
+                                                            // No recommendations found for followed creators, show an alert dialog
+                                                            showNoRecommendationsDialog();
+                                                        } else {
+                                                            // Calculate distance using the Distance Matrix API for filtered destinations
+                                                            calculateDistance(userLocation, destinationsList, names, creators);
+                                                            locationDetailsLoaded = true;
+                                                        }
                                                     }
-                                                }
+
+                                                    @Override
+                                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                                                        // Handle database error
+                                                    }
+                                                };
+
+                                                databaseReference.addListenerForSingleValueEvent(valueEventListener);
+                                            } else {
+                                                // No followed creators found, show an alert dialog
+                                                showNoFollowedCreatorsDialog();
                                             }
-
-                                            // Calculate distance using the Distance Matrix API for filtered destinations
-                                            calculateDistance(userLocation, destinationsList, names, creators);
-                                            locationDetailsLoaded = true;
                                         }
-
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError databaseError) {
-                                            // Handle database error
-                                        }
-                                    };
-
-                                    databaseReference.addListenerForSingleValueEvent(valueEventListener);
+                                    });
                                 }
                             }
                         }
                     });
         }
     }
+
+    private void showNoFollowedCreatorsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("No Favorite Creators");
+        builder.setMessage("You have not followed any creators. Follow some creators to get recommendations.");
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Handle the OK button click
+            }
+        });
+
+        builder.setCancelable(false);
+        builder.show();
+    }
+
+    private void showNoRecommendationsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("No Recommendations");
+        builder.setMessage("There are no recommendations available in the selected distance range from the creators you follow.");
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Handle the OK button click
+            }
+        });
+
+        builder.setCancelable(false);
+        builder.show();
+    }
+
+
+    private void getFollowedCreators(final OnCompleteListener<List<String>> listener) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            final String currentUserId = currentUser.getUid();
+
+            DatabaseReference userFavoritesRef = FirebaseDatabase.getInstance()
+                    .getReference()
+                    .child("Users")
+                    .child(currentUserId)
+                    .child("fav-creators");
+
+            userFavoritesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    List<String> followedCreators = new ArrayList<>();
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        // Add the name of the creator to the list
+                        followedCreators.add(snapshot.getKey());
+                    }
+                    listener.onComplete(followedCreators);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    // Handle database errors if needed
+                }
+            });
+        }
+    }
+
+    // Define an interface for completion callbacks
+    private interface OnCompleteListener<T> {
+        void onComplete(T result);
+    }
+
 
     private boolean isLocationOpen(String timings) {
         // Extract the start and end times from the timings string

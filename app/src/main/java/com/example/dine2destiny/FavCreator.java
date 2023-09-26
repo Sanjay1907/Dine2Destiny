@@ -1,9 +1,7 @@
 package com.example.dine2destiny;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -20,7 +18,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -30,12 +27,14 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import androidx.appcompat.app.AppCompatActivity;
+import java.util.Map;
+import android.app.ProgressDialog;
 
-public class FavCreator extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
-
+public class FavCreator extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DatabaseReference databaseReference;
     private ListView creatorListView;
     private SearchView searchView;
@@ -43,11 +42,18 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
     private ArrayAdapter<String> adapter;
     private FirebaseAuth mAuth;
     private DrawerLayout drawerLayout;
+    private ProgressDialog progressDialog;
+
+    // Define a data structure to keep track of followed creators and their states
+    private Map<String, Boolean> followedCreatorsMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fav_creator);
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Fetching followers...");
+        progressDialog.setCancelable(false);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -70,6 +76,7 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
         adapter = new ArrayAdapter<>(this, R.layout.creator_item, R.id.creatorNameTextView, creatorNames);
 
         creatorListView.setAdapter(adapter);
+        progressDialog.show();
 
         // Listen for changes in the Firebase Realtime Database
         databaseReference.addChildEventListener(new ChildEventListener() {
@@ -77,7 +84,12 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 String creatorName = dataSnapshot.child("name").getValue(String.class);
                 creatorNames.add(creatorName);
+
+                // Update the data structure with the initial state (not following)
+                followedCreatorsMap.put(creatorName, false);
+
                 adapter.notifyDataSetChanged();
+                progressDialog.dismiss();
             }
 
             @Override
@@ -97,11 +109,11 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                // Handle database errors if needed
+                progressDialog.dismiss();
             }
         });
 
-        // Load the initial state of the follow button
+        // Load the initial follow state when the data is loaded
         loadInitialFollowState();
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -113,22 +125,28 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
             @Override
             public boolean onQueryTextChange(String newText) {
                 adapter.getFilter().filter(newText);
+
+                // Update button states for filtered items
+                for (int i = 0; i < creatorListView.getCount(); i++) {
+                    View view = creatorListView.getChildAt(i);
+                    if (view != null) {
+                        TextView creatorNameTextView = view.findViewById(R.id.creatorNameTextView);
+                        Button followButton = view.findViewById(R.id.followButton);
+                        String creatorName = creatorNameTextView.getText().toString();
+
+                        boolean isFollowing = followedCreatorsMap.get(creatorName);
+                        if (isFollowing) {
+                            followButton.setText("Following");
+                        } else {
+                            followButton.setText("Follow");
+                        }
+                    }
+                }
+
                 return false;
             }
         });
     }
-
-    private void filterCreators(String searchText) {
-        List<String> filteredList = new ArrayList<>();
-        for (String creatorName : creatorNames) {
-            if (creatorName.toLowerCase().contains(searchText.toLowerCase())) {
-                filteredList.add(creatorName);
-            }
-        }
-        adapter.clear();
-        adapter.addAll(filteredList);
-    }
-
 
     private void loadInitialFollowState() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -144,9 +162,15 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
             userFavoritesRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    for (String creatorName : creatorNames) {
+                    for (int i = 0; i < creatorListView.getChildCount(); i++) {
+                        View view = creatorListView.getChildAt(i);
+                        TextView creatorNameTextView = view.findViewById(R.id.creatorNameTextView);
+                        Button followButton = view.findViewById(R.id.followButton);
+                        String creatorName = creatorNameTextView.getText().toString();
+
                         if (dataSnapshot.hasChild(creatorName)) {
-                            // Creator is in favorites, so set the button text to "Following"
+                            // Update the data structure with the "Following" state
+                            followedCreatorsMap.put(creatorName, true);
                             setButtonToFollowing(creatorName);
                         }
                     }
@@ -159,6 +183,7 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
             });
         }
     }
+
 
     private void setButtonToFollowing(String creatorName) {
         for (int i = 0; i < creatorListView.getChildCount(); i++) {
@@ -173,7 +198,6 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
         }
     }
 
-    // Set a click listener for the "Follow" button in your creator_item.xml
     public void followCreator(View view) {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
@@ -182,22 +206,22 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
             TextView creatorNameTextView = parentView.findViewById(R.id.creatorNameTextView);
             final String creatorName = creatorNameTextView.getText().toString();
 
-            // Get a reference to the current user's favorites in the database
             DatabaseReference userFavoritesRef = FirebaseDatabase.getInstance()
                     .getReference()
                     .child("Users")
                     .child(currentUserId)
                     .child("fav-creators");
 
-            // Add or remove the creator's name from the user's favorites based on the current state
-            if ("Following".equals(((Button) view).getText())) {
-                // If the button text is "Following," remove the creator from favorites
+            boolean isFollowing = followedCreatorsMap.get(creatorName);
+
+            if (isFollowing) {
                 userFavoritesRef.child(creatorName).removeValue();
+                followedCreatorsMap.put(creatorName, false);
                 ((Button) view).setText("Follow");
-                Toast.makeText(FavCreator.this, "You unfollowed  " + creatorName, Toast.LENGTH_SHORT).show();
+                Toast.makeText(FavCreator.this, "You unfollowed " + creatorName, Toast.LENGTH_SHORT).show();
             } else {
-                // If the button text is not "Following," add the creator to favorites
                 userFavoritesRef.child(creatorName).setValue(true);
+                followedCreatorsMap.put(creatorName, true);
                 ((Button) view).setText("Following");
                 Toast.makeText(FavCreator.this, "You are now following " + creatorName, Toast.LENGTH_SHORT).show();
             }
@@ -206,6 +230,7 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
             // You can redirect the user to the login screen or perform other actions.
         }
     }
+
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.nav_home) {
@@ -217,7 +242,7 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
         } else if (item.getItemId() == R.id.nav_share) {
             startActivity(new Intent(FavCreator.this, ReportBug.class));
             finish();
-        }  else if (item.getItemId() == R.id.nav_logout) {
+        } else if (item.getItemId() == R.id.nav_logout) {
             FirebaseAuth.getInstance().signOut();
             startActivity(new Intent(this, SendOTPActivity.class));
             finish();
@@ -225,11 +250,11 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
+
     @Override
     public void onBackPressed() {
-        // Create an intent to navigate back to MainActivity
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
-        finish(); // Finish the current activity to remove it from the back stack
+        finish();
     }
 }
