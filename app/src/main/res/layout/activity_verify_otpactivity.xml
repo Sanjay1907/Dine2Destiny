@@ -20,8 +20,8 @@
             android:layout_marginTop="30dp"
             android:contentDescription="@string/app_name"
             android:src="@drawable/verifyotp" >
-
         </ImageView>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -54,97 +54,19 @@
             android:textSize="14sp"
             android:textStyle="bold"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <EditText
+            android:layout_width="240dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
+            android:id="@+id/otpInput"
+            android:layout_marginTop="20dp"
             android:gravity="center"
-            android:orientation="horizontal">
-
-            <EditText
-                android:layout_width="40dp"
-                android:layout_height="50dp"
-                android:id="@+id/inputcode1"
-                android:gravity="center"
-                android:imeOptions="actionNext"
-                android:importantForAutofill="no"
-                android:inputType="number"
-                android:maxLength="1"
-                android:textColor="@color/colorTextPrimary"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                tools:ignore="LabelFor"/>
-            <EditText
-                android:layout_width="40dp"
-                android:layout_height="50dp"
-                android:layout_marginStart="4dp"
-                android:id="@+id/inputcode2"
-                android:gravity="center"
-                android:imeOptions="actionNext"
-                android:importantForAutofill="no"
-                android:inputType="number"
-                android:maxLength="1"
-                android:textColor="@color/colorTextPrimary"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                tools:ignore="LabelFor"/>
-            <EditText
-                android:layout_width="40dp"
-                android:layout_height="50dp"
-                android:layout_marginStart="4dp"
-                android:id="@+id/inputcode3"
-                android:gravity="center"
-                android:imeOptions="actionNext"
-                android:importantForAutofill="no"
-                android:inputType="number"
-                android:maxLength="1"
-                android:textColor="@color/colorTextPrimary"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                tools:ignore="LabelFor"/>
-            <EditText
-                android:layout_width="40dp"
-                android:layout_height="50dp"
-                android:layout_marginStart="4dp"
-                android:id="@+id/inputcode4"
-                android:gravity="center"
-                android:imeOptions="actionNext"
-                android:importantForAutofill="no"
-                android:inputType="number"
-                android:maxLength="1"
-                android:textColor="@color/colorTextPrimary"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                tools:ignore="LabelFor"/>
-            <EditText
-                android:layout_width="40dp"
-                android:layout_height="50dp"
-                android:layout_marginStart="4dp"
-                android:id="@+id/inputcode5"
-                android:gravity="center"
-                android:imeOptions="actionNext"
-                android:importantForAutofill="no"
-                android:inputType="number"
-                android:maxLength="1"
-                android:textColor="@color/colorTextPrimary"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                tools:ignore="LabelFor"/>
-            <EditText
-                android:layout_width="40dp"
-                android:layout_height="50dp"
-                android:layout_marginStart="4dp"
-                android:id="@+id/inputcode6"
-                android:gravity="center"
-                android:imeOptions="actionDone"
-                android:importantForAutofill="no"
-                android:inputType="number"
-                android:maxLength="1"
-                android:textColor="@color/colorTextPrimary"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                tools:ignore="LabelFor"/>
-        </LinearLayout>
+            android:inputType="number"
+            android:hint="Enter OTP"
+            android:maxLength="6"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:ignore="LabelFor"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -188,8 +110,5 @@
                 android:visibility="gone"/>
 
         </FrameLayout>
-
-
     </LinearLayout>
-
 </ScrollView>

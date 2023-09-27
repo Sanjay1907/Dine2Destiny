@@ -11,10 +11,8 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
@@ -24,12 +22,11 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
 import java.util.concurrent.TimeUnit;
 
 public class VerifyOTPActivity extends AppCompatActivity {
 
-    private EditText in1, in2, in3, in4, in5, in6;
+    private EditText otpInput;
     private String verificationId;
     private Button resendOTP;
     private CountDownTimer resendTimer;
@@ -43,44 +40,29 @@ public class VerifyOTPActivity extends AppCompatActivity {
         textmobile.setText(String.format(
                 "+91-%s", getIntent().getStringExtra("mobile")
         ));
-        in1 = findViewById(R.id.inputcode1);
-        in2 = findViewById(R.id.inputcode2);
-        in3 = findViewById(R.id.inputcode3);
-        in4 = findViewById(R.id.inputcode4);
-        in5 = findViewById(R.id.inputcode5);
-        in6 = findViewById(R.id.inputcode6);
 
-        sendOTPInputs();
+        otpInput = findViewById(R.id.otpInput);
+
+        sendOTPInput();
 
         final ProgressBar progressBar = findViewById(R.id.progressbar);
-        final Button verifyOTp = findViewById(R.id.verifyOTP);
+        final Button verifyOTP = findViewById(R.id.verifyOTP);
 
         verificationId = getIntent().getStringExtra("verificationId");
 
-        verifyOTp.setOnClickListener(new View.OnClickListener() {
+        verifyOTP.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (in1.getText().toString().trim().isEmpty()
-                        || in2.getText().toString().trim().isEmpty()
-                        || in3.getText().toString().trim().isEmpty()
-                        || in4.getText().toString().trim().isEmpty()
-                        || in5.getText().toString().trim().isEmpty()
-                        || in6.getText().toString().trim().isEmpty()) {
-                    Toast.makeText(VerifyOTPActivity.this, "Please enter the valid OTP", Toast.LENGTH_SHORT).show();
+                String code = otpInput.getText().toString().trim();
+
+                if (code.isEmpty()) {
+                    Toast.makeText(VerifyOTPActivity.this, "Please enter a valid OTP", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                String code =
-                        in1.getText().toString() +
-                                in2.getText().toString() +
-                                in3.getText().toString() +
-                                in4.getText().toString() +
-                                in5.getText().toString() +
-                                in6.getText().toString();
-
                 if (verificationId != null) {
                     progressBar.setVisibility(View.VISIBLE);
-                    verifyOTp.setVisibility(View.INVISIBLE);
+                    verifyOTP.setVisibility(View.INVISIBLE);
                     PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.getCredential(
                             verificationId,
                             code
@@ -90,7 +72,7 @@ public class VerifyOTPActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     progressBar.setVisibility(View.GONE);
-                                    verifyOTp.setVisibility(View.VISIBLE);
+                                    verifyOTP.setVisibility(View.VISIBLE);
                                     if (task.isSuccessful()) {
                                         savePhoneNumberInDatabase(FirebaseAuth.getInstance().getCurrentUser().getUid());
                                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -106,14 +88,11 @@ public class VerifyOTPActivity extends AppCompatActivity {
         });
 
         resendOTP = findViewById(R.id.resendOTP);
-
-        // Enable the Resend OTP button initially
         resendOTP.setEnabled(true);
 
         resendOTP.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Disable the button while sending the OTP
                 resendOTP.setEnabled(false);
 
                 PhoneAuthProvider.getInstance().verifyPhoneNumber(
@@ -132,11 +111,9 @@ public class VerifyOTPActivity extends AppCompatActivity {
                             }
 
                             @Override
-                            public void onCodeSent(@NonNull String newverificationId, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
-                                verificationId = newverificationId;
+                            public void onCodeSent(@NonNull String newVerificationId, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+                                verificationId = newVerificationId;
                                 Toast.makeText(VerifyOTPActivity.this, "OTP Sent", Toast.LENGTH_SHORT).show();
-
-                                // Start the countdown timer
                                 resendTimer.start();
                             }
                         }
@@ -144,14 +121,12 @@ public class VerifyOTPActivity extends AppCompatActivity {
             }
         });
 
-        // Initialize the countdown timer
         resendTimer = new CountDownTimer(60000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 long secondsRemaining = millisUntilFinished / 1000;
                 resendOTP.setText(getString(R.string.resend_otp_in, secondsRemaining));
 
-                // Enable the Resend OTP button when the timer finishes
                 if (secondsRemaining <= 0) {
                     resendOTP.setEnabled(true);
                     resendOTP.setText(R.string.resend_otp);
@@ -160,18 +135,16 @@ public class VerifyOTPActivity extends AppCompatActivity {
 
             @Override
             public void onFinish() {
-                // Enable the Resend OTP button when the timer finishes
                 resendOTP.setEnabled(true);
                 resendOTP.setText(R.string.resend_otp);
             }
         };
 
-        // Start the countdown timer initially
         resendTimer.start();
     }
 
-    private void sendOTPInputs() {
-        in1.addTextChangedListener(new TextWatcher() {
+    private void sendOTPInput() {
+        otpInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -179,109 +152,7 @@ public class VerifyOTPActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (!charSequence.toString().trim().isEmpty()) {
-                    in2.requestFocus();
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
-        in2.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (!charSequence.toString().trim().isEmpty()) {
-                    in3.requestFocus();
-                } else if (charSequence.length() == 0) {
-                    in1.requestFocus();
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
-        in3.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (!charSequence.toString().trim().isEmpty()) {
-                    in4.requestFocus();
-                } else if (charSequence.length() == 0) {
-                    in2.requestFocus();
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
-        in4.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (!charSequence.toString().trim().isEmpty()) {
-                    in5.requestFocus();
-                } else if (charSequence.length() == 0) {
-                    in3.requestFocus();
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
-        in5.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (!charSequence.toString().trim().isEmpty()) {
-                    in6.requestFocus();
-                } else if (charSequence.length() == 0) {
-                    in4.requestFocus();
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
-        in6.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (!charSequence.toString().trim().isEmpty()) {
-                    // Last EditText, do nothing when a character is entered
-                } else if (charSequence.length() == 0) {
-                    in5.requestFocus();
-                }
+                // You can implement any specific logic here if needed.
             }
 
             @Override
@@ -299,10 +170,10 @@ public class VerifyOTPActivity extends AppCompatActivity {
 
         userReference.child("phoneNumber").setValue(phoneNumber);
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Cancel the timer when the activity is destroyed to prevent memory leaks
         if (resendTimer != null) {
             resendTimer.cancel();
         }
