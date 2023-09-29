@@ -69,13 +69,19 @@
                 android:id="@+id/vegRadioButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Veg" />
+                android:text="Veg"
+                android:drawableLeft="@drawable/veg"
+                android:drawablePadding="8dp"
+                android:paddingStart="8dp"/>
 
             <RadioButton
                 android:id="@+id/nonVegRadioButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Non-Veg" />
+                android:text="Non-Veg"
+                android:drawableLeft="@drawable/nonveg"
+                android:drawablePadding="8dp"
+                android:paddingStart="8dp"/>
 
         </RadioGroup>
         <ScrollView
