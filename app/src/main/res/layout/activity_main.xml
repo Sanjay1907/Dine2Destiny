@@ -22,7 +22,7 @@
             android:id="@+id/mapFragment"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
-            android:layout_height="550dp" />
+            android:layout_height="500dp" />
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -57,11 +57,31 @@
             android:textColor="#000"
             android:layout_marginTop="10dp"/>
         </LinearLayout>
+        <RadioGroup
+            android:id="@+id/foodTypeRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/distancefilter"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
 
+            <RadioButton
+                android:id="@+id/vegRadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Veg" />
+
+            <RadioButton
+                android:id="@+id/nonVegRadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Non-Veg" />
+
+        </RadioGroup>
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/distancefilter">
+            android:layout_below="@id/foodTypeRadioGroup">
 
             <!-- Add a LinearLayout to hold location details -->
             <LinearLayout
@@ -69,7 +89,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_below="@id/distancefilter"
+                android:layout_below="@id/foodTypeRadioGroup"
                 android:padding="16dp">
                 <!-- Location details will be added dynamically here -->
             </LinearLayout>

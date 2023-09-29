@@ -10,8 +10,11 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -63,9 +66,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import android.widget.SeekBar;
+import android.widget.ToggleButton;
+
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
+    private RadioGroup foodTypeRadioGroup;
+    private RadioButton vegRadioButton;
+    private RadioButton nonVegRadioButton;
+    private String selectedFoodType = "Any";
 
     private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationClient;
@@ -116,6 +125,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         locationDetailsContainer = findViewById(R.id.locationDetailsContainer);
         distanceSeekBar = findViewById(R.id.distanceSeekBar);
         distanceText = findViewById(R.id.distanceText);
+        foodTypeRadioGroup = findViewById(R.id.foodTypeRadioGroup);
+        vegRadioButton = findViewById(R.id.vegRadioButton);
+        nonVegRadioButton = findViewById(R.id.nonVegRadioButton);
         locationRequest = new LocationRequest();
         locationRequest.setInterval(10000);
         locationRequest.setFastestInterval(5000);
@@ -145,6 +157,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+        foodTypeRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                if (checkedId == R.id.vegRadioButton) {
+                    selectedFoodType = "Veg";
+                } else if (checkedId == R.id.nonVegRadioButton) {
+                    selectedFoodType = "Non-Veg";
+                } else {
+                    selectedFoodType = "Any"; // Default if neither is selected
+                }
+                locationDetailsLoaded = false;
+                mMap.clear();
+                locationMarkers.clear();
+                loadUserLocation();
             }
         });
     }
@@ -241,9 +269,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                                             locationLatLng.latitude, locationLatLng.longitude,
                                                                             distanceResult);
 
-                                                                    // Check if the location is open and within the selected distance
+                                                                    // Check if the location is open, within the selected distance, and matches the selected food type
                                                                     String timings = recSnapshot.child("timings").getValue(String.class);
-                                                                    if (distanceResult[0] <= selectedDistance * 1000 && isLocationOpen(timings)) {
+                                                                    String foodType = recSnapshot.child("foodType").getValue(String.class);
+
+                                                                    if (distanceResult[0] <= selectedDistance * 1000
+                                                                            && isLocationOpen(timings)
+                                                                            && (selectedFoodType.equals("Any") || selectedFoodType.equals(foodType))) {
                                                                         destinationsList.add(locationLatLng); // Add location to the list
                                                                         names.add(recSnapshot.child("name").getValue(String.class));
                                                                         creators.add(creatorName);
@@ -281,7 +313,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     });
         }
     }
-
     private void showNoFollowedCreatorsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("No Favorite Creators");
@@ -522,26 +553,58 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void addLocationDetails(String name, String creator, float distance) {
-
         // Round the distance to 2 decimal places
         float roundedDistance = roundDistance(distance, 2);
 
-        View locationDetailsView = getLayoutInflater().inflate(R.layout.location_details, null);
-
-        TextView locationName = locationDetailsView.findViewById(R.id.locationName);
-        TextView creatorName = locationDetailsView.findViewById(R.id.locationRating); // Change the ID if needed
-        TextView locationDistance = locationDetailsView.findViewById(R.id.locationDistance);
-
-        locationName.setText(name);
-        creatorName.setText("Creator: " + creator); // Set the creator's name correctly
-        locationDistance.setText(String.format("%.2f km", roundedDistance)); // Display the rounded distance
-
-
         // Check if the location details view is not already added
-        if (!isLocationDetailsAlreadyAdded(name, creator)) {
+        if (!isLocationDetailsAlreadyAdded(name)) {
+            View locationDetailsView = getLayoutInflater().inflate(R.layout.location_details, null);
+
+            TextView locationName = locationDetailsView.findViewById(R.id.locationName);
+            TextView creatorName = locationDetailsView.findViewById(R.id.locationRating); // Change the ID if needed
+            TextView locationDistance = locationDetailsView.findViewById(R.id.locationDistance);
+
+            locationName.setText(name);
+
+            List<String> creatorsList = new ArrayList<>();
+            creatorsList.add(creator);
+
+            for (int i = 0; i < locationDetailsContainer.getChildCount(); i++) {
+                View childView = locationDetailsContainer.getChildAt(i);
+                TextView locationNameTextView = childView.findViewById(R.id.locationName);
+                TextView creatorNameTextView = childView.findViewById(R.id.locationRating); // Change the ID if needed
+
+                String existingName = locationNameTextView.getText().toString();
+                if (name.equals(existingName)) {
+                    String existingCreator = creatorNameTextView.getText().toString();
+                    creatorsList.add(existingCreator.replace("Creator: ", ""));
+                    locationDetailsContainer.removeView(childView);
+                    break;
+                }
+            }
+
+            String creatorsText = TextUtils.join(", ", creatorsList);
+            creatorName.setText("Creator: " + creatorsText); // Set the creator's names with a comma
+            locationDistance.setText(String.format("%.2f km", roundedDistance)); // Display the rounded distance
+
             locationDetailsContainer.addView(locationDetailsView);
         }
     }
+
+    private boolean isLocationDetailsAlreadyAdded(String name) {
+        // Check if a location with the same name has already been added
+        for (int i = 0; i < locationDetailsContainer.getChildCount(); i++) {
+            View childView = locationDetailsContainer.getChildAt(i);
+            TextView locationNameTextView = childView.findViewById(R.id.locationName);
+
+            String existingName = locationNameTextView.getText().toString();
+            if (name.equals(existingName)) {
+                return true; // Location details already added
+            }
+        }
+        return false; // Location details not added yet
+    }
+
 
     private float roundDistance(float distance, int decimalPlaces) {
         float multiplier = (float) Math.pow(10, decimalPlaces);
