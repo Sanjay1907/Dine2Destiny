@@ -91,6 +91,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private LocationRequest locationRequest;
 
     private int selectedDistance = 1;
+    private RadioGroup ratingRadioGroup;
+    private RadioButton rating4PlusRadioButton;
+    private RadioButton rating3PlusRadioButton;
+    private RadioButton rating2PlusRadioButton;
+    private RadioButton rating1PlusRadioButton;
+    private int selectedRating = 0; // 0 means no rating filter
 
     // List to store markers on the map
     private List<Marker> locationMarkers = new ArrayList<>();
@@ -132,6 +138,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         locationRequest.setInterval(10000);
         locationRequest.setFastestInterval(5000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        ratingRadioGroup = findViewById(R.id.ratingRadioGroup);
+        rating4PlusRadioButton = findViewById(R.id.rating4PlusRadioButton);
+        rating3PlusRadioButton = findViewById(R.id.rating3PlusRadioButton);
+        rating2PlusRadioButton = findViewById(R.id.rating2PlusRadioButton);
+        rating1PlusRadioButton = findViewById(R.id.rating1PlusRadioButton);
+
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -175,7 +187,28 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 loadUserLocation();
             }
         });
+        ratingRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                if (checkedId == R.id.rating4PlusRadioButton){
+                    selectedRating = 4;
+                } else if (checkedId == R.id.rating3PlusRadioButton){
+                    selectedRating = 3;
+                } else if (checkedId == R.id.rating2PlusRadioButton){
+                    selectedRating = 2;
+                } else if (checkedId == R.id.rating1PlusRadioButton){
+                    selectedRating = 1;
+                } else{
+                    selectedRating = 0;
+                }
+                locationDetailsLoaded = false;
+                mMap.clear();
+                locationMarkers.clear();
+                loadUserLocation();
+            }
+        });
     }
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -273,10 +306,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                                     String timings = recSnapshot.child("timings").getValue(String.class);
                                                                     String foodType = recSnapshot.child("foodType").getValue(String.class);
 
+                                                                    int rating = recSnapshot.child("rating").getValue(Integer.class);
+
                                                                     if (distanceResult[0] <= selectedDistance * 1000
                                                                             && isLocationOpen(timings)
-                                                                            && (selectedFoodType.equals("Any") || selectedFoodType.equals(foodType))) {
-                                                                        destinationsList.add(locationLatLng); // Add location to the list
+                                                                            && (selectedFoodType.equals("Any") || selectedFoodType.equals(foodType))
+                                                                            && (selectedRating == 0 || rating >= selectedRating)) {
+                                                                        destinationsList.add(locationLatLng);
                                                                         names.add(recSnapshot.child("name").getValue(String.class));
                                                                         creators.add(creatorName);
                                                                     }

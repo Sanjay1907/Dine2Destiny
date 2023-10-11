@@ -84,10 +84,54 @@
                 android:paddingStart="8dp"/>
 
         </RadioGroup>
+        <RadioGroup
+            android:id="@+id/ratingRadioGroup"
+            android:layout_below="@id/foodTypeRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rating4PlusRadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="4+"
+                android:checked="false"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp" />
+
+            <RadioButton
+                android:id="@+id/rating3PlusRadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3+"
+                android:checked="false"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp" />
+
+            <RadioButton
+                android:id="@+id/rating2PlusRadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2+"
+                android:checked="false"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp" />
+
+            <RadioButton
+                android:id="@+id/rating1PlusRadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1+"
+                android:checked="false"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp" />
+        </RadioGroup>
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/foodTypeRadioGroup">
+            android:layout_below="@id/ratingRadioGroup">
 
             <!-- Add a LinearLayout to hold location details -->
             <LinearLayout
@@ -95,7 +139,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_below="@id/foodTypeRadioGroup"
+                android:layout_below="@id/ratingRadioGroup"
                 android:padding="16dp">
                 <!-- Location details will be added dynamically here -->
             </LinearLayout>

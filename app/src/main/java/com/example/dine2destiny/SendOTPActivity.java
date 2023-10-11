@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,17 +17,20 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+
 import java.util.concurrent.TimeUnit;
 
 public class SendOTPActivity extends AppCompatActivity {
+    private static final String TAG = "SendOTPActivity"; // Added for debugging
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Check if user is already signed in
+        // Check if the user is already signed in
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             // User is already signed in, open the dashboard activity
+            Log.d(TAG, "User is already signed in, opening MainActivity.");
             startActivity(new Intent(SendOTPActivity.this, MainActivity.class));
             finish();
             return;
@@ -40,29 +44,33 @@ public class SendOTPActivity extends AppCompatActivity {
         getotp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String mobileNumber = inputmobile.getText().toString();
 
-                if (inputmobile.getText().toString().isEmpty()) {
+                if (mobileNumber.isEmpty()) {
                     Toast.makeText(SendOTPActivity.this, "Enter Mobile Number", Toast.LENGTH_SHORT).show();
-                } else if (inputmobile.getText().toString().length() != 10) {
+                } else if (mobileNumber.length() != 10) {
                     Toast.makeText(SendOTPActivity.this, "Enter a valid 10-digit Mobile Number", Toast.LENGTH_SHORT).show();
                 } else {
+                    Log.d(TAG, "Starting phone number verification for: " + mobileNumber);
                     progressBar.setVisibility(View.VISIBLE);
                     getotp.setVisibility(View.INVISIBLE);
 
                     PhoneAuthProvider.getInstance().verifyPhoneNumber(
-                            "+91" + inputmobile.getText().toString(),
+                            "+91" + mobileNumber,
                             60,
                             TimeUnit.SECONDS,
                             SendOTPActivity.this,
-                            new PhoneAuthProvider.OnVerificationStateChangedCallbacks(){
+                            new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                                 @Override
                                 public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
+                                    Log.d(TAG, "Phone number verification completed.");
                                     progressBar.setVisibility(View.GONE);
                                     getotp.setVisibility(View.VISIBLE);
                                 }
 
                                 @Override
                                 public void onVerificationFailed(@NonNull FirebaseException e) {
+                                    Log.e(TAG, "Phone number verification failed: " + e.getMessage());
                                     progressBar.setVisibility(View.GONE);
                                     getotp.setVisibility(View.VISIBLE);
                                     Toast.makeText(SendOTPActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -70,13 +78,13 @@ public class SendOTPActivity extends AppCompatActivity {
 
                                 @Override
                                 public void onCodeSent(@NonNull String verificationId, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+                                    Log.d(TAG, "Verification code sent.");
                                     progressBar.setVisibility(View.GONE);
                                     getotp.setVisibility(View.VISIBLE);
                                     Intent intent = new Intent(getApplicationContext(), VerifyOTPActivity.class);
-                                    intent.putExtra("mobile", inputmobile.getText().toString());
+                                    intent.putExtra("mobile", mobileNumber);
                                     intent.putExtra("verificationId", verificationId);
                                     startActivity(intent);
-
                                 }
                             }
                     );

@@ -5,14 +5,17 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
@@ -22,9 +25,11 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.concurrent.TimeUnit;
 
 public class VerifyOTPActivity extends AppCompatActivity {
+    private static final String TAG = "VerifyOTPActivity"; // Added for debugging
 
     private EditText otpInput;
     private String verificationId;
@@ -37,9 +42,7 @@ public class VerifyOTPActivity extends AppCompatActivity {
         setContentView(R.layout.activity_verify_otpactivity);
 
         TextView textmobile = findViewById(R.id.textmobile);
-        textmobile.setText(String.format(
-                "+91-%s", getIntent().getStringExtra("mobile")
-        ));
+        textmobile.setText(String.format("+91-%s", getIntent().getStringExtra("mobile")));
 
         otpInput = findViewById(R.id.otpInput);
 
@@ -75,10 +78,12 @@ public class VerifyOTPActivity extends AppCompatActivity {
                                     verifyOTP.setVisibility(View.VISIBLE);
                                     if (task.isSuccessful()) {
                                         savePhoneNumberInDatabase(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                                        Log.d(TAG, "Phone number verification successful.");
                                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                         startActivity(intent);
                                     } else {
+                                        Log.e(TAG, "Phone number verification failed.");
                                         Toast.makeText(VerifyOTPActivity.this, "The OTP entered was invalid", Toast.LENGTH_SHORT).show();
                                     }
                                 }
@@ -103,16 +108,19 @@ public class VerifyOTPActivity extends AppCompatActivity {
                         new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                             @Override
                             public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
+                                Log.d(TAG, "Phone number verification completed.");
                             }
 
                             @Override
                             public void onVerificationFailed(@NonNull FirebaseException e) {
+                                Log.e(TAG, "Phone number verification failed: " + e.getMessage());
                                 Toast.makeText(VerifyOTPActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                             }
 
                             @Override
                             public void onCodeSent(@NonNull String newVerificationId, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
                                 verificationId = newVerificationId;
+                                Log.d(TAG, "Verification code sent.");
                                 Toast.makeText(VerifyOTPActivity.this, "OTP Sent", Toast.LENGTH_SHORT).show();
                                 resendTimer.start();
                             }
@@ -169,6 +177,7 @@ public class VerifyOTPActivity extends AppCompatActivity {
         String phoneNumber = getIntent().getStringExtra("mobile");
 
         userReference.child("phoneNumber").setValue(phoneNumber);
+        Log.d(TAG, "Phone number saved in the database.");
     }
 
     @Override

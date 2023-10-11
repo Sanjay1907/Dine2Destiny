@@ -33,8 +33,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import android.app.ProgressDialog;
+import android.util.Log;
 
 public class FavCreator extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+    private static final String TAG = "FavCreator"; // Tag for logging
+
     private DatabaseReference databaseReference;
     private ListView creatorListView;
     private SearchView searchView;
@@ -78,6 +81,8 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
         creatorListView.setAdapter(adapter);
         progressDialog.show();
 
+        Log.d(TAG, "onCreate: Initializing...");
+
         // Listen for changes in the Firebase Realtime Database
         databaseReference.addChildEventListener(new ChildEventListener() {
             @Override
@@ -90,6 +95,8 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
 
                 adapter.notifyDataSetChanged();
                 progressDialog.dismiss();
+
+                Log.d(TAG, "onChildAdded: Creator added - " + creatorName);
             }
 
             @Override
@@ -110,6 +117,7 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 progressDialog.dismiss();
+                Log.e(TAG, "onCancelled: Database error - " + databaseError.getMessage());
             }
         });
 
@@ -184,7 +192,6 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
         }
     }
 
-
     private void setButtonToFollowing(String creatorName) {
         for (int i = 0; i < creatorListView.getChildCount(); i++) {
             View view = creatorListView.getChildAt(i);
@@ -219,11 +226,13 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
                 followedCreatorsMap.put(creatorName, false);
                 ((Button) view).setText("Follow");
                 Toast.makeText(FavCreator.this, "You unfollowed " + creatorName, Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "followCreator: Unfollowed - " + creatorName);
             } else {
                 userFavoritesRef.child(creatorName).setValue(true);
                 followedCreatorsMap.put(creatorName, true);
                 ((Button) view).setText("Following");
                 Toast.makeText(FavCreator.this, "You are now following " + creatorName, Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "followCreator: Followed - " + creatorName);
             }
         } else {
             // Handle the case where the user is not signed in
@@ -234,15 +243,19 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.nav_home) {
+            Log.d(TAG, "Navigation: Home selected");
             startActivity(new Intent(FavCreator.this, MainActivity.class));
             finish();
         } else if (item.getItemId() == R.id.nav_settings) {
+            Log.d(TAG, "Navigation: Settings selected");
             drawerLayout.closeDrawer(GravityCompat.START);
             return true;
         } else if (item.getItemId() == R.id.nav_share) {
+            Log.d(TAG, "Navigation: Share selected");
             startActivity(new Intent(FavCreator.this, ReportBug.class));
             finish();
         } else if (item.getItemId() == R.id.nav_logout) {
+            Log.d(TAG, "Navigation: Logout selected");
             FirebaseAuth.getInstance().signOut();
             startActivity(new Intent(this, SendOTPActivity.class));
             finish();
@@ -253,6 +266,7 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
 
     @Override
     public void onBackPressed() {
+        Log.d(TAG, "Back button pressed");
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();

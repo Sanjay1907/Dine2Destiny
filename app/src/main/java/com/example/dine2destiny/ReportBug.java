@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -35,6 +36,7 @@ import com.google.firebase.storage.UploadTask;
 public class ReportBug extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
     private static final int REQUEST_IMAGE_PICK = 1;
+    private static final String TAG = "ReportBugActivity"; // Added for debugging
 
     private EditText bugDescriptionEditText;
     private Button attachMediaButton;
@@ -48,6 +50,7 @@ public class ReportBug extends AppCompatActivity implements NavigationView.OnNav
 
     private ProgressDialog progressDialog;
     private DrawerLayout drawerLayout;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -205,18 +208,23 @@ public class ReportBug extends AppCompatActivity implements NavigationView.OnNav
         }
         return result;
     }
+
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.nav_home) {
+            Log.d(TAG, "Home item selected");
             startActivity(new Intent(ReportBug.this, MainActivity.class));
             finish();
         } else if (item.getItemId() == R.id.nav_settings) {
+            Log.d(TAG, "Settings item selected");
             startActivity(new Intent(ReportBug.this, FavCreator.class));
             finish();
         } else if (item.getItemId() == R.id.nav_share) {
+            Log.d(TAG, "Share item selected");
             drawerLayout.closeDrawer(GravityCompat.START);
             return true;
         }  else if (item.getItemId() == R.id.nav_logout) {
+            Log.d(TAG, "Logout item selected");
             FirebaseAuth.getInstance().signOut();
             startActivity(new Intent(this, SendOTPActivity.class));
             finish();
@@ -224,6 +232,7 @@ public class ReportBug extends AppCompatActivity implements NavigationView.OnNav
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
+
     @Override
     public void onBackPressed() {
         // Create an intent to navigate back to MainActivity
