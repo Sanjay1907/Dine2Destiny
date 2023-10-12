@@ -63,8 +63,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
 import android.widget.SeekBar;
 import android.widget.ToggleButton;
 
@@ -100,6 +105,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // List to store markers on the map
     private List<Marker> locationMarkers = new ArrayList<>();
+    private Set<String> visitedPlaceIds = new HashSet<>();
+    private Map<String, List<String>> locationCreatorsMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -541,6 +548,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     JSONObject element = elements.getJSONObject(i);
                                     if (element.has("distance")) {
                                         float distanceValue = element.getJSONObject("distance").getInt("value");
+                                        String placeId = element.optString("placeId",null);
 
                                         // Convert meters to kilometers
                                         float distanceInKm = distanceValue / 1000.0f;
@@ -549,7 +557,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                         // Replace this with your own logic for determining if a location is open
                                         boolean isLocationOpen = true; // Replace with your logic
 
-                                        if (distanceInKm <= selectedDistance && isLocationOpen) {
+                                        if ((placeId == null || !visitedPlaceIds.contains(placeId)) && distanceInKm <= selectedDistance && isLocationOpen) {
                                             String name = names.get(i);
                                             String creator = creators.get(i);
                                             String snippet = "Creator: " + creator;
@@ -567,6 +575,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                                             // Pass the correct distanceInKm to addLocationDetails
                                             addLocationDetails(name, creator, distanceInKm);
+                                            if (placeId != null) {
+                                                visitedPlaceIds.add(placeId);
+                                            }
                                         }
                                     }
                                 }
@@ -593,7 +604,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         float roundedDistance = roundDistance(distance, 2);
 
         // Check if the location details view is not already added
-        if (!isLocationDetailsAlreadyAdded(name)) {
+        View existingLocationDetailsView = findLocationDetailsViewByName(name);
+
+        if (existingLocationDetailsView == null) {
             View locationDetailsView = getLayoutInflater().inflate(R.layout.location_details, null);
 
             TextView locationName = locationDetailsView.findViewById(R.id.locationName);
@@ -602,30 +615,44 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             locationName.setText(name);
 
-            List<String> creatorsList = new ArrayList<>();
-            creatorsList.add(creator);
+            String creatorsText = "Creator: " + creator;
+            creatorName.setText(creatorsText); // Set the creator's name
 
-            for (int i = 0; i < locationDetailsContainer.getChildCount(); i++) {
-                View childView = locationDetailsContainer.getChildAt(i);
-                TextView locationNameTextView = childView.findViewById(R.id.locationName);
-                TextView creatorNameTextView = childView.findViewById(R.id.locationRating); // Change the ID if needed
-
-                String existingName = locationNameTextView.getText().toString();
-                if (name.equals(existingName)) {
-                    String existingCreator = creatorNameTextView.getText().toString();
-                    creatorsList.add(existingCreator.replace("Creator: ", ""));
-                    locationDetailsContainer.removeView(childView);
-                    break;
-                }
-            }
-
-            String creatorsText = TextUtils.join(", ", creatorsList);
-            creatorName.setText("Creator: " + creatorsText); // Set the creator's names with a comma
             locationDistance.setText(String.format("%.2f km", roundedDistance)); // Display the rounded distance
 
+            // Store the creator for this location
+            List<String> creatorsList = new ArrayList<>();
+            creatorsList.add(creator);
+            locationCreatorsMap.put(name, creatorsList);
+
             locationDetailsContainer.addView(locationDetailsView);
+        } else {
+            List<String> creatorsList = locationCreatorsMap.get(name);
+            if (!creatorsList.contains(creator)) {
+                creatorsList.add(creator);
+
+                TextView creatorName = existingLocationDetailsView.findViewById(R.id.locationRating);
+                String existingCreatorsText = creatorName.getText().toString();
+                String newCreatorsText = existingCreatorsText + ", " + creator;
+                creatorName.setText(newCreatorsText);
+            }
         }
     }
+
+    private View findLocationDetailsViewByName(String name) {
+        // Check if a location with the same name has already been added
+        for (int i = 0; i < locationDetailsContainer.getChildCount(); i++) {
+            View childView = locationDetailsContainer.getChildAt(i);
+            TextView locationNameTextView = childView.findViewById(R.id.locationName);
+
+            String existingName = locationNameTextView.getText().toString();
+            if (name.equals(existingName)) {
+                return childView;
+            }
+        }
+        return null; // Location details not found
+    }
+
 
     private boolean isLocationDetailsAlreadyAdded(String name) {
         // Check if a location with the same name has already been added
