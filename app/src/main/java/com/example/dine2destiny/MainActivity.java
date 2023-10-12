@@ -652,23 +652,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         return null; // Location details not found
     }
-
-
-    private boolean isLocationDetailsAlreadyAdded(String name) {
-        // Check if a location with the same name has already been added
-        for (int i = 0; i < locationDetailsContainer.getChildCount(); i++) {
-            View childView = locationDetailsContainer.getChildAt(i);
-            TextView locationNameTextView = childView.findViewById(R.id.locationName);
-
-            String existingName = locationNameTextView.getText().toString();
-            if (name.equals(existingName)) {
-                return true; // Location details already added
-            }
-        }
-        return false; // Location details not added yet
-    }
-
-
     private float roundDistance(float distance, int decimalPlaces) {
         float multiplier = (float) Math.pow(10, decimalPlaces);
         return Math.round(distance * multiplier) / multiplier;
