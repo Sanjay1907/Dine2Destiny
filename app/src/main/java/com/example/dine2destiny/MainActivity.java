@@ -647,23 +647,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         return Math.round(distance * multiplier) / multiplier;
     }
 
-    private boolean isLocationDetailsAlreadyAdded(String name, String creator) {
-        // Check if a location with the same name and creator has already been added
-        for (int i = 0; i < locationDetailsContainer.getChildCount(); i++) {
-            View childView = locationDetailsContainer.getChildAt(i);
-            TextView locationNameTextView = childView.findViewById(R.id.locationName);
-            TextView creatorNameTextView = childView.findViewById(R.id.locationRating); // Change the ID if needed
-
-            String existingName = locationNameTextView.getText().toString();
-            String existingCreator = creatorNameTextView.getText().toString();
-
-            if (name.equals(existingName) && ("Creator: " + creator).equals(existingCreator)) {
-                return true; // Location details already added
-            }
-        }
-        return false; // Location details not added yet
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
