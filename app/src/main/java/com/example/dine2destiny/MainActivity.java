@@ -8,6 +8,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -75,6 +76,7 @@ import android.widget.ToggleButton;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
 
+    private static final String TAG = "MainActivity"; // Tag for logging
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     private RadioGroup foodTypeRadioGroup;
     private RadioButton vegRadioButton;
@@ -112,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        Log.d(TAG, "onCreate: Initializing MainActivity");
         checkUserName();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -154,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
-                // Handle location updates here
+                Log.d(TAG, "onLocationResult: Location updated");
             }
         };
         distanceSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -168,6 +170,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 mMap.clear(); // Clear existing markers
                 locationMarkers.clear(); // Clear the list of markers
                 loadUserLocation();
+                Log.d(TAG, "onProgressChanged: Selected Distance: " + selectedDistance + " km");
             }
 
             @Override
@@ -192,6 +195,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 mMap.clear();
                 locationMarkers.clear();
                 loadUserLocation();
+                Log.d(TAG, "onCheckedChanged: Selected Food Type: " + selectedFoodType);
             }
         });
         ratingRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -212,6 +216,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 mMap.clear();
                 locationMarkers.clear();
                 loadUserLocation();
+                Log.d(TAG, "onCheckedChanged: Selected Rating: " + selectedRating);
             }
         });
     }
@@ -230,6 +235,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 public boolean onMyLocationButtonClick() {
                     // Move the camera to the user's current location
                     moveToUserLocation();
+                    Log.d(TAG, "onMyLocationButtonClick: User's location button clicked");
                     return true; // Return true to consume the event
                 }
             });
@@ -244,12 +250,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else {
             requestLocationPermission();
             loadUserLocation();
+            Log.d(TAG, "onMapReady: Location permission not granted");
         }
 
         mMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
             @Override
             public void onCameraMove() {
                 cameraMoved = true;
+                Log.d(TAG, "onCameraMove: Camera moved");
             }
         });
     }
@@ -258,6 +266,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                 LOCATION_PERMISSION_REQUEST_CODE);
+        Log.d(TAG, "requestLocationPermission: Requesting location permission");
     }
 
     private void loadUserLocation() {
@@ -269,14 +278,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         public void onSuccess(Location location) {
                             if (location != null) {
                                 LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                                Log.d(TAG, "loadUserLocation: User location loaded - Lat: " +
+                                        userLocation.latitude + ", Lng: " + userLocation.longitude);
 
                                 if (!cameraMoved) {
                                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15f));
                                     cameraMoved = true;
+                                    Log.d(TAG, "loadUserLocation: Camera moved to user location");
                                 }
 
                                 if (!locationDetailsLoaded) {
                                     locationDetailsContainer.removeAllViews();
+                                    Log.d(TAG, "loadUserLocation: Loading location details");
 
                                     // Retrieve the list of creators that the user follows
                                     getFollowedCreators(new OnCompleteListener<List<String>>() {
@@ -330,16 +343,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                         if (destinationsList.isEmpty()) {
                                                             // No recommendations found for followed creators, show an alert dialog
                                                             showNoRecommendationsDialog();
+                                                            Log.d(TAG, "loadUserLocation: No recommendations found for followed creators");
                                                         } else {
                                                             // Calculate distance using the Distance Matrix API for filtered destinations
                                                             calculateDistance(userLocation, destinationsList, names, creators);
                                                             locationDetailsLoaded = true;
+                                                            Log.d(TAG, "loadUserLocation: Location details loaded");
                                                         }
                                                     }
 
                                                     @Override
                                                     public void onCancelled(@NonNull DatabaseError databaseError) {
                                                         // Handle database error
+                                                        Log.d(TAG, "loadUserLocation: Database error: " + databaseError.getMessage());
                                                     }
                                                 };
 
@@ -347,6 +363,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                             } else {
                                                 // No followed creators found, show an alert dialog
                                                 showNoFollowedCreatorsDialog();
+                                                Log.d(TAG, "loadUserLocation: No followed creators found");
                                             }
                                         }
                                     });
@@ -354,6 +371,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             }
                         }
                     });
+        } else {
+            requestLocationPermission();
+            Log.d(TAG, "loadUserLocation: Location permission not granted");
         }
     }
     private void showNoFollowedCreatorsDialog() {
@@ -370,6 +390,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         builder.setCancelable(false);
         builder.show();
+        Log.d(TAG, "showNoFollowedCreatorsDialog: Displaying 'No Favorite Creators' dialog");
     }
 
     private void showNoRecommendationsDialog() {
@@ -386,6 +407,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         builder.setCancelable(false);
         builder.show();
+        Log.d(TAG, "showNoRecommendationsDialog: Displaying 'No Recommendations' dialog");
     }
 
 
@@ -414,6 +436,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
                     // Handle database errors if needed
+                    Log.e("Firebase", "Database error: " + databaseError.getMessage());
                 }
             });
         }
@@ -535,7 +558,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 origin.latitude + "," + origin.longitude +
                 "&destinations=" + destinationsStr.toString() +
                 "&key=" + apiKey;
-
+        Log.d("Google Maps", "Distance Matrix API URL: " + url);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -680,9 +703,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     // Request location updates using the initialized fusedLocationClient
                     fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+                    Log.d("Location", "Location updates requested.");
                 }
             } else {
                 Toast.makeText(this, "Location permission denied. App cannot function properly.", Toast.LENGTH_SHORT).show();
+                Log.d("Location", "Location permission denied.");
             }
         }
     }
@@ -690,15 +715,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.nav_home) {
+            Log.d("Navigation", "Home item selected");
             drawerLayout.closeDrawer(GravityCompat.START);
             return true;
         } else if (item.getItemId() == R.id.nav_settings) {
+            Log.d("Navigation", "Fav creator item selected");
             startActivity(new Intent(MainActivity.this, FavCreator.class));
             finish();
         } else if (item.getItemId() == R.id.nav_share) {
+            Log.d("Navigation", "Report Bug item selected");
             startActivity(new Intent(MainActivity.this, ReportBug.class));
             finish();
         }  else if (item.getItemId() == R.id.nav_logout) {
+            Log.d("Navigation", "Logout item selected");
             FirebaseAuth.getInstance().signOut();
             startActivity(new Intent(this, SendOTPActivity.class));
             finish();
