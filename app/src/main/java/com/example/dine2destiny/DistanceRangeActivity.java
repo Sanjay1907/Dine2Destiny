@@ -27,6 +27,7 @@ public class DistanceRangeActivity extends AppCompatActivity {
     private RadioButton rating2PlusRadioButton;
     private RadioButton rating1PlusRadioButton;
     private int selectedRating = 0;
+    private Button clrbtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +46,7 @@ public class DistanceRangeActivity extends AppCompatActivity {
         foodTypeRadioGroup = findViewById(R.id.foodTypeRadioGroup);
         vegRadioButton = findViewById(R.id.vegRadioButton);
         nonVegRadioButton = findViewById(R.id.nonVegRadioButton);
+        clrbtn = findViewById(R.id.clrbtn);
 
         // Initialize initialDistance based on the user's previous selection or a default value
         initialDistance = getIntent().getIntExtra("selectedDistance", 1);
@@ -117,6 +119,16 @@ public class DistanceRangeActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(DistanceRangeActivity.this, FavCreatorfilter.class);
                 startActivity(intent);
+            }
+        });
+        clrbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                foodTypeRadioGroup.clearCheck();
+                ratingRadioGroup.clearCheck();
+                initialDistance = 1;
+                seekBarDistance.setProgress(0);
+                textViewSelectedDistance.setText("1 km");
             }
         });
 

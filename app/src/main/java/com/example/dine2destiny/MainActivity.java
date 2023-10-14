@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 startActivity(intent);
             }
         });
-        selectedDistance = getIntent().getIntExtra("selectedDistance", 1);
+        selectedDistance = getIntent().getIntExtra("selectedDistance", 0);
         selectedFoodCategory = getIntent().getStringExtra("selectedFoodCategory");
         if (selectedFoodCategory == null) {
             selectedFoodCategory = "Any";
@@ -325,7 +325,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void showNoRecommendationsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("No Recommendations");
-        builder.setMessage("There are no recommendations available in the selected distance range from the creators you follow.");
+        builder.setMessage("Choose the filters options to get the perfect recommendation for you");
 
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
@@ -648,4 +648,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
+    @Override
+    public void onBackPressed() {
+        // Close the app when the back button is pressed
+        moveTaskToBack(true);
+        android.os.Process.killProcess(android.os.Process.myPid());
+        System.exit(1);
+    }
+
 }
