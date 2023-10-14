@@ -23,6 +23,12 @@
         android:theme="@style/Theme.Dine2Destiny"
         tools:targetApi="31">
         <activity
+            android:name=".FavCreatorfilter"
+            android:exported="false" />
+        <activity
+            android:name=".DistanceRangeActivity"
+            android:exported="false" />
+        <activity
             android:name=".ReportBug"
             android:exported="false" />
         <activity

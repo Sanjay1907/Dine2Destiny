@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -75,14 +76,8 @@ import android.widget.SeekBar;
 import android.widget.ToggleButton;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
-
     private static final String TAG = "MainActivity"; // Tag for logging
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
-    private RadioGroup foodTypeRadioGroup;
-    private RadioButton vegRadioButton;
-    private RadioButton nonVegRadioButton;
-    private String selectedFoodType = "Any";
-
     private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationClient;
     private SupportMapFragment mapFragment;
@@ -90,25 +85,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private boolean cameraMoved = false;
     private LinearLayout locationDetailsContainer;
     private DrawerLayout drawerLayout;
-    private SeekBar distanceSeekBar;
-    private TextView distanceText;
     private LocationCallback locationCallback;
 
     private boolean locationDetailsLoaded = false; // Flag to control location details loading
     private LocationRequest locationRequest;
 
-    private int selectedDistance = 1;
-    private RadioGroup ratingRadioGroup;
-    private RadioButton rating4PlusRadioButton;
-    private RadioButton rating3PlusRadioButton;
-    private RadioButton rating2PlusRadioButton;
-    private RadioButton rating1PlusRadioButton;
-    private int selectedRating = 0; // 0 means no rating filter
-
     // List to store markers on the map
     private List<Marker> locationMarkers = new ArrayList<>();
     private Set<String> visitedPlaceIds = new HashSet<>();
     private Map<String, List<String>> locationCreatorsMap = new HashMap<>();
+    private Button filter;
+    private int selectedDistance;
+    private int selectedRating;
+    private String selectedFoodCategory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,26 +121,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapFragment);
         mapFragment.getMapAsync(this);
+        filter = findViewById(R.id.filterbtn);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         databaseReference = FirebaseDatabase.getInstance().getReference().child("Creators");
 
         locationDetailsContainer = findViewById(R.id.locationDetailsContainer);
-        distanceSeekBar = findViewById(R.id.distanceSeekBar);
-        distanceText = findViewById(R.id.distanceText);
-        foodTypeRadioGroup = findViewById(R.id.foodTypeRadioGroup);
-        vegRadioButton = findViewById(R.id.vegRadioButton);
-        nonVegRadioButton = findViewById(R.id.nonVegRadioButton);
         locationRequest = new LocationRequest();
         locationRequest.setInterval(10000);
         locationRequest.setFastestInterval(5000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        ratingRadioGroup = findViewById(R.id.ratingRadioGroup);
-        rating4PlusRadioButton = findViewById(R.id.rating4PlusRadioButton);
-        rating3PlusRadioButton = findViewById(R.id.rating3PlusRadioButton);
-        rating2PlusRadioButton = findViewById(R.id.rating2PlusRadioButton);
-        rating1PlusRadioButton = findViewById(R.id.rating1PlusRadioButton);
 
         locationCallback = new LocationCallback() {
             @Override
@@ -159,69 +139,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Log.d(TAG, "onLocationResult: Location updated");
             }
         };
-        distanceSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        filter.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                selectedDistance = progress + 1; // Add 1 to make it 1-10 km
-                // Round down the distance to the nearest integer
-                int roundedDistance = (int) Math.floor(selectedDistance);
-                distanceText.setText(roundedDistance + " km");
-                locationDetailsLoaded = false;
-                mMap.clear(); // Clear existing markers
-                locationMarkers.clear(); // Clear the list of markers
-                loadUserLocation();
-                Log.d(TAG, "onProgressChanged: Selected Distance: " + selectedDistance + " km");
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, FavCreatorfilter.class);
+                startActivity(intent);
             }
+        });
+        selectedDistance = getIntent().getIntExtra("selectedDistance", 1);
+        selectedFoodCategory = getIntent().getStringExtra("selectedFoodCategory");
+        if (selectedFoodCategory == null) {
+            selectedFoodCategory = "Any";
+        }
+        selectedRating = getIntent().getIntExtra("selectedRating", 0);
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
+        Log.d(TAG, "Selected Distance: " + selectedDistance);
+        Log.d(TAG, "Selected Food Category: " + selectedFoodCategory);
+        Log.d(TAG, "Selected Rating: " + selectedRating);
 
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-            }
-        });
-        foodTypeRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if (checkedId == R.id.vegRadioButton) {
-                    selectedFoodType = "Veg";
-                } else if (checkedId == R.id.nonVegRadioButton) {
-                    selectedFoodType = "Non-Veg";
-                } else {
-                    selectedFoodType = "Any"; // Default if neither is selected
-                }
-                locationDetailsLoaded = false;
-                mMap.clear();
-                locationMarkers.clear();
-                loadUserLocation();
-                Log.d(TAG, "onCheckedChanged: Selected Food Type: " + selectedFoodType);
-            }
-        });
-        ratingRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if (checkedId == R.id.rating4PlusRadioButton){
-                    selectedRating = 4;
-                } else if (checkedId == R.id.rating3PlusRadioButton){
-                    selectedRating = 3;
-                } else if (checkedId == R.id.rating2PlusRadioButton){
-                    selectedRating = 2;
-                } else if (checkedId == R.id.rating1PlusRadioButton){
-                    selectedRating = 1;
-                } else{
-                    selectedRating = 0;
-                }
-                locationDetailsLoaded = false;
-                mMap.clear();
-                locationMarkers.clear();
-                loadUserLocation();
-                Log.d(TAG, "onCheckedChanged: Selected Rating: " + selectedRating);
-            }
-        });
     }
-
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -261,14 +197,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
     }
-
     private void requestLocationPermission() {
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                 LOCATION_PERMISSION_REQUEST_CODE);
         Log.d(TAG, "requestLocationPermission: Requesting location permission");
     }
-
     private void loadUserLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -314,23 +248,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                                     double latitude = Double.parseDouble(locationStr.split(", ")[0].split(": ")[1]);
                                                                     double longitude = Double.parseDouble(locationStr.split(", ")[1].split(": ")[1]);
                                                                     LatLng locationLatLng = new LatLng(latitude, longitude);
-
-                                                                    // Calculate distance between user location and recommendation location
                                                                     float[] distanceResult = new float[1];
                                                                     Location.distanceBetween(
                                                                             userLocation.latitude, userLocation.longitude,
                                                                             locationLatLng.latitude, locationLatLng.longitude,
                                                                             distanceResult);
-
-                                                                    // Check if the location is open, within the selected distance, and matches the selected food type
+                                                                    // Check if the location is open and within the selected distance
                                                                     String timings = recSnapshot.child("timings").getValue(String.class);
                                                                     String foodType = recSnapshot.child("foodType").getValue(String.class);
-
                                                                     int rating = recSnapshot.child("rating").getValue(Integer.class);
 
                                                                     if (distanceResult[0] <= selectedDistance * 1000
-                                                                            && isLocationOpen(timings)
-                                                                            && (selectedFoodType.equals("Any") || selectedFoodType.equals(foodType))
+                                                                            &&isLocationOpen(timings)
+                                                                            && (selectedFoodCategory.equals("Any") || selectedFoodCategory.equals(foodType))
                                                                             && (selectedRating == 0 || rating >= selectedRating)) {
                                                                         destinationsList.add(locationLatLng);
                                                                         names.add(recSnapshot.child("name").getValue(String.class));
@@ -392,7 +322,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         builder.show();
         Log.d(TAG, "showNoFollowedCreatorsDialog: Displaying 'No Favorite Creators' dialog");
     }
-
     private void showNoRecommendationsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("No Recommendations");
@@ -409,8 +338,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         builder.show();
         Log.d(TAG, "showNoRecommendationsDialog: Displaying 'No Recommendations' dialog");
     }
-
-
     private void getFollowedCreators(final OnCompleteListener<List<String>> listener) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
@@ -441,13 +368,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             });
         }
     }
-
-    // Define an interface for completion callbacks
     private interface OnCompleteListener<T> {
         void onComplete(T result);
     }
-
-
     private boolean isLocationOpen(String timings) {
         // Extract the start and end times from the timings string
         String[] times = timings.split(" - ");
@@ -473,7 +396,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         return false;
     }
-
     private void checkUserName() {
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
@@ -493,7 +415,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
     }
-
     private void showNameInputDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Enter Your Name");
@@ -519,7 +440,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         builder.setCancelable(false);
         builder.show();
     }
-
     private void saveUserName(String userName) {
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
@@ -527,7 +447,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         usersReference.child("name").setValue(userName);
 
     }
-
     private void moveToUserLocation() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -543,7 +462,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     });
         }
     }
-
     private void calculateDistance(LatLng origin, List<LatLng> destinations, List<String> names, List<String> creators) {
         String apiKey = "AIzaSyDHoXOg6fB7_Aj9u9hCCkM76W0CzN5pZHE"; // Replace with your Google Maps API Key
         StringBuilder destinationsStr = new StringBuilder();
@@ -621,7 +539,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(jsonObjectRequest);
     }
-
     private void addLocationDetails(String name, String creator, float distance) {
         // Round the distance to 2 decimal places
         float roundedDistance = roundDistance(distance, 2);
@@ -661,7 +578,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
     }
-
     private View findLocationDetailsViewByName(String name) {
         // Check if a location with the same name has already been added
         for (int i = 0; i < locationDetailsContainer.getChildCount(); i++) {
@@ -679,7 +595,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         float multiplier = (float) Math.pow(10, decimalPlaces);
         return Math.round(distance * multiplier) / multiplier;
     }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -688,7 +603,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             fusedLocationClient.removeLocationUpdates(locationCallback);
         }
     }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -711,7 +625,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
     }
-
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.nav_home) {

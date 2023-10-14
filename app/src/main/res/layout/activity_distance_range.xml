@@ -1,0 +1,160 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context=".DistanceRangeActivity"
+    android:layout_marginTop="15dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/distitle"
+        android:text="Choose distance range"
+        android:textColor="@color/black"
+        android:textSize="16dp"
+        android:gravity="center"
+        android:layout_marginTop="5dp"/>
+
+    <LinearLayout
+        android:id="@+id/distancefilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@id/distitle">
+        <SeekBar
+            android:id="@+id/seekBarDistance"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:max="9"
+            android:progress="0"
+            android:layout_margin="16dp" />
+
+        <TextView
+            android:id="@+id/textViewSelectedDistance"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:text="1 km"
+            android:textSize="16sp"
+            android:textColor="#000"
+            android:layout_marginTop="10dp"/>
+    </LinearLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/foodtitle"
+        android:layout_below="@id/distancefilter"
+        android:text="Choose Food Category"
+        android:textColor="@color/black"
+        android:textSize="16dp"
+        android:gravity="center"
+        android:layout_marginTop="5dp"/>
+    <RadioGroup
+        android:id="@+id/foodTypeRadioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/foodtitle"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal">
+
+        <RadioButton
+            android:id="@+id/vegRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Veg"
+            android:drawableLeft="@drawable/veg"
+            android:drawablePadding="8dp"
+            android:paddingStart="8dp"/>
+
+        <RadioButton
+            android:id="@+id/nonVegRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Non-Veg"
+            android:drawableLeft="@drawable/nonveg"
+            android:drawablePadding="8dp"
+            android:paddingStart="8dp"/>
+
+    </RadioGroup>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/ratingtitle"
+        android:layout_below="@id/foodTypeRadioGroup"
+        android:text="Choose Rating"
+        android:textColor="@color/black"
+        android:textSize="16dp"
+        android:gravity="center"
+        android:layout_marginTop="5dp"/>
+    <RadioGroup
+        android:id="@+id/ratingRadioGroup"
+        android:layout_below="@id/ratingtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/rating4PlusRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="4+"
+            android:checked="false"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp" />
+
+        <RadioButton
+            android:id="@+id/rating3PlusRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="3+"
+            android:checked="false"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp" />
+
+        <RadioButton
+            android:id="@+id/rating2PlusRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2+"
+            android:checked="false"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp" />
+
+        <RadioButton
+            android:id="@+id/rating1PlusRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1+"
+            android:checked="false"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp" />
+    </RadioGroup>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ratingRadioGroup"
+        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true">
+
+        <!-- Approve Button -->
+        <Button
+            android:id="@+id/btnApplyDistance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:text="Apply"
+            android:backgroundTint="@color/black"/>
+
+        <!-- Reject Button -->
+        <Button
+            android:id="@+id/btnback"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:textSize="18dp"
+            android:text="Back"
+            android:backgroundTint="@color/black"/>
+    </LinearLayout>
+</RelativeLayout>
