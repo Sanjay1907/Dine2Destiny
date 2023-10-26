@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.text.InputType;
@@ -98,12 +99,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private int selectedDistance;
     private int selectedRating;
     private String selectedFoodCategory;
+    private String selectedCategory;
+    private ArrayList<String> selectedFoodItems;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.d(TAG, "onCreate: Initializing MainActivity");
+        Log.i(TAG, "onCreate: Initializing MainActivity");
         checkUserName();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -136,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
-                Log.d(TAG, "onLocationResult: Location updated");
+                Log.i(TAG, "onLocationResult: Location updated");
             }
         };
         filter.setOnClickListener(new View.OnClickListener() {
@@ -148,14 +152,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
         selectedDistance = getIntent().getIntExtra("selectedDistance", 0);
         selectedFoodCategory = getIntent().getStringExtra("selectedFoodCategory");
-        if (selectedFoodCategory == null) {
-            selectedFoodCategory = "Any";
-        }
-        selectedRating = getIntent().getIntExtra("selectedRating", 0);
 
-        Log.d(TAG, "Selected Distance: " + selectedDistance);
-        Log.d(TAG, "Selected Food Category: " + selectedFoodCategory);
-        Log.d(TAG, "Selected Rating: " + selectedRating);
+        if (selectedFoodCategory == null) {  selectedFoodCategory = "Any";  }
+
+        selectedRating = getIntent().getIntExtra("selectedRating", 0);
+        selectedCategory = getIntent().getStringExtra("selectedCategory");
+
+        if (selectedCategory == null) {  selectedCategory = "Any";  }
+        selectedFoodItems = getIntent().getStringArrayListExtra("selectedFoodItems");
+        // If no food items are selected, initialize the list to empty
+        if (selectedFoodItems == null) {  selectedFoodItems = new ArrayList<>();  }
+
+
+        Log.i(TAG, "Selected Distance: " + selectedDistance);
+        Log.i(TAG, "Selected Food Category: " + selectedFoodCategory);
+        Log.i(TAG, "Selected Category: " + selectedCategory);
+        Log.i(TAG, "Selected Rating: " + selectedRating);
+        for (String foodItem : selectedFoodItems) {
+            Log.i(TAG, "Selected Food Item: " + foodItem);
+        }
 
     }
     @Override
@@ -171,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 public boolean onMyLocationButtonClick() {
                     // Move the camera to the user's current location
                     moveToUserLocation();
-                    Log.d(TAG, "onMyLocationButtonClick: User's location button clicked");
+                    Log.i(TAG, "onMyLocationButtonClick: User's location button clicked");
                     return true; // Return true to consume the event
                 }
             });
@@ -186,14 +201,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else {
             requestLocationPermission();
             loadUserLocation();
-            Log.d(TAG, "onMapReady: Location permission not granted");
+            Log.i(TAG, "onMapReady: Location permission not granted");
         }
 
         mMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
             @Override
             public void onCameraMove() {
                 cameraMoved = true;
-                Log.d(TAG, "onCameraMove: Camera moved");
+                Log.i(TAG, "onCameraMove: Camera moved");
             }
         });
     }
@@ -201,9 +216,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                 LOCATION_PERMISSION_REQUEST_CODE);
-        Log.d(TAG, "requestLocationPermission: Requesting location permission");
+        Log.i(TAG, "requestLocationPermission: Requesting location permission");
     }
     private void loadUserLocation() {
+        Log.i(TAG, "loadUserLocation: Executing loadUserLocation function");
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             fusedLocationClient.getLastLocation()
@@ -212,18 +228,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         public void onSuccess(Location location) {
                             if (location != null) {
                                 LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                                Log.d(TAG, "loadUserLocation: User location loaded - Lat: " +
+                                Log.i(TAG, "loadUserLocation: User location loaded - Lat: " +
                                         userLocation.latitude + ", Lng: " + userLocation.longitude);
 
                                 if (!cameraMoved) {
                                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15f));
                                     cameraMoved = true;
-                                    Log.d(TAG, "loadUserLocation: Camera moved to user location");
+                                    Log.i(TAG, "loadUserLocation: Camera moved to user location");
                                 }
 
                                 if (!locationDetailsLoaded) {
                                     locationDetailsContainer.removeAllViews();
-                                    Log.d(TAG, "loadUserLocation: Loading location details");
+                                    Log.i(TAG, "loadUserLocation: Loading location details");
 
                                     // Retrieve the list of creators that the user follows
                                     getFollowedCreators(new OnCompleteListener<List<String>>() {
@@ -255,16 +271,59 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                                             distanceResult);
                                                                     // Check if the location is open and within the selected distance
                                                                     String timings = recSnapshot.child("timings").getValue(String.class);
-                                                                    String foodType = recSnapshot.child("foodType").getValue(String.class);
+                                                                    String foodType = recSnapshot.child("specialType").getValue(String.class);
+                                                                    String Category = recSnapshot.child("foodType").getValue(String.class);
                                                                     int rating = recSnapshot.child("rating").getValue(Integer.class);
+                                                                    String hashtags = recSnapshot.child("hashtag").getValue(String.class);
+                                                                    boolean containsSelectedFoodItem = false;
+
+                                                                    // Only check for food item filter if there are selected food items
+                                                                    if (!selectedFoodItems.isEmpty()) {
+                                                                        for (String selectedFoodItem : selectedFoodItems) {
+                                                                            if (hashtags != null && hashtags.contains("#" + selectedFoodItem)) {
+                                                                                containsSelectedFoodItem = true;
+                                                                                break; // No need to continue checking if one is found
+                                                                            }
+                                                                        }
+                                                                    } else {
+                                                                        // If no food items are selected, set containsSelectedFoodItem to true
+                                                                        containsSelectedFoodItem = true;
+                                                                    }
 
                                                                     if (distanceResult[0] <= selectedDistance * 1000
-                                                                            &&isLocationOpen(timings)
+                                                                            && isLocationOpen(timings)
                                                                             && (selectedFoodCategory.equals("Any") || selectedFoodCategory.equals(foodType))
-                                                                            && (selectedRating == 0 || rating >= selectedRating)) {
+                                                                            && (selectedCategory.equals("Any") || selectedCategory.equals(Category))
+                                                                            && (selectedRating == 0 || rating >= selectedRating)
+                                                                            && containsSelectedFoodItem) {
                                                                         destinationsList.add(locationLatLng);
                                                                         names.add(recSnapshot.child("name").getValue(String.class));
                                                                         creators.add(creatorName);
+                                                                        if (timings != null) {
+                                                                            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                                                                            String[] timingParts = timings.split("-");
+                                                                            if (timingParts.length == 2) {
+                                                                                String endTimeStr = timingParts[1];
+                                                                                try {
+                                                                                    Calendar calendar = Calendar.getInstance();
+                                                                                    String currentTimeStr = sdf.format(calendar.getTime());
+                                                                                    Date endTime = sdf.parse(endTimeStr);
+                                                                                    Date currentTime = sdf.parse(currentTimeStr);
+
+                                                                                    long remainingMinutes = (endTime.getTime() - currentTime.getTime()) / (60 * 1000);
+
+                                                                                    if (remainingMinutes <= 60 && remainingMinutes > 0) {
+                                                                                        // Calculate the difference between the end time and current time in minutes
+                                                                                        String remainingTime = "Closing in " + remainingMinutes + " mins";
+                                                                                        int index = destinationsList.size() - 1;
+                                                                                        names.set(index, names.get(index) + " - " + remainingTime);
+                                                                                    }
+                                                                                } catch (ParseException e) {
+                                                                                    e.printStackTrace();
+                                                                                }
+                                                                            }
+
+                                                                        }
                                                                     }
                                                                 }
                                                             }
@@ -273,19 +332,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                         if (destinationsList.isEmpty()) {
                                                             // No recommendations found for followed creators, show an alert dialog
                                                             showNoRecommendationsDialog();
-                                                            Log.d(TAG, "loadUserLocation: No recommendations found for followed creators");
+                                                            Log.i(TAG, "loadUserLocation: No recommendations found for followed creators");
                                                         } else {
                                                             // Calculate distance using the Distance Matrix API for filtered destinations
                                                             calculateDistance(userLocation, destinationsList, names, creators);
                                                             locationDetailsLoaded = true;
-                                                            Log.d(TAG, "loadUserLocation: Location details loaded");
+                                                            Log.i(TAG, "loadUserLocation: Location details loaded");
                                                         }
                                                     }
 
                                                     @Override
                                                     public void onCancelled(@NonNull DatabaseError databaseError) {
                                                         // Handle database error
-                                                        Log.d(TAG, "loadUserLocation: Database error: " + databaseError.getMessage());
+                                                        Log.i(TAG, "loadUserLocation: Database error: " + databaseError.getMessage());
                                                     }
                                                 };
 
@@ -293,7 +352,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                             } else {
                                                 // No followed creators found, show an alert dialog
                                                 showNoFollowedCreatorsDialog();
-                                                Log.d(TAG, "loadUserLocation: No followed creators found");
+                                                Log.i(TAG, "loadUserLocation: No followed creators found");
                                             }
                                         }
                                     });
@@ -303,7 +362,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     });
         } else {
             requestLocationPermission();
-            Log.d(TAG, "loadUserLocation: Location permission not granted");
+            Log.i(TAG, "loadUserLocation: Location permission not granted");
         }
     }
     private void showNoFollowedCreatorsDialog() {
@@ -320,7 +379,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         builder.setCancelable(false);
         builder.show();
-        Log.d(TAG, "showNoFollowedCreatorsDialog: Displaying 'No Favorite Creators' dialog");
+        Log.i(TAG, "showNoFollowedCreatorsDialog: Displaying 'No Favorite Creators' dialog");
     }
     private void showNoRecommendationsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -336,7 +395,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         builder.setCancelable(false);
         builder.show();
-        Log.d(TAG, "showNoRecommendationsDialog: Displaying 'No Recommendations' dialog");
+        Log.i(TAG, "showNoRecommendationsDialog: Displaying 'No Recommendations' dialog");
     }
     private void getFollowedCreators(final OnCompleteListener<List<String>> listener) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -403,7 +462,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (!dataSnapshot.hasChild("name")) {
+                if (dataSnapshot.hasChild("name")) {
+                    String userName = dataSnapshot.child("name").getValue(String.class);
+                    if (userName != null) {
+                        // Update the user greeting in the navigation header
+                        TextView userGreetingTextView = findViewById(R.id.userGreeting);
+                        userGreetingTextView.setText("Hello,  " + userName);
+                    }
+                } else {
                     // The user's name is not present, show a dialog to get the name
                     showNameInputDialog();
                 }
@@ -415,6 +481,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
     }
+
     private void showNameInputDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Enter Your Name");
@@ -476,7 +543,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 origin.latitude + "," + origin.longitude +
                 "&destinations=" + destinationsStr.toString() +
                 "&key=" + apiKey;
-        Log.d("Google Maps", "Distance Matrix API URL: " + url);
+        Log.i("Google Maps", "Distance Matrix API URL: " + url);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -553,17 +620,26 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             TextView creatorName = locationDetailsView.findViewById(R.id.locationRating); // Change the ID if needed
             TextView locationDistance = locationDetailsView.findViewById(R.id.locationDistance);
 
-            locationName.setText(name);
-
-            String creatorsText = "Creator: " + creator;
-            creatorName.setText(creatorsText); // Set the creator's name
-
             locationDistance.setText(String.format("%.2f km", roundedDistance)); // Display the rounded distance
 
             // Store the creator for this location
             List<String> creatorsList = new ArrayList<>();
             creatorsList.add(creator);
             locationCreatorsMap.put(name, creatorsList);
+
+            // Check if the location name contains "Closing in x mins" and set the text color accordingly
+            if (name.contains("Closing in")) {
+                // Name contains "Closing in x mins", set text color to red
+                locationName.setTextColor(Color.RED);
+            } else {
+                // Name doesn't contain "Closing in x mins", use the default text color
+            }
+
+            // Set the location name and creator's name
+            locationName.setText(name);
+
+            String creatorsText = "Creator: " + creator;
+            creatorName.setText(creatorsText);
 
             locationDetailsContainer.addView(locationDetailsView);
         } else {
@@ -578,6 +654,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
     }
+
     private View findLocationDetailsViewByName(String name) {
         // Check if a location with the same name has already been added
         for (int i = 0; i < locationDetailsContainer.getChildCount(); i++) {
@@ -617,30 +694,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     // Request location updates using the initialized fusedLocationClient
                     fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
-                    Log.d("Location", "Location updates requested.");
+                    Log.i("Location", "Location updates requested.");
                 }
             } else {
                 Toast.makeText(this, "Location permission denied. App cannot function properly.", Toast.LENGTH_SHORT).show();
-                Log.d("Location", "Location permission denied.");
+                Log.i("Location", "Location permission denied.");
             }
         }
     }
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.nav_home) {
-            Log.d("Navigation", "Home item selected");
+            Log.i("Navigation", "Home item selected");
             drawerLayout.closeDrawer(GravityCompat.START);
             return true;
         } else if (item.getItemId() == R.id.nav_settings) {
-            Log.d("Navigation", "Fav creator item selected");
+            Log.i("Navigation", "Fav creator item selected");
             startActivity(new Intent(MainActivity.this, FavCreator.class));
             finish();
         } else if (item.getItemId() == R.id.nav_share) {
-            Log.d("Navigation", "Report Bug item selected");
+            Log.i("Navigation", "Report Bug item selected");
             startActivity(new Intent(MainActivity.this, ReportBug.class));
             finish();
         }  else if (item.getItemId() == R.id.nav_logout) {
-            Log.d("Navigation", "Logout item selected");
+            Log.i("Navigation", "Logout item selected");
             FirebaseAuth.getInstance().signOut();
             startActivity(new Intent(this, SendOTPActivity.class));
             finish();

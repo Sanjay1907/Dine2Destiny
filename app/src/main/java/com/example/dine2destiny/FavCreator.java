@@ -71,6 +71,7 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
         toggle.syncState();
 
         mAuth = FirebaseAuth.getInstance();
+        updateUserNameInNavigationHeader();
 
         databaseReference = FirebaseDatabase.getInstance().getReference().child("Creators");
         creatorNames = new ArrayList<>();
@@ -204,7 +205,31 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
             }
         }
     }
+    private void updateUserNameInNavigationHeader() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            String currentUserId = currentUser.getUid();
 
+            DatabaseReference usersReference = FirebaseDatabase.getInstance().getReference().child("Users").child(currentUserId);
+            usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.hasChild("name")) {
+                        String userName = dataSnapshot.child("name").getValue(String.class);
+                        if (userName != null) {
+                            TextView userNameTextView = findViewById(R.id.userGreeting);
+                            userNameTextView.setText("Hello, " + userName);
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    // Handle database error
+                }
+            });
+        }
+    }
     public void followCreator(View view) {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {

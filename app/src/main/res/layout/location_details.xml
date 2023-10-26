@@ -29,7 +29,6 @@
         android:layout_toEndOf="@id/locationSymbol"
         android:layout_below="@id/locationName"
         android:text="Creator: Name" />
-
     <TextView
         android:id="@+id/locationDistance"
         android:layout_width="wrap_content"

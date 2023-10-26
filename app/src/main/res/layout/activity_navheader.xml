@@ -1,0 +1,18 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="bottom">
+
+    <TextView
+        android:id="@+id/userGreeting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hello, User"
+        android:textStyle="bold"
+        android:textSize="16dp"
+        android:gravity="left"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="50dp"
+        android:textColor="@color/black" />
+</LinearLayout>
