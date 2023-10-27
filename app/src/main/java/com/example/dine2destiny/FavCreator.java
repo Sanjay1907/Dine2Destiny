@@ -6,6 +6,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -18,6 +19,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -78,7 +80,6 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
         creatorListView = findViewById(R.id.creatorListView);
         searchView = findViewById(R.id.searchView);
         adapter = new ArrayAdapter<>(this, R.layout.creator_item, R.id.creatorNameTextView, creatorNames);
-
         creatorListView.setAdapter(adapter);
         progressDialog.show();
 
@@ -89,8 +90,9 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 String creatorName = dataSnapshot.child("name").getValue(String.class);
+                String creatorName2 = dataSnapshot.child("name2").getValue(String.class);
                 creatorNames.add(creatorName);
-
+                String profileimg = dataSnapshot.child("profileImage").getValue(String.class);
                 // Update the data structure with the initial state (not following)
                 followedCreatorsMap.put(creatorName, false);
 
@@ -98,6 +100,7 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
                 progressDialog.dismiss();
 
                 Log.d(TAG, "onChildAdded: Creator added - " + creatorName);
+
             }
 
             @Override

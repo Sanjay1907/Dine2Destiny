@@ -7,33 +7,41 @@
     android:background="@drawable/border">
 
     <ImageView
-        android:id="@+id/locationSymbol"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:id="@+id/recommendationImage"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/default_hotel_img"
         android:layout_centerVertical="true"
         android:layout_alignParentStart="true"
-        android:src="@drawable/baseline_location_on_24" />
-
+        android:scaleType="centerCrop"/>
     <TextView
         android:id="@+id/locationName"
-        android:layout_width="wrap_content"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/locationSymbol"
+        android:layout_toEndOf="@id/recommendationImage"
         android:layout_alignParentTop="true"
+        android:layout_marginLeft="5dp"
         android:text="Location Name" />
 
     <TextView
         android:id="@+id/locationRating"
-        android:layout_width="wrap_content"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/locationSymbol"
+        android:layout_marginLeft="5dp"
+        android:layout_toEndOf="@id/recommendationImage"
         android:layout_below="@id/locationName"
         android:text="Creator: Name" />
+    <ImageView
+        android:id="@+id/locationSymbol"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignParentEnd="true"
+        android:src="@drawable/img" />
     <TextView
         android:id="@+id/locationDistance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/locationSymbol"
         android:layout_alignParentEnd="true"
+        android:layout_below="@id/locationSymbol"
         android:text="2.3 km" />
 </RelativeLayout>

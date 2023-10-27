@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -15,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -37,6 +39,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -252,6 +255,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                         List<LatLng> destinationsList = new ArrayList<>(); // List to store destination locations
                                                         List<String> names = new ArrayList<>();
                                                         List<String> creators = new ArrayList<>();
+                                                        List<String> imgUrls = new ArrayList<>();
 
                                                         for (DataSnapshot creatorSnapshot : dataSnapshot.getChildren()) {
                                                             String creatorName = creatorSnapshot.child("name").getValue(String.class);
@@ -275,6 +279,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                                     String Category = recSnapshot.child("foodType").getValue(String.class);
                                                                     int rating = recSnapshot.child("rating").getValue(Integer.class);
                                                                     String hashtags = recSnapshot.child("hashtag").getValue(String.class);
+                                                                    String img = recSnapshot.child("imageUrl").getValue(String.class);
+
                                                                     boolean containsSelectedFoodItem = false;
 
                                                                     // Only check for food item filter if there are selected food items
@@ -299,6 +305,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                                         destinationsList.add(locationLatLng);
                                                                         names.add(recSnapshot.child("name").getValue(String.class));
                                                                         creators.add(creatorName);
+                                                                        imgUrls.add(img);
                                                                         if (timings != null) {
                                                                             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
                                                                             String[] timingParts = timings.split("-");
@@ -335,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                             Log.i(TAG, "loadUserLocation: No recommendations found for followed creators");
                                                         } else {
                                                             // Calculate distance using the Distance Matrix API for filtered destinations
-                                                            calculateDistance(userLocation, destinationsList, names, creators);
+                                                            calculateDistance(userLocation, destinationsList, names, creators, imgUrls);
                                                             locationDetailsLoaded = true;
                                                             Log.i(TAG, "loadUserLocation: Location details loaded");
                                                         }
@@ -529,7 +536,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     });
         }
     }
-    private void calculateDistance(LatLng origin, List<LatLng> destinations, List<String> names, List<String> creators) {
+    private void calculateDistance(LatLng origin, List<LatLng> destinations, List<String> names, List<String> creators, List<String> imgUrls) {
         String apiKey = "AIzaSyDHoXOg6fB7_Aj9u9hCCkM76W0CzN5pZHE"; // Replace with your Google Maps API Key
         StringBuilder destinationsStr = new StringBuilder();
 
@@ -569,6 +576,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                             String name = names.get(i);
                                             String creator = creators.get(i);
                                             String snippet = "Creator: " + creator;
+                                            String img = imgUrls.get(i);
 
                                             LatLng destinationLatLng = destinations.get(i);
 
@@ -582,7 +590,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                             locationMarkers.add(marker);
 
                                             // Pass the correct distanceInKm to addLocationDetails
-                                            addLocationDetails(name, creator, distanceInKm);
+                                            addLocationDetails(name, creator, distanceInKm, destinationLatLng, img);
                                             if (placeId != null) {
                                                 visitedPlaceIds.add(placeId);
                                             }
@@ -606,7 +614,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(jsonObjectRequest);
     }
-    private void addLocationDetails(String name, String creator, float distance) {
+    private void addLocationDetails(final String name, String creator, final float distance, final LatLng destinationLatLng, String img) {
         // Round the distance to 2 decimal places
         float roundedDistance = roundDistance(distance, 2);
 
@@ -619,6 +627,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             TextView locationName = locationDetailsView.findViewById(R.id.locationName);
             TextView creatorName = locationDetailsView.findViewById(R.id.locationRating); // Change the ID if needed
             TextView locationDistance = locationDetailsView.findViewById(R.id.locationDistance);
+            ImageView recommendationimg = locationDetailsView.findViewById(R.id.recommendationImage);
+
+            if(img != null){
+                Glide.with(this).load(img).placeholder(R.drawable.default_hotel_img).into(recommendationimg);
+            }
 
             locationDistance.setText(String.format("%.2f km", roundedDistance)); // Display the rounded distance
 
@@ -641,6 +654,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             String creatorsText = "Creator: " + creator;
             creatorName.setText(creatorsText);
 
+            // Add an OnClickListener to the location details view
+            locationDetailsView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Show a confirmation dialog
+                    showDirectionsConfirmationDialog(name, destinationLatLng);
+                }
+            });
+
             locationDetailsContainer.addView(locationDetailsView);
         } else {
             List<String> creatorsList = locationCreatorsMap.get(name);
@@ -654,6 +676,46 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
     }
+    private void showDirectionsConfirmationDialog(final String locationName, final LatLng destinationLatLng) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Get Directions");
+        builder.setMessage("Do you want to get directions to " + locationName + "?");
+
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // User selected "Yes," so navigate to Google Maps
+                navigateToDestination(destinationLatLng);
+            }
+        });
+
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // User selected "No," so close the dialog and stay on the page
+                dialog.dismiss();
+            }
+        });
+
+        builder.setCancelable(true); // Allow the user to dismiss the dialog by tapping outside
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void navigateToDestination(LatLng destination) {
+        Uri gmmIntentUri = Uri.parse("google.navigation:q=" + destination.latitude + "," + destination.longitude);
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+
+        if (mapIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(mapIntent);
+        } else {
+            // Handle the case where the Google Maps app is not installed on the device
+            Toast.makeText(this, "Google Maps app not installed.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     private View findLocationDetailsViewByName(String name) {
         // Check if a location with the same name has already been added

@@ -216,6 +216,18 @@ public class DistanceRangeActivity extends AppCompatActivity {
                 foodItemCounter = 1;
             }
         });
+        Button addFoodItemButton = findViewById(R.id.addbtn);
+        addFoodItemButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String selectedRecommendation = autoCompleteTextView.getText().toString().trim();
+
+                if (!selectedRecommendation.isEmpty()) {
+                    // Add the selected food item to the TextView
+                    addFoodItemToTextView(selectedRecommendation);
+                }
+            }
+        });
     }
     private void populateRecommendationNames() {
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
