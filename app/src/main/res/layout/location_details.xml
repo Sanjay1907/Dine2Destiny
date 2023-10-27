@@ -21,7 +21,19 @@
         android:layout_toEndOf="@id/recommendationImage"
         android:layout_alignParentTop="true"
         android:layout_marginLeft="5dp"
+        android:textColor="@color/black"
+        android:textSize="16dp"
         android:text="Location Name" />
+    <TextView
+        android:id="@+id/locationNumber"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/recommendationImage"
+        android:layout_below="@id/locationName"
+        android:layout_marginLeft="5dp"
+        android:textColor="#454545"
+        android:textSize="14dp"
+        android:text="Contact Number" />
 
     <TextView
         android:id="@+id/locationRating"
@@ -29,13 +41,16 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
         android:layout_toEndOf="@id/recommendationImage"
-        android:layout_below="@id/locationName"
+        android:layout_below="@id/locationNumber"
+        android:textColor="#454545"
+        android:textSize="12dp"
         android:text="Creator: Name" />
     <ImageView
         android:id="@+id/locationSymbol"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_alignParentEnd="true"
+        android:layout_marginRight="10dp"
         android:src="@drawable/img" />
     <TextView
         android:id="@+id/locationDistance"
@@ -43,5 +58,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_below="@id/locationSymbol"
+        android:textColor="@color/black"
+        android:layout_marginTop="10dp"
         android:text="2.3 km" />
 </RelativeLayout>

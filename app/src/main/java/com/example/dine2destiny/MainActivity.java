@@ -256,6 +256,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                         List<String> names = new ArrayList<>();
                                                         List<String> creators = new ArrayList<>();
                                                         List<String> imgUrls = new ArrayList<>();
+                                                        List<String> phoneNos = new ArrayList<>();
 
                                                         for (DataSnapshot creatorSnapshot : dataSnapshot.getChildren()) {
                                                             String creatorName = creatorSnapshot.child("name").getValue(String.class);
@@ -280,6 +281,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                                     int rating = recSnapshot.child("rating").getValue(Integer.class);
                                                                     String hashtags = recSnapshot.child("hashtag").getValue(String.class);
                                                                     String img = recSnapshot.child("imageUrl").getValue(String.class);
+                                                                    String phoneNo = recSnapshot.child("contactNumber").getValue(String.class);
 
                                                                     boolean containsSelectedFoodItem = false;
 
@@ -306,6 +308,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                                         names.add(recSnapshot.child("name").getValue(String.class));
                                                                         creators.add(creatorName);
                                                                         imgUrls.add(img);
+                                                                        phoneNos.add(phoneNo);
                                                                         if (timings != null) {
                                                                             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
                                                                             String[] timingParts = timings.split("-");
@@ -342,7 +345,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                             Log.i(TAG, "loadUserLocation: No recommendations found for followed creators");
                                                         } else {
                                                             // Calculate distance using the Distance Matrix API for filtered destinations
-                                                            calculateDistance(userLocation, destinationsList, names, creators, imgUrls);
+                                                            calculateDistance(userLocation, destinationsList, names, creators, imgUrls, phoneNos);
                                                             locationDetailsLoaded = true;
                                                             Log.i(TAG, "loadUserLocation: Location details loaded");
                                                         }
@@ -536,7 +539,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     });
         }
     }
-    private void calculateDistance(LatLng origin, List<LatLng> destinations, List<String> names, List<String> creators, List<String> imgUrls) {
+    private void calculateDistance(LatLng origin, List<LatLng> destinations, List<String> names, List<String> creators, List<String> imgUrls, List<String> phoneNos) {
         String apiKey = "AIzaSyDHoXOg6fB7_Aj9u9hCCkM76W0CzN5pZHE"; // Replace with your Google Maps API Key
         StringBuilder destinationsStr = new StringBuilder();
 
@@ -577,6 +580,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                             String creator = creators.get(i);
                                             String snippet = "Creator: " + creator;
                                             String img = imgUrls.get(i);
+                                            String phoneno = phoneNos.get(i);
 
                                             LatLng destinationLatLng = destinations.get(i);
 
@@ -590,7 +594,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                             locationMarkers.add(marker);
 
                                             // Pass the correct distanceInKm to addLocationDetails
-                                            addLocationDetails(name, creator, distanceInKm, destinationLatLng, img);
+                                            addLocationDetails(name, creator, distanceInKm, destinationLatLng, img, phoneno);
                                             if (placeId != null) {
                                                 visitedPlaceIds.add(placeId);
                                             }
@@ -614,7 +618,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(jsonObjectRequest);
     }
-    private void addLocationDetails(final String name, String creator, final float distance, final LatLng destinationLatLng, String img) {
+    private void addLocationDetails(final String name, String creator, final float distance, final LatLng destinationLatLng, String img, String phoneno) {
         // Round the distance to 2 decimal places
         float roundedDistance = roundDistance(distance, 2);
 
@@ -628,12 +632,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             TextView creatorName = locationDetailsView.findViewById(R.id.locationRating); // Change the ID if needed
             TextView locationDistance = locationDetailsView.findViewById(R.id.locationDistance);
             ImageView recommendationimg = locationDetailsView.findViewById(R.id.recommendationImage);
+            TextView locationnumber = locationDetailsView.findViewById(R.id.locationNumber);
 
             if(img != null){
                 Glide.with(this).load(img).placeholder(R.drawable.default_hotel_img).into(recommendationimg);
             }
 
             locationDistance.setText(String.format("%.2f km", roundedDistance)); // Display the rounded distance
+            String number = "Contact No: " + phoneno;
+            locationnumber.setText(number);
 
             // Store the creator for this location
             List<String> creatorsList = new ArrayList<>();
