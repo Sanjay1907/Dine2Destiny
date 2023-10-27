@@ -1,23 +1,31 @@
 package com.example.dine2destiny;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -78,15 +86,45 @@ public class FavCreatorfilter extends AppCompatActivity{
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 String creatorName = dataSnapshot.child("name").getValue(String.class);
-                creatorNames.add(creatorName);
-
+                String creatorName2 = dataSnapshot.child("name2").getValue(String.class);
+                //creatorNames.add(creatorName);
+                final String profileimg = dataSnapshot.child("profileImage").getValue(String.class);
                 // Update the data structure with the initial state (not following)
                 followedCreatorsMap.put(creatorName, false);
+                View view = View.inflate(FavCreatorfilter.this, R.layout.creator_item, null);
+                creatorListView.addFooterView(view);
+
+                TextView creatorNameTextView = view.findViewById(R.id.creatorNameTextView);
+                creatorNameTextView.setText(creatorName);
+                TextView creatorName2TextView = view.findViewById(R.id.creatorName2TextView);
+                creatorName2TextView.setText(creatorName2);
+
+                ImageView profileImageView = view.findViewById(R.id.imageViewProfile);
+                Glide.with(FavCreatorfilter.this)
+                        .load(profileimg)
+                        .placeholder(R.drawable.default_profile_image)
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                // Handle image loading failure here (if needed)
+                                progressDialog.dismiss(); // Dismiss the progress dialog
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                progressDialog.dismiss(); // Dismiss the progress dialog when the image loads
+                                return false;
+                            }
+                        })
+                        .into(profileImageView);
+
 
                 adapter.notifyDataSetChanged();
                 progressDialog.dismiss();
 
                 Log.d(TAG, "onChildAdded: Creator added - " + creatorName);
+
             }
 
             @Override

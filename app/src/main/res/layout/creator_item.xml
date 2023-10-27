@@ -9,22 +9,33 @@
         android:id="@+id/imageViewProfile"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_centerHorizontal="true"
         android:layout_marginLeft="10dp"
         android:src="@drawable/default_profile_image"
         app:civ_border_width="1dp"
         app:civ_border_color="#FFFFFF" />
 
-    <TextView
-        android:id="@+id/creatorNameTextView"
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:orientation="vertical"
         android:gravity="start"
-        android:paddingStart="8dp"
-        android:textColor="#000"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        android:paddingStart="8dp">
+        <TextView
+            android:id="@+id/creatorNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16dp"
+            android:textColor="#000"
+            android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/creatorName2TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14dp"
+            android:textColor="@android:color/darker_gray"
+            android:textStyle="normal"/>
+    </LinearLayout>
 
     <Button
         android:id="@+id/followButton"
