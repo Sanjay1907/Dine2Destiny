@@ -89,6 +89,20 @@ public class FavCreatorfilter extends AppCompatActivity{
                 String creatorName2 = dataSnapshot.child("name2").getValue(String.class);
                 //creatorNames.add(creatorName);
                 final String profileimg = dataSnapshot.child("profileImage").getValue(String.class);
+                String verificationStatusString = dataSnapshot.child("request_verification")
+                        .child(dataSnapshot.getKey())
+                        .child("verification")
+                        .getValue(String.class);
+                int verificationStatus = 0;
+
+                if (verificationStatusString != null && !verificationStatusString.isEmpty()) {
+                    try {
+                        verificationStatus = Integer.parseInt(verificationStatusString);
+                    } catch (NumberFormatException e) {
+                        // Handle the case where the verification value cannot be converted to an integer
+                        // You can log an error or set a default value as needed
+                    }
+                }
                 // Update the data structure with the initial state (not following)
                 followedCreatorsMap.put(creatorName, false);
                 View view = View.inflate(FavCreatorfilter.this, R.layout.creator_item, null);
@@ -96,6 +110,10 @@ public class FavCreatorfilter extends AppCompatActivity{
 
                 TextView creatorNameTextView = view.findViewById(R.id.creatorNameTextView);
                 creatorNameTextView.setText(creatorName);
+                if (verificationStatus == 1) {
+                    ImageView verifiedTick = view.findViewById(R.id.verifiedIcon);
+                    verifiedTick.setVisibility(View.VISIBLE);
+                }
                 TextView creatorName2TextView = view.findViewById(R.id.creatorName2TextView);
                 creatorName2TextView.setText(creatorName2);
 
