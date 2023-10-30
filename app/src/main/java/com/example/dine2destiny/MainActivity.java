@@ -257,10 +257,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                         List<String> creators = new ArrayList<>();
                                                         List<String> imgUrls = new ArrayList<>();
                                                         List<String> phoneNos = new ArrayList<>();
+                                                        List<String> verifications = new ArrayList<>();
 
                                                         for (DataSnapshot creatorSnapshot : dataSnapshot.getChildren()) {
                                                             String creatorName = creatorSnapshot.child("name").getValue(String.class);
-
+                                                            String verification = creatorSnapshot.child("request_verification")
+                                                                    .child(creatorSnapshot.getKey()) // Assuming creator's UID is the key
+                                                                    .child("verification")
+                                                                    .getValue(String.class);
                                                             // Check if the creator is in the list of followed creators
                                                             if (followedCreators.contains(creatorName)) {
                                                                 DataSnapshot recommendationSnapshot = creatorSnapshot.child("recommendation");
@@ -309,6 +313,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                                         creators.add(creatorName);
                                                                         imgUrls.add(img);
                                                                         phoneNos.add(phoneNo);
+                                                                        verifications.add(verification);
                                                                         if (timings != null) {
                                                                             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
                                                                             String[] timingParts = timings.split("-");
@@ -345,7 +350,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                             Log.i(TAG, "loadUserLocation: No recommendations found for followed creators");
                                                         } else {
                                                             // Calculate distance using the Distance Matrix API for filtered destinations
-                                                            calculateDistance(userLocation, destinationsList, names, creators, imgUrls, phoneNos);
+                                                            calculateDistance(userLocation, destinationsList, names, creators, imgUrls, phoneNos, verifications);
                                                             locationDetailsLoaded = true;
                                                             Log.i(TAG, "loadUserLocation: Location details loaded");
                                                         }
@@ -539,7 +544,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     });
         }
     }
-    private void calculateDistance(LatLng origin, List<LatLng> destinations, List<String> names, List<String> creators, List<String> imgUrls, List<String> phoneNos) {
+    private void calculateDistance(LatLng origin, List<LatLng> destinations, List<String> names, List<String> creators, List<String> imgUrls, List<String> phoneNos, List<String> verifications) {
         String apiKey = "AIzaSyDHoXOg6fB7_Aj9u9hCCkM76W0CzN5pZHE"; // Replace with your Google Maps API Key
         StringBuilder destinationsStr = new StringBuilder();
 
@@ -578,6 +583,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                         if ((placeId == null || !visitedPlaceIds.contains(placeId)) && distanceInKm <= selectedDistance && isLocationOpen) {
                                             String name = names.get(i);
                                             String creator = creators.get(i);
+                                            String verification = verifications.get(i);
                                             String snippet = "Creator: " + creator;
                                             String img = imgUrls.get(i);
                                             String phoneno = phoneNos.get(i);
@@ -594,7 +600,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                             locationMarkers.add(marker);
 
                                             // Pass the correct distanceInKm to addLocationDetails
-                                            addLocationDetails(name, creator, distanceInKm, destinationLatLng, img, phoneno);
+                                            addLocationDetails(name, creator, verification, distanceInKm, destinationLatLng, img, phoneno);
                                             if (placeId != null) {
                                                 visitedPlaceIds.add(placeId);
                                             }
@@ -618,7 +624,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(jsonObjectRequest);
     }
-    private void addLocationDetails(final String name, String creator, final float distance, final LatLng destinationLatLng, String img, String phoneno) {
+    private void addLocationDetails(final String name, String creator, String verification, final float distance, final LatLng destinationLatLng, String img, String phoneno) {
         // Round the distance to 2 decimal places
         float roundedDistance = roundDistance(distance, 2);
 
@@ -634,7 +640,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             ImageView recommendationimg = locationDetailsView.findViewById(R.id.recommendationImage);
             TextView locationnumber = locationDetailsView.findViewById(R.id.locationNumber);
 
-            if(img != null){
+            if (img != null) {
                 Glide.with(this).load(img).placeholder(R.drawable.default_hotel_img).into(recommendationimg);
             }
 
@@ -661,6 +667,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             String creatorsText = "Creator: " + creator;
             creatorName.setText(creatorsText);
 
+            // Show the tick mark if verification is 1
+            if (verification != null && verification.equals("1")) {
+                ImageView verify = locationDetailsView.findViewById(R.id.verifiedIcon);
+                verify.setVisibility(View.VISIBLE);
+            }
+
             // Add an OnClickListener to the location details view
             locationDetailsView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -680,9 +692,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 String existingCreatorsText = creatorName.getText().toString();
                 String newCreatorsText = existingCreatorsText + ", " + creator;
                 creatorName.setText(newCreatorsText);
+
+                // Show the tick mark if verification is 1
+                if (verification != null && verification.equals("1")) {
+                    ImageView verify = existingLocationDetailsView.findViewById(R.id.verifiedIcon);
+                    verify.setVisibility(View.VISIBLE);
+                }
             }
         }
     }
+
     private void showDirectionsConfirmationDialog(final String locationName, final LatLng destinationLatLng) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Get Directions");
