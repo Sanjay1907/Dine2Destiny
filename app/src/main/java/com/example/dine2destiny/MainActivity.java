@@ -268,7 +268,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         writeToLogFile(message);
     }
     private void loadUserLocation() {
-        log("loadUserLocation: Executing loadUserLocation function");
+        log("Executing loadUserLocation function");
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             fusedLocationClient.getLastLocation()
@@ -277,23 +277,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         public void onSuccess(Location location) {
                             if (location != null) {
                                 LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                                log( "loadUserLocation: User location loaded - Lat: " +
+                                log( "User location loaded - Lat: " +
                                         userLocation.latitude + ", Lng: " + userLocation.longitude);
 
                                 if (!cameraMoved) {
                                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15f));
                                     cameraMoved = true;
-                                    log("loadUserLocation: Camera moved to user location");
+                                    log("Camera moved to user location");
                                 }
 
                                 if (!locationDetailsLoaded) {
                                     locationDetailsContainer.removeAllViews();
-                                    log( "loadUserLocation: Loading location details");
-                                    log("loadUserLocation: Selected Distance: " + selectedDistance);
-                                    log("loadUserLocation: Selected Food Category: " + selectedFoodCategory);
-                                    log("loadUserLocation: Selected Food Items: " + selectedFoodItems);
-                                    log("loadUserLocation: Selected Category: " + selectedCategory);
-                                    log("loadUserLocation: Selected Rating: " + selectedRating);
+                                    log("Loading location details");
+                                    log("Selected Distance: " + selectedDistance);
+                                    log("Selected Food Category: " + selectedFoodCategory);
+                                    log("Selected Food Items: " + selectedFoodItems);
+                                    log("Selected Category: " + selectedCategory);
+                                    log("Selected Rating: " + selectedRating);
 
                                     // Retrieve the list of creators that the user follows
                                     getFollowedCreators(new OnCompleteListener<List<String>>() {
@@ -364,7 +364,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                                             && (selectedRating == 0 || rating >= selectedRating)
                                                                             && containsSelectedFoodItem) {
                                                                         String locationName = recSnapshot.child("name").getValue(String.class);
-                                                                        log("loadUserLocation: Location Name: " + locationName);
+                                                                        log("Location Name: " + locationName);
                                                                         destinationsList.add(locationLatLng);
                                                                         names.add(recSnapshot.child("name").getValue(String.class));
                                                                         creators.add(creatorName);
@@ -405,19 +405,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                         if (destinationsList.isEmpty()) {
                                                             // No recommendations found for followed creators, show an alert dialog
                                                             showNoRecommendationsDialog();
-                                                            log( "loadUserLocation: No recommendations found for followed creators");
+                                                            log( "No recommendations found for followed creators");
                                                         } else {
                                                             // Calculate distance using the Distance Matrix API for filtered destinations
                                                             calculateDistance(userLocation, destinationsList, names, creators, imgUrls, phoneNos, verifications);
                                                             locationDetailsLoaded = true;
-                                                            log( "loadUserLocation: Location details loaded");
+                                                            log( "Location details loaded");
                                                         }
                                                     }
 
                                                     @Override
                                                     public void onCancelled(@NonNull DatabaseError databaseError) {
                                                         // Handle database error
-                                                        log("loadUserLocation: Database error: " + databaseError.getMessage());
+                                                        log("Database error: " + databaseError.getMessage());
                                                     }
                                                 };
 
@@ -425,7 +425,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                             } else {
                                                 // No followed creators found, show an alert dialog
                                                 showNoFollowedCreatorsDialog();
-                                                log( "loadUserLocation: No followed creators found");
+                                                log( "No followed creators found");
                                             }
                                         }
                                     });
@@ -435,7 +435,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     });
         } else {
             requestLocationPermission();
-            log( "loadUserLocation: Location permission not granted");
+            log( "Location permission not granted");
         }
     }
 
