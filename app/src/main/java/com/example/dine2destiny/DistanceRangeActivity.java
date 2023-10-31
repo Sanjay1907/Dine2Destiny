@@ -41,8 +41,8 @@ public class DistanceRangeActivity extends AppCompatActivity {
     private RadioButton vegRadioButton;
     private RadioButton nonVegRadioButton;
     private RadioButton both;
-    private String selectedFoodType="Any";
-    private String selectedCategory="Any";
+    private String selectedFoodType="All";
+    private String selectedCategory="All";
     private RadioGroup ratingRadioGroup;
     private RadioButton rating4PlusRadioButton;
     private RadioButton rating3PlusRadioButton;
@@ -134,7 +134,7 @@ public class DistanceRangeActivity extends AppCompatActivity {
                 } else if (checkedId == R.id.both){
                     selectedFoodType = "Both";
                 } else{
-                    selectedFoodType = "Any";
+                    selectedFoodType = "All";
                 }
                 Log.i(TAG, "onCheckedChanged: Selected Food Type: " + selectedFoodType);
             }
@@ -145,7 +145,7 @@ public class DistanceRangeActivity extends AppCompatActivity {
                 if (isChecked) {
                     selectedCategory = "Veg";
                 } else{
-                    selectedCategory = "Any";
+                    selectedCategory = "All";
                 }
                 Log.i(TAG, "onCheckedChanged: Selected Category: " + selectedCategory);
             }

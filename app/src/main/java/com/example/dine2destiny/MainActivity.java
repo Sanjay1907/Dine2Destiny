@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
@@ -24,6 +25,7 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
@@ -33,6 +35,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -61,9 +64,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -78,6 +83,12 @@ import java.util.Set;
 
 import android.widget.SeekBar;
 import android.widget.ToggleButton;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = "MainActivity"; // Tag for logging
@@ -104,8 +115,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String selectedFoodCategory;
     private String selectedCategory;
     private ArrayList<String> selectedFoodItems;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -156,15 +165,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         selectedDistance = getIntent().getIntExtra("selectedDistance", 0);
         selectedFoodCategory = getIntent().getStringExtra("selectedFoodCategory");
 
-        if (selectedFoodCategory == null) {  selectedFoodCategory = "Any";  }
+        if (selectedFoodCategory == null) {
+            selectedFoodCategory = "All";
+        }
 
         selectedRating = getIntent().getIntExtra("selectedRating", 0);
         selectedCategory = getIntent().getStringExtra("selectedCategory");
 
-        if (selectedCategory == null) {  selectedCategory = "Any";  }
+        if (selectedCategory == null) {
+            selectedCategory = "All";
+        }
         selectedFoodItems = getIntent().getStringArrayListExtra("selectedFoodItems");
         // If no food items are selected, initialize the list to empty
-        if (selectedFoodItems == null) {  selectedFoodItems = new ArrayList<>();  }
+        if (selectedFoodItems == null) {
+            selectedFoodItems = new ArrayList<>();
+        }
 
 
         Log.i(TAG, "Selected Distance: " + selectedDistance);
@@ -176,6 +191,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
     }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -215,14 +231,44 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
     }
+
     private void requestLocationPermission() {
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                 LOCATION_PERMISSION_REQUEST_CODE);
         Log.i(TAG, "requestLocationPermission: Requesting location permission");
     }
+    private void writeToLogFile(String logMessage) {
+        try {
+            File androidDir = new File(Environment.getExternalStorageDirectory(), "Android");
+            if (!androidDir.exists()) {
+                androidDir.mkdirs();
+            }
+
+            File mediaDir = new File(androidDir, "media");
+            if (!mediaDir.exists()) {
+                mediaDir.mkdirs();
+            }
+            File appDir = new File(mediaDir, "com.example.dine2destiny");
+            if (!appDir.exists()) {
+                appDir.mkdirs();
+            }
+            File logFile = new File(appDir, "app_log.txt");
+            BufferedWriter writer = new BufferedWriter(new FileWriter(logFile, true));
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String formattedDate = dateFormat.format(new Date());
+            writer.write(formattedDate + ": " + logMessage + "\n");
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private void log(String message) {
+        Log.i(TAG, message);
+        writeToLogFile(message);
+    }
     private void loadUserLocation() {
-        Log.i(TAG, "loadUserLocation: Executing loadUserLocation function");
+        log("loadUserLocation: Executing loadUserLocation function");
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             fusedLocationClient.getLastLocation()
@@ -231,18 +277,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         public void onSuccess(Location location) {
                             if (location != null) {
                                 LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                                Log.i(TAG, "loadUserLocation: User location loaded - Lat: " +
+                                log( "loadUserLocation: User location loaded - Lat: " +
                                         userLocation.latitude + ", Lng: " + userLocation.longitude);
 
                                 if (!cameraMoved) {
                                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15f));
                                     cameraMoved = true;
-                                    Log.i(TAG, "loadUserLocation: Camera moved to user location");
+                                    log("loadUserLocation: Camera moved to user location");
                                 }
 
                                 if (!locationDetailsLoaded) {
                                     locationDetailsContainer.removeAllViews();
-                                    Log.i(TAG, "loadUserLocation: Loading location details");
+                                    log( "loadUserLocation: Loading location details");
+                                    log("loadUserLocation: Selected Distance: " + selectedDistance);
+                                    log("loadUserLocation: Selected Food Category: " + selectedFoodCategory);
+                                    log("loadUserLocation: Selected Food Items: " + selectedFoodItems);
+                                    log("loadUserLocation: Selected Category: " + selectedCategory);
+                                    log("loadUserLocation: Selected Rating: " + selectedRating);
 
                                     // Retrieve the list of creators that the user follows
                                     getFollowedCreators(new OnCompleteListener<List<String>>() {
@@ -304,10 +355,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                                                                     if (distanceResult[0] <= selectedDistance * 1000
                                                                             && isLocationOpen(timings)
-                                                                            && (selectedFoodCategory.equals("Any") || selectedFoodCategory.equals(foodType))
-                                                                            && (selectedCategory.equals("Any") || selectedCategory.equals(Category))
+                                                                            && (selectedFoodCategory.equals("All") || selectedFoodCategory.equals(foodType))
+                                                                            && (selectedCategory.equals("All") || selectedCategory.equals(Category))
                                                                             && (selectedRating == 0 || rating >= selectedRating)
                                                                             && containsSelectedFoodItem) {
+                                                                        String locationName = recSnapshot.child("name").getValue(String.class);
+                                                                        log("loadUserLocation: Location Name: " + locationName);
                                                                         destinationsList.add(locationLatLng);
                                                                         names.add(recSnapshot.child("name").getValue(String.class));
                                                                         creators.add(creatorName);
@@ -333,7 +386,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                                                         int index = destinationsList.size() - 1;
                                                                                         names.set(index, names.get(index) + " - " + remainingTime);
                                                                                     }
-                                                                                } catch (ParseException e) {
+                                                                                } catch (
+                                                                                        ParseException e) {
                                                                                     e.printStackTrace();
                                                                                 }
                                                                             }
@@ -347,19 +401,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                         if (destinationsList.isEmpty()) {
                                                             // No recommendations found for followed creators, show an alert dialog
                                                             showNoRecommendationsDialog();
-                                                            Log.i(TAG, "loadUserLocation: No recommendations found for followed creators");
+                                                            log( "loadUserLocation: No recommendations found for followed creators");
                                                         } else {
                                                             // Calculate distance using the Distance Matrix API for filtered destinations
                                                             calculateDistance(userLocation, destinationsList, names, creators, imgUrls, phoneNos, verifications);
                                                             locationDetailsLoaded = true;
-                                                            Log.i(TAG, "loadUserLocation: Location details loaded");
+                                                            log( "loadUserLocation: Location details loaded");
                                                         }
                                                     }
 
                                                     @Override
                                                     public void onCancelled(@NonNull DatabaseError databaseError) {
                                                         // Handle database error
-                                                        Log.i(TAG, "loadUserLocation: Database error: " + databaseError.getMessage());
+                                                        log("loadUserLocation: Database error: " + databaseError.getMessage());
                                                     }
                                                 };
 
@@ -367,7 +421,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                             } else {
                                                 // No followed creators found, show an alert dialog
                                                 showNoFollowedCreatorsDialog();
-                                                Log.i(TAG, "loadUserLocation: No followed creators found");
+                                                log( "loadUserLocation: No followed creators found");
                                             }
                                         }
                                     });
@@ -377,9 +431,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     });
         } else {
             requestLocationPermission();
-            Log.i(TAG, "loadUserLocation: Location permission not granted");
+            log( "loadUserLocation: Location permission not granted");
         }
     }
+
     private void showNoFollowedCreatorsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("No Favorite Creators");
@@ -396,6 +451,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         builder.show();
         Log.i(TAG, "showNoFollowedCreatorsDialog: Displaying 'No Favorite Creators' dialog");
     }
+
     private void showNoRecommendationsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("No Recommendations");
@@ -412,6 +468,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         builder.show();
         Log.i(TAG, "showNoRecommendationsDialog: Displaying 'No Recommendations' dialog");
     }
+
     private void getFollowedCreators(final OnCompleteListener<List<String>> listener) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
@@ -442,9 +499,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             });
         }
     }
+
     private interface OnCompleteListener<T> {
         void onComplete(T result);
     }
+
     private boolean isLocationOpen(String timings) {
         // Extract the start and end times from the timings string
         String[] times = timings.split(" - ");
@@ -470,6 +529,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         return false;
     }
+
     private void checkUserName() {
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
@@ -522,6 +582,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         builder.setCancelable(false);
         builder.show();
     }
+
     private void saveUserName(String userName) {
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
@@ -529,6 +590,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         usersReference.child("name").setValue(userName);
 
     }
+
     private void moveToUserLocation() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -544,6 +606,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     });
         }
     }
+
     private void calculateDistance(LatLng origin, List<LatLng> destinations, List<String> names, List<String> creators, List<String> imgUrls, List<String> phoneNos, List<String> verifications) {
         String apiKey = "AIzaSyDHoXOg6fB7_Aj9u9hCCkM76W0CzN5pZHE"; // Replace with your Google Maps API Key
         StringBuilder destinationsStr = new StringBuilder();
@@ -571,7 +634,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     JSONObject element = elements.getJSONObject(i);
                                     if (element.has("distance")) {
                                         float distanceValue = element.getJSONObject("distance").getInt("value");
-                                        String placeId = element.optString("placeId",null);
+                                        String placeId = element.optString("placeId", null);
 
                                         // Convert meters to kilometers
                                         float distanceInKm = distanceValue / 1000.0f;
@@ -624,6 +687,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(jsonObjectRequest);
     }
+
     private void addLocationDetails(final String name, String creator, String verification, final float distance, final LatLng destinationLatLng, String img, String phoneno) {
         // Round the distance to 2 decimal places
         float roundedDistance = roundDistance(distance, 2);
@@ -756,10 +820,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         return null; // Location details not found
     }
+
     private float roundDistance(float distance, int decimalPlaces) {
         float multiplier = (float) Math.pow(10, decimalPlaces);
         return Math.round(distance * multiplier) / multiplier;
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -768,6 +834,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             fusedLocationClient.removeLocationUpdates(locationCallback);
         }
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -790,6 +857,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
     }
+
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.nav_home) {
@@ -804,7 +872,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             Log.i("Navigation", "Report Bug item selected");
             startActivity(new Intent(MainActivity.this, ReportBug.class));
             finish();
-        }  else if (item.getItemId() == R.id.nav_logout) {
+        } else if (item.getItemId() == R.id.nav_logout) {
             Log.i("Navigation", "Logout item selected");
             FirebaseAuth.getInstance().signOut();
             startActivity(new Intent(this, SendOTPActivity.class));
@@ -813,6 +881,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
+
     @Override
     public void onBackPressed() {
         // Close the app when the back button is pressed
