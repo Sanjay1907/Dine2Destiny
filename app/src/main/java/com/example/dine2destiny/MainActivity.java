@@ -300,6 +300,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                         @Override
                                         public void onComplete(List<String> followedCreators) {
                                             if (followedCreators != null && !followedCreators.isEmpty()) {
+                                                log("Followed Creators:");
+                                                for (String followedCreator : followedCreators) {
+                                                    log(followedCreator);
+                                                }
                                                 ValueEventListener valueEventListener = new ValueEventListener() {
                                                     @Override
                                                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
