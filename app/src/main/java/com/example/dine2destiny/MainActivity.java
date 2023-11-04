@@ -115,6 +115,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String selectedFoodCategory;
     private String selectedCategory;
     private ArrayList<String> selectedFoodItems;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -181,7 +183,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             selectedFoodItems = new ArrayList<>();
         }
 
-
         Log.i(TAG, "Selected Distance: " + selectedDistance);
         Log.i(TAG, "Selected Food Category: " + selectedFoodCategory);
         Log.i(TAG, "Selected Category: " + selectedCategory);
@@ -238,37 +239,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 LOCATION_PERMISSION_REQUEST_CODE);
         Log.i(TAG, "requestLocationPermission: Requesting location permission");
     }
-    private void writeToLogFile(String logMessage) {
+    private boolean appendLocationNamesToLogFile(String logFilePath, String locationNames) {
         try {
-            File androidDir = new File(Environment.getExternalStorageDirectory(), "Android");
-            if (!androidDir.exists()) {
-                androidDir.mkdirs();
-            }
-
-            File mediaDir = new File(androidDir, "media");
-            if (!mediaDir.exists()) {
-                mediaDir.mkdirs();
-            }
-            File appDir = new File(mediaDir, "com.example.dine2destiny");
-            if (!appDir.exists()) {
-                appDir.mkdirs();
-            }
-            File logFile = new File(appDir, "app_log.txt");
-            BufferedWriter writer = new BufferedWriter(new FileWriter(logFile, true));
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String formattedDate = dateFormat.format(new Date());
-            writer.write(formattedDate + ": " + logMessage + "\n");
+            BufferedWriter writer = new BufferedWriter(new FileWriter(logFilePath, true)); // Append mode
+            writer.write(locationNames);
             writer.close();
+            return true; // Return true to indicate success
         } catch (IOException e) {
             e.printStackTrace();
+            return false; // Return false to indicate failure
         }
     }
-    private void log(String message) {
-        Log.i(TAG, message);
-        writeToLogFile(message);
-    }
     private void loadUserLocation() {
-        log("Executing loadUserLocation function");
+        Log.i(TAG, "Executing loadUserLocation function");
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             fusedLocationClient.getLastLocation()
@@ -277,32 +260,35 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         public void onSuccess(Location location) {
                             if (location != null) {
                                 LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                                log( "User location loaded - Lat: " +
+                                Log.i(TAG, "User location loaded - Lat: " +
                                         userLocation.latitude + ", Lng: " + userLocation.longitude);
 
                                 if (!cameraMoved) {
                                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15f));
                                     cameraMoved = true;
-                                    log("Camera moved to user location");
+                                    Log.i(TAG, "Camera moved to user location");
                                 }
 
                                 if (!locationDetailsLoaded) {
                                     locationDetailsContainer.removeAllViews();
-                                    log("Loading location details");
-                                    log("Selected Distance: " + selectedDistance);
-                                    log("Selected Food Category: " + selectedFoodCategory);
-                                    log("Selected Food Items: " + selectedFoodItems);
-                                    log("Selected Category: " + selectedCategory);
-                                    log("Selected Rating: " + selectedRating);
+                                    Log.i(TAG, "Loading location details");
+                                    Log.i(TAG, "Selected Distance: " + selectedDistance);
+                                    Log.i(TAG, "Selected Food Category: " + selectedFoodCategory);
+                                    Log.i(TAG, "Selected Food Items: " + selectedFoodItems);
+                                    Log.i(TAG, "Selected Category: " + selectedCategory);
+                                    Log.i(TAG, "Selected Rating: " + selectedRating);
+
+                                    // Retrieve the log file path from the intent
+                                    String logFilePath = getIntent().getStringExtra("logFilePath");
 
                                     // Retrieve the list of creators that the user follows
                                     getFollowedCreators(new OnCompleteListener<List<String>>() {
                                         @Override
                                         public void onComplete(List<String> followedCreators) {
                                             if (followedCreators != null && !followedCreators.isEmpty()) {
-                                                log("Followed Creators:");
+                                                Log.i(TAG, "Followed Creators:");
                                                 for (String followedCreator : followedCreators) {
-                                                    log(followedCreator);
+                                                    Log.i(TAG, followedCreator);
                                                 }
                                                 ValueEventListener valueEventListener = new ValueEventListener() {
                                                     @Override
@@ -364,9 +350,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                                             && (selectedRating == 0 || rating >= selectedRating)
                                                                             && containsSelectedFoodItem) {
                                                                         String locationName = recSnapshot.child("name").getValue(String.class);
-                                                                        log("Location Name: " + locationName);
+                                                                        Log.i(TAG, "Location Name: " + locationName);
                                                                         destinationsList.add(locationLatLng);
-                                                                        names.add(recSnapshot.child("name").getValue(String.class));
+                                                                        names.add(locationName);
                                                                         creators.add(creatorName);
                                                                         imgUrls.add(img);
                                                                         phoneNos.add(phoneNo);
@@ -395,7 +381,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                                                     e.printStackTrace();
                                                                                 }
                                                                             }
-
                                                                         }
                                                                     }
                                                                 }
@@ -405,19 +390,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                         if (destinationsList.isEmpty()) {
                                                             // No recommendations found for followed creators, show an alert dialog
                                                             showNoRecommendationsDialog();
-                                                            log( "No recommendations found for followed creators");
+                                                            Log.i(TAG, "No recommendations found for followed creators");
                                                         } else {
                                                             // Calculate distance using the Distance Matrix API for filtered destinations
                                                             calculateDistance(userLocation, destinationsList, names, creators, imgUrls, phoneNos, verifications);
                                                             locationDetailsLoaded = true;
-                                                            log( "Location details loaded");
+                                                            Log.i(TAG, "Location details loaded");
+
+                                                            // Append the location names to the log file
+                                                            String locationNames = "\nRecommendations which are been loaded are:\n";
+                                                            for (String locationName : names) {
+                                                                locationNames += locationName + "\n";
+                                                            }
+                                                            if (appendLocationNamesToLogFile(logFilePath, locationNames)) {
+                                                                Log.i(TAG, "Location names appended to the log file");
+                                                            } else {
+                                                                Log.e(TAG, "Failed to append location names to the log file");
+                                                            }
                                                         }
                                                     }
 
                                                     @Override
                                                     public void onCancelled(@NonNull DatabaseError databaseError) {
                                                         // Handle database error
-                                                        log("Database error: " + databaseError.getMessage());
+                                                        Log.i(TAG, "Database error: " + databaseError.getMessage());
                                                     }
                                                 };
 
@@ -425,7 +421,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                             } else {
                                                 // No followed creators found, show an alert dialog
                                                 showNoFollowedCreatorsDialog();
-                                                log( "No followed creators found");
+                                                Log.i(TAG, "No followed creators found");
                                             }
                                         }
                                     });
@@ -435,9 +431,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     });
         } else {
             requestLocationPermission();
-            log( "Location permission not granted");
+            Log.i(TAG, "Location permission not granted");
         }
     }
+
 
     private void showNoFollowedCreatorsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);

@@ -203,7 +203,18 @@ public class FavCreatorfilter extends AppCompatActivity{
         nextbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                List<String> followedCreators = new ArrayList<>();
+
+                // Gather the names of followed creators
+                for (String creatorName : followedCreatorsMap.keySet()) {
+                    if (followedCreatorsMap.get(creatorName)) {
+                        followedCreators.add(creatorName);
+                    }
+                }
+
+                // Create an Intent to pass the list of followed creator names
                 Intent intent = new Intent(FavCreatorfilter.this, DistanceRangeActivity.class);
+                intent.putStringArrayListExtra("followedCreators", (ArrayList<String>) followedCreators);
                 startActivity(intent);
             }
         });
