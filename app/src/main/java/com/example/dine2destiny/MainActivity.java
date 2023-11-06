@@ -73,6 +73,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -747,8 +749,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             });
 
+            // Add the location details view to the container
             locationDetailsContainer.addView(locationDetailsView);
+
+            // Sort the location details views in the container by distance
+            sortLocationDetailsViewsByDistance();
         } else {
+            // Update the existing location details view if necessary
             List<String> creatorsList = locationCreatorsMap.get(name);
             if (!creatorsList.contains(creator)) {
                 creatorsList.add(creator);
@@ -767,6 +774,28 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    private void sortLocationDetailsViewsByDistance() {
+        List<View> locationDetailsViews = new ArrayList<>();
+        for (int i = 0; i < locationDetailsContainer.getChildCount(); i++) {
+            locationDetailsViews.add(locationDetailsContainer.getChildAt(i));
+        }
+
+        Collections.sort(locationDetailsViews, new Comparator<View>() {
+            @Override
+            public int compare(View view1, View view2) {
+                TextView distanceView1 = view1.findViewById(R.id.locationDistance);
+                TextView distanceView2 = view2.findViewById(R.id.locationDistance);
+                float distance1 = Float.parseFloat(distanceView1.getText().toString().replace(" km", ""));
+                float distance2 = Float.parseFloat(distanceView2.getText().toString().replace(" km", ""));
+                return Float.compare(distance1, distance2);
+            }
+        });
+
+        locationDetailsContainer.removeAllViews();
+        for (View locationDetailsView : locationDetailsViews) {
+            locationDetailsContainer.addView(locationDetailsView);
+        }
+    }
     private void showDirectionsConfirmationDialog(final String locationName, final LatLng destinationLatLng) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Get Directions");

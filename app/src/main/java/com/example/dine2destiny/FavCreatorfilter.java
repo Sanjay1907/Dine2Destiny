@@ -203,19 +203,7 @@ public class FavCreatorfilter extends AppCompatActivity{
         nextbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                List<String> followedCreators = new ArrayList<>();
-
-                // Gather the names of followed creators
-                for (String creatorName : followedCreatorsMap.keySet()) {
-                    if (followedCreatorsMap.get(creatorName)) {
-                        followedCreators.add(creatorName);
-                    }
-                }
-
-                // Create an Intent to pass the list of followed creator names
-                Intent intent = new Intent(FavCreatorfilter.this, DistanceRangeActivity.class);
-                intent.putStringArrayListExtra("followedCreators", (ArrayList<String>) followedCreators);
-                startActivity(intent);
+                retrieveFollowedCreatorsFromDatabase();
             }
         });
     }
@@ -255,7 +243,39 @@ public class FavCreatorfilter extends AppCompatActivity{
             });
         }
     }
+    private void retrieveFollowedCreatorsFromDatabase() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            final String currentUserId = currentUser.getUid();
 
+            DatabaseReference userFavoritesRef = FirebaseDatabase.getInstance()
+                    .getReference()
+                    .child("Users")
+                    .child(currentUserId)
+                    .child("fav-creators");
+
+            userFavoritesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    List<String> followedCreators = new ArrayList<>();
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        String creatorName = snapshot.getKey();
+                        followedCreators.add(creatorName);
+                    }
+
+                    // Create an Intent to pass the list of followed creator names
+                    Intent intent = new Intent(FavCreatorfilter.this, DistanceRangeActivity.class);
+                    intent.putStringArrayListExtra("followedCreators", (ArrayList<String>) followedCreators);
+                    startActivity(intent);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    // Handle database errors if needed
+                }
+            });
+        }
+    }
     private void setButtonToFollowing(String creatorName) {
         for (int i = 0; i < creatorListView.getChildCount(); i++) {
             View view = creatorListView.getChildAt(i);
