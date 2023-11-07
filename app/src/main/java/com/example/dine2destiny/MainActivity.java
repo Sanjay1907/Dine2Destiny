@@ -313,77 +313,85 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                                 DataSnapshot recommendationSnapshot = creatorSnapshot.child("recommendation");
                                                                 for (DataSnapshot recSnapshot : recommendationSnapshot.getChildren()) {
                                                                     String locationStr = recSnapshot.child("location").getValue(String.class);
-                                                                    double latitude = Double.parseDouble(locationStr.split(", ")[0].split(": ")[1]);
-                                                                    double longitude = Double.parseDouble(locationStr.split(", ")[1].split(": ")[1]);
-                                                                    LatLng locationLatLng = new LatLng(latitude, longitude);
-                                                                    float[] distanceResult = new float[1];
-                                                                    Location.distanceBetween(
-                                                                            userLocation.latitude, userLocation.longitude,
-                                                                            locationLatLng.latitude, locationLatLng.longitude,
-                                                                            distanceResult);
-                                                                    // Check if the location is open and within the selected distance
-                                                                    String timings = recSnapshot.child("timings").getValue(String.class);
-                                                                    String foodType = recSnapshot.child("specialType").getValue(String.class);
-                                                                    String Category = recSnapshot.child("foodType").getValue(String.class);
-                                                                    int rating = recSnapshot.child("rating").getValue(Integer.class);
-                                                                    String hashtags = recSnapshot.child("hashtag").getValue(String.class);
-                                                                    String img = recSnapshot.child("imageUrl").getValue(String.class);
-                                                                    String phoneNo = recSnapshot.child("contactNumber").getValue(String.class);
 
-                                                                    boolean containsSelectedFoodItem = false;
+                                                                    // Check if locationStr is in the expected format (e.g., "Lat: 12.345, Lng: 67.890")
+                                                                    if (locationStr != null && locationStr.matches("Latitude: [0-9]+\\.[0-9]+, Longitude: [0-9]+\\.[0-9]+")) {
+                                                                        // Parse latitude and longitude
+                                                                        double latitude = Double.parseDouble(locationStr.split(", ")[0].split(": ")[1]);
+                                                                        double longitude = Double.parseDouble(locationStr.split(", ")[1].split(": ")[1]);
+                                                                        LatLng locationLatLng = new LatLng(latitude, longitude);
 
-                                                                    // Only check for food item filter if there are selected food items
-                                                                    if (!selectedFoodItems.isEmpty()) {
-                                                                        for (String selectedFoodItem : selectedFoodItems) {
-                                                                            if (hashtags != null && hashtags.contains("#" + selectedFoodItem)) {
-                                                                                containsSelectedFoodItem = true;
-                                                                                break; // No need to continue checking if one is found
+                                                                        float[] distanceResult = new float[1];
+                                                                        Location.distanceBetween(
+                                                                                userLocation.latitude, userLocation.longitude,
+                                                                                locationLatLng.latitude, locationLatLng.longitude,
+                                                                                distanceResult);
+                                                                        // Check if the location is open and within the selected distance
+                                                                        String timings = recSnapshot.child("timings").getValue(String.class);
+                                                                        String foodType = recSnapshot.child("specialType").getValue(String.class);
+                                                                        String Category = recSnapshot.child("foodType").getValue(String.class);
+                                                                        int rating = recSnapshot.child("rating").getValue(Integer.class);
+                                                                        String hashtags = recSnapshot.child("hashtag").getValue(String.class);
+                                                                        String img = recSnapshot.child("imageUrl").getValue(String.class);
+                                                                        String phoneNo = recSnapshot.child("contactNumber").getValue(String.class);
+
+                                                                        boolean containsSelectedFoodItem = false;
+
+                                                                        // Only check for food item filter if there are selected food items
+                                                                        if (!selectedFoodItems.isEmpty()) {
+                                                                            for (String selectedFoodItem : selectedFoodItems) {
+                                                                                if (hashtags != null && hashtags.contains("#" + selectedFoodItem)) {
+                                                                                    containsSelectedFoodItem = true;
+                                                                                    break; // No need to continue checking if one is found
+                                                                                }
                                                                             }
+                                                                        } else {
+                                                                            // If no food items are selected, set containsSelectedFoodItem to true
+                                                                            containsSelectedFoodItem = true;
                                                                         }
-                                                                    } else {
-                                                                        // If no food items are selected, set containsSelectedFoodItem to true
-                                                                        containsSelectedFoodItem = true;
-                                                                    }
 
-                                                                    if (distanceResult[0] <= selectedDistance * 1000
-                                                                            && isLocationOpen(timings)
-                                                                            && (selectedFoodCategory.equals("All") || selectedFoodCategory.equals(foodType))
-                                                                            && (selectedCategory.equals("All") || selectedCategory.equals(Category))
-                                                                            && (selectedRating == 0 || rating >= selectedRating)
-                                                                            && containsSelectedFoodItem) {
-                                                                        String locationName = recSnapshot.child("name").getValue(String.class);
-                                                                        Log.i(TAG, "Location Name: " + locationName);
-                                                                        destinationsList.add(locationLatLng);
-                                                                        names.add(locationName);
-                                                                        creators.add(creatorName);
-                                                                        imgUrls.add(img);
-                                                                        phoneNos.add(phoneNo);
-                                                                        verifications.add(verification);
-                                                                        if (timings != null) {
-                                                                            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
-                                                                            String[] timingParts = timings.split("-");
-                                                                            if (timingParts.length == 2) {
-                                                                                String endTimeStr = timingParts[1];
-                                                                                try {
-                                                                                    Calendar calendar = Calendar.getInstance();
-                                                                                    String currentTimeStr = sdf.format(calendar.getTime());
-                                                                                    Date endTime = sdf.parse(endTimeStr);
-                                                                                    Date currentTime = sdf.parse(currentTimeStr);
+                                                                        if (distanceResult[0] <= selectedDistance * 1000
+                                                                                && isLocationOpen(timings)
+                                                                                && (selectedFoodCategory.equals("All") || selectedFoodCategory.equals(foodType))
+                                                                                && (selectedCategory.equals("All") || selectedCategory.equals(Category))
+                                                                                && (selectedRating == 0 || rating >= selectedRating)
+                                                                                && containsSelectedFoodItem) {
+                                                                            String locationName = recSnapshot.child("name").getValue(String.class);
+                                                                            Log.i(TAG, "Location Name: " + locationName);
+                                                                            destinationsList.add(locationLatLng);
+                                                                            names.add(locationName);
+                                                                            creators.add(creatorName);
+                                                                            imgUrls.add(img);
+                                                                            phoneNos.add(phoneNo);
+                                                                            verifications.add(verification);
+                                                                            if (timings != null) {
+                                                                                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                                                                                String[] timingParts = timings.split("-");
+                                                                                if (timingParts.length == 2) {
+                                                                                    String endTimeStr = timingParts[1];
+                                                                                    try {
+                                                                                        Calendar calendar = Calendar.getInstance();
+                                                                                        String currentTimeStr = sdf.format(calendar.getTime());
+                                                                                        Date endTime = sdf.parse(endTimeStr);
+                                                                                        Date currentTime = sdf.parse(currentTimeStr);
 
-                                                                                    long remainingMinutes = (endTime.getTime() - currentTime.getTime()) / (60 * 1000);
+                                                                                        long remainingMinutes = (endTime.getTime() - currentTime.getTime()) / (60 * 1000);
 
-                                                                                    if (remainingMinutes <= 60 && remainingMinutes > 0) {
-                                                                                        // Calculate the difference between the end time and current time in minutes
-                                                                                        String remainingTime = "Closing in " + remainingMinutes + " mins";
-                                                                                        int index = destinationsList.size() - 1;
-                                                                                        names.set(index, names.get(index) + " - " + remainingTime);
+                                                                                        if (remainingMinutes <= 60 && remainingMinutes > 0) {
+                                                                                            // Calculate the difference between the end time and current time in minutes
+                                                                                            String remainingTime = "Closing in " + remainingMinutes + " mins";
+                                                                                            int index = destinationsList.size() - 1;
+                                                                                            names.set(index, names.get(index) + " - " + remainingTime);
+                                                                                        }
+                                                                                    } catch (
+                                                                                            ParseException e) {
+                                                                                        e.printStackTrace();
                                                                                     }
-                                                                                } catch (
-                                                                                        ParseException e) {
-                                                                                    e.printStackTrace();
                                                                                 }
                                                                             }
                                                                         }
+                                                                    }else {
+                                                                        Log.e(TAG, "Invalid location format: " + locationStr);
                                                                     }
                                                                 }
                                                             }
@@ -436,8 +444,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             Log.i(TAG, "Location permission not granted");
         }
     }
-
-
     private void showNoFollowedCreatorsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("No Favorite Creators");

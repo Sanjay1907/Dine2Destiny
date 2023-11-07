@@ -3,6 +3,7 @@ package com.example.dine2destiny;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -146,10 +147,17 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
 
 
                 adapter.notifyDataSetChanged();
-                progressDialog.dismiss();
 
                 Log.d(TAG, "onChildAdded: Creator added - " + creatorName);
 
+                // Call loadInitialFollowState() after the data has been loaded
+                loadInitialFollowState();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressDialog.dismiss();
+                    }
+                }, 2000); // 1000 milliseconds = 1 second
             }
 
             @Override
@@ -173,9 +181,6 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
                 Log.e(TAG, "onCancelled: Database error - " + databaseError.getMessage());
             }
         });
-
-        // Load the initial follow state when the data is loaded
-        loadInitialFollowState();
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
