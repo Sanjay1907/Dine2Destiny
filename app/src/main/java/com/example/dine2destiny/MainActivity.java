@@ -117,8 +117,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String selectedFoodCategory;
     private String selectedCategory;
     private ArrayList<String> selectedFoodItems;
-
-
+    private boolean filterDialogShown = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -202,6 +201,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
+            showFilterDialog();
             loadUserLocation();
             mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
                 @Override
@@ -287,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     getFollowedCreators(new OnCompleteListener<List<String>>() {
                                         @Override
                                         public void onComplete(List<String> followedCreators) {
-                                            if (followedCreators != null && !followedCreators.isEmpty()) {
+                                            if (followedCreators != null && !followedCreators.isEmpty() && followedCreators.size() >= 5) {
                                                 Log.i(TAG, "Followed Creators:");
                                                 for (String followedCreator : followedCreators) {
                                                     Log.i(TAG, followedCreator);
@@ -446,13 +446,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
     private void showNoFollowedCreatorsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("No Favorite Creators");
-        builder.setMessage("You have not followed any creators. Follow some creators to get recommendations.");
+        builder.setTitle("Celebrate Flavor and Variety");
+        builder.setMessage("Enhance your experience by following at least 5 creators, and unlock a world of diverse and exciting recommendations tailored just for you.");
 
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                // Handle the OK button click
+                // Handle the OK button click by navigating to the FavCreator class
+                Intent intent = new Intent(MainActivity.this, FavCreator.class);
+                startActivity(intent);
             }
         });
 
@@ -460,24 +462,57 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         builder.show();
         Log.i(TAG, "showNoFollowedCreatorsDialog: Displaying 'No Favorite Creators' dialog");
     }
-
     private void showNoRecommendationsDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("No Recommendations");
-        builder.setMessage("Choose the filters options to get the perfect recommendation for you");
+        if (!filterDialogShown) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("No Recommendations Found");
+            builder.setMessage("Sorry, no recommendations were found for the selected filter. Please adjust your filter criteria to discover new recommendations.");
 
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Handle the OK button click
-            }
-        });
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // Handle the OK button click by navigating to the FavCreator class
+                    Intent intent = new Intent(MainActivity.this, FavCreatorfilter.class);
+                    startActivity(intent);
+                }
+            });
 
-        builder.setCancelable(false);
-        builder.show();
-        Log.i(TAG, "showNoRecommendationsDialog: Displaying 'No Recommendations' dialog");
+            builder.setCancelable(false);
+            builder.show();
+            Log.i(TAG, "showNoFollowedCreatorsDialog: Displaying 'No Favorite Creators' dialog");
+        }
     }
+    private void showFilterDialog() {
+        // Check if the conditions are met to show the filter dialog
+        if (selectedDistance == 0 && "All".equals(selectedFoodCategory)
+                && "All".equals(selectedCategory) && selectedRating == 0
+                && selectedFoodItems.isEmpty()) {
+            filterDialogShown = true;
+            // Create and show the filter dialog
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Customize Your Recommendations");
+            builder.setMessage("Discover the perfect recommendations tailored to your taste by customizing your filters. Select your preferences to unlock a world of tailored experiences.");
 
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // Handle the OK button click by navigating to the filter settings
+                    Intent intent = new Intent(MainActivity.this, FavCreatorfilter.class);
+                    startActivity(intent);
+                }
+            });
+
+            builder.setCancelable(false);
+            builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    filterDialogShown = false; // Reset the flag when the filter dialog is dismissed
+                }
+            });
+            builder.show();
+            Log.i(TAG, "showFilterDialog: Displaying the filter dialog");
+        }
+    }
     private void getFollowedCreators(final OnCompleteListener<List<String>> listener) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
