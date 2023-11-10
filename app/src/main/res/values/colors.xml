@@ -14,4 +14,8 @@
     <color name="green">#008000</color>
     <color name="goldColor">#FFD700</color>
     <color name="red">#d11a2a</color>
+    <color name="blue">#5FB0FB</color>
+    <color name="darkpurple">#5200FF</color>
+    <color name="purple">#7639F4</color>
+    <color name="lightred">#F66257</color>
 </resources>

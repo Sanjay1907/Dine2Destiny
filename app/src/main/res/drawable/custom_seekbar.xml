@@ -1,0 +1,29 @@
+<!-- custom_seekbar.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Background track -->
+    <item android:id="@android:id/background">
+        <shape>
+            <solid android:color="#C0C0C0" /> <!-- Color of the background track -->
+            <corners android:radius="50dp" /> <!-- Optional: Round corners of the track -->
+        </shape>
+    </item>
+
+    <!-- Progress track -->
+    <item android:id="@android:id/progress">
+        <clip>
+            <shape>
+                <solid android:color="#00FF00" /> <!-- Color of the progress track -->
+                <corners android:radius="5dp" /> <!-- Optional: Round corners of the progress track -->
+            </shape>
+        </clip>
+    </item>
+
+    <!-- Thumb (draggable indicator) -->
+    <item android:id="@+id/distanceSeekBar">
+        <shape>
+            <solid android:color="#FFFFFF" /> <!-- Color of the thumb -->
+            <size android:width="15dp" android:height="15dp" /> <!-- Optional: Set thumb size -->
+            <corners android:radius="50dp" /> <!-- Optional: Round corners of the thumb -->
+        </shape>
+    </item>
+</layer-list>

@@ -237,6 +237,7 @@ public class FavCreatorfilter extends AppCompatActivity{
                             // Update the data structure with the "Following" state
                             followedCreatorsMap.put(creatorName, true);
                             setButtonToFollowing(creatorName);
+                            followButton.setBackgroundTintList(getResources().getColorStateList(R.color.black));
                         }
                     }
                 }
@@ -305,7 +306,7 @@ public class FavCreatorfilter extends AppCompatActivity{
             View parentView = (View) view.getParent();
             TextView creatorNameTextView = parentView.findViewById(R.id.creatorNameTextView);
             final String creatorName = creatorNameTextView.getText().toString();
-
+            Button followButton = (Button) view;
             DatabaseReference userFavoritesRef = FirebaseDatabase.getInstance()
                     .getReference()
                     .child("Users")
@@ -318,12 +319,14 @@ public class FavCreatorfilter extends AppCompatActivity{
                 userFavoritesRef.child(creatorName).removeValue();
                 followedCreatorsMap.put(creatorName, false);
                 ((Button) view).setText("Follow");
+                followButton.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimaryDark));
                 Toast.makeText(FavCreatorfilter.this, "You unfollowed " + creatorName, Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "followCreator: Unfollowed - " + creatorName);
             } else {
                 userFavoritesRef.child(creatorName).setValue(true);
                 followedCreatorsMap.put(creatorName, true);
                 ((Button) view).setText("Following");
+                followButton.setBackgroundTintList(getResources().getColorStateList(R.color.black));
                 Toast.makeText(FavCreatorfilter.this, "You are now following " + creatorName, Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "followCreator: Followed - " + creatorName);
             }

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/celebrate_bkg"
+    android:padding="16dp">
+
+    <pl.droidsonroids.gif.GifImageView
+        android:id="@+id/animationImageView"
+        android:layout_width="90dp"
+        android:layout_height="80dp"
+        android:src="@drawable/restaurantgif"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp" />
+
+    <TextView
+        android:id="@+id/dialogTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Celebrate Flavor and Variety"
+        android:textColor="@android:color/white"
+        android:fontFamily="@font/playpensans"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/animationImageView"
+        android:layout_centerHorizontal="true"
+        android:padding="8dp" />
+
+    <TextView
+        android:id="@+id/dialogMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/dialogTitle"
+        android:layout_marginTop="10dp"
+        android:text="Enhance your experience by following at least 5 creators, and unlock a world of diverse and exciting recommendations tailored just for you."
+        android:textColor="@android:color/white"
+        android:fontFamily="@font/playpensans"
+        android:padding="8dp"
+        android:layout_centerHorizontal="true"/>
+
+    <Button
+        android:id="@+id/dialogButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/dialogMessage"
+        android:layout_marginTop="5dp"
+        android:fontFamily="@font/playpensans"
+        android:text="OK"
+        android:textColor="@android:color/black"
+        android:backgroundTint="#FEFAFD"
+        android:layout_centerHorizontal="true" />
+</RelativeLayout>

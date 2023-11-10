@@ -8,6 +8,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:openDrawer="start"
+    android:background="@drawable/fav_creator"
     tools:context=".FavCreator">
 
     <!-- Content View -->
@@ -24,16 +25,17 @@
             android:text="Follow Favourite Creator"
             android:textAlignment="center"
             android:textSize="20dp"
-            android:textColor="@android:color/darker_gray"
+            android:textColor="#D0FFFFFF"
             android:textStyle="bold"
-            android:layout_marginTop="10dp"/>
+            android:layout_marginTop="20dp"/>
 
         <SearchView
             android:id="@+id/searchView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:queryHint="Search Creators"
-            android:layout_marginTop="10dp"
+            android:background="@drawable/border_bkg"
+            android:layout_marginTop="15dp"
             android:layout_below="@id/title"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"/>
@@ -45,6 +47,7 @@
             android:divider="@null"
             android:layout_below="@id/searchView"
             android:dividerHeight="0dp"
+            android:layout_marginTop="40dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"/>
         <Button
@@ -55,8 +58,8 @@
             android:layout_centerInParent="true"
             android:layout_marginTop="10dp"
             android:text="Next"
-            android:backgroundTint="@color/black"
-            android:textColor="@color/white"/>
+            android:backgroundTint="#720654DC"
+            android:textColor="@color/colorWhite"/>
 
     </RelativeLayout>
 </androidx.drawerlayout.widget.DrawerLayout>

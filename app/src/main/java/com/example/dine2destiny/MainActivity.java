@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -446,12 +447,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
     private void showNoFollowedCreatorsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Celebrate Flavor and Variety");
-        builder.setMessage("Enhance your experience by following at least 5 creators, and unlock a world of diverse and exciting recommendations tailored just for you.");
 
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        // Inflate the custom layout
+        View customLayout = getLayoutInflater().inflate(R.layout.nocreator, null);
+        builder.setView(customLayout);
+
+        TextView dialogTitle = customLayout.findViewById(R.id.dialogTitle);
+        TextView dialogMessage = customLayout.findViewById(R.id.dialogMessage);
+        Button dialogButton = customLayout.findViewById(R.id.dialogButton);
+
+        dialogTitle.setText("Celebrate Flavor and Variety");
+        dialogMessage.setText("Enhance your experience by following at least 5 creators, and unlock a world of diverse and exciting recommendations tailored just for you.");
+
+        dialogButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
+            public void onClick(View v) {
                 // Handle the OK button click by navigating to the FavCreator class
                 Intent intent = new Intent(MainActivity.this, FavCreator.class);
                 startActivity(intent);
@@ -459,18 +469,27 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
         builder.setCancelable(false);
-        builder.show();
+        AlertDialog alertDialog = builder.create();
+        alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT)); // Set a transparent background
+        alertDialog.show();
         Log.i(TAG, "showNoFollowedCreatorsDialog: Displaying 'No Favorite Creators' dialog");
     }
+
     private void showNoRecommendationsDialog() {
         if (!filterDialogShown) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("No Recommendations Found");
-            builder.setMessage("Sorry, no recommendations were found for the selected filter. Please adjust your filter criteria to discover new recommendations.");
+            View customLayout = getLayoutInflater().inflate(R.layout.norecommendation, null);
+            builder.setView(customLayout);
 
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            TextView dialogTitle = customLayout.findViewById(R.id.dialogTitle);
+            TextView dialogMessage = customLayout.findViewById(R.id.dialogMessage);
+            Button dialogButton = customLayout.findViewById(R.id.dialogButton);
+            dialogTitle.setText("No Recommendations Found");
+            dialogMessage.setText("Sorry, no recommendations were found for the selected filter. Please adjust your filter criteria to discover new recommendations.");
+
+            dialogButton.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int which) {
+                public void onClick(View view) {
                     // Handle the OK button click by navigating to the FavCreator class
                     Intent intent = new Intent(MainActivity.this, FavCreatorfilter.class);
                     startActivity(intent);
@@ -478,7 +497,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             });
 
             builder.setCancelable(false);
-            builder.show();
+            AlertDialog alertDialog = builder.create();
+            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT)); // Set a transparent background
+            alertDialog.show();
             Log.i(TAG, "showNoFollowedCreatorsDialog: Displaying 'No Favorite Creators' dialog");
         }
     }
@@ -490,13 +511,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             filterDialogShown = true;
             // Create and show the filter dialog
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Customize Your Recommendations");
-            builder.setMessage("Discover the perfect recommendations tailored to your taste by customizing your filters. Select your preferences to unlock a world of tailored experiences.");
 
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            View customLayout = getLayoutInflater().inflate(R.layout.filterdialog, null);
+            builder.setView(customLayout);
+
+            TextView dialogTitle = customLayout.findViewById(R.id.dialogTitle);
+            TextView dialogMessage = customLayout.findViewById(R.id.dialogMessage);
+            Button dialogButton = customLayout.findViewById(R.id.dialogButton);
+            dialogTitle.setText("Customize Your Recommendations");
+            dialogMessage.setText("Discover the perfect recommendations tailored to your taste by customizing your filters. Select your preferences to unlock a world of tailored experiences.");
+
+            dialogButton.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    // Handle the OK button click by navigating to the filter settings
+                public void onClick(View view) {
                     Intent intent = new Intent(MainActivity.this, FavCreatorfilter.class);
                     startActivity(intent);
                 }
@@ -509,7 +536,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     filterDialogShown = false; // Reset the flag when the filter dialog is dismissed
                 }
             });
-            builder.show();
+            AlertDialog alertDialog = builder.create();
+            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT)); // Set a transparent background
+            alertDialog.show();
             Log.i(TAG, "showFilterDialog: Displaying the filter dialog");
         }
     }
@@ -945,12 +974,28 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             finish();
         } else if (item.getItemId() == R.id.nav_logout) {
             Log.i("Navigation", "Logout item selected");
-            FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(this, SendOTPActivity.class));
-            finish();
+            showLogoutConfirmationDialog();
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+    private void showLogoutConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Logout");
+        builder.setMessage("Are you sure you want to logout?");
+        builder.setPositiveButton("Yes", (dialog, which) -> {
+            // User clicked Yes, log out
+            FirebaseAuth.getInstance().signOut();
+            startActivity(new Intent(MainActivity.this, SendOTPActivity.class));
+            finish();
+        });
+        builder.setNegativeButton("No", (dialog, which) -> {
+            // User clicked No, close the dialog
+            dialog.dismiss();
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     @Override

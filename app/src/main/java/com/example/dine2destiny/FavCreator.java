@@ -10,6 +10,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -238,6 +240,7 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
                             // Update the data structure with the "Following" state
                             followedCreatorsMap.put(creatorName, true);
                             setButtonToFollowing(creatorName);
+                            followButton.setBackgroundTintList(getResources().getColorStateList(R.color.black)); // Black tint
                         }
                     }
                 }
@@ -294,7 +297,7 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
             View parentView = (View) view.getParent();
             TextView creatorNameTextView = parentView.findViewById(R.id.creatorNameTextView);
             final String creatorName = creatorNameTextView.getText().toString();
-
+            Button followButton = (Button) view;
             DatabaseReference userFavoritesRef = FirebaseDatabase.getInstance()
                     .getReference()
                     .child("Users")
@@ -307,12 +310,14 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
                 userFavoritesRef.child(creatorName).removeValue();
                 followedCreatorsMap.put(creatorName, false);
                 ((Button) view).setText("Follow");
+                followButton.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimaryDark));
                 Toast.makeText(FavCreator.this, "You unfollowed " + creatorName, Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "followCreator: Unfollowed - " + creatorName);
             } else {
                 userFavoritesRef.child(creatorName).setValue(true);
                 followedCreatorsMap.put(creatorName, true);
                 ((Button) view).setText("Following");
+                followButton.setBackgroundTintList(getResources().getColorStateList(R.color.black));
                 Toast.makeText(FavCreator.this, "You are now following " + creatorName, Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "followCreator: Followed - " + creatorName);
             }
@@ -338,14 +343,29 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
             finish();
         } else if (item.getItemId() == R.id.nav_logout) {
             Log.d(TAG, "Navigation: Logout selected");
-            FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(this, SendOTPActivity.class));
-            finish();
+            showLogoutConfirmationDialog();
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
+    private void showLogoutConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Logout");
+        builder.setMessage("Are you sure you want to logout?");
+        builder.setPositiveButton("Yes", (dialog, which) -> {
+            // User clicked Yes, log out
+            FirebaseAuth.getInstance().signOut();
+            startActivity(new Intent(FavCreator.this, SendOTPActivity.class));
+            finish();
+        });
+        builder.setNegativeButton("No", (dialog, which) -> {
+            // User clicked No, close the dialog
+            dialog.dismiss();
+        });
 
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
     @Override
     public void onBackPressed() {
         Log.d(TAG, "Back button pressed");

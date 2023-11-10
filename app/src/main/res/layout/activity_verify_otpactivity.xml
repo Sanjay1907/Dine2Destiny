@@ -1,114 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:overScrollMode="never"
     android:scrollbars="none"
+    android:background="@drawable/u_otp"
     tools:context=".VerifyOTPActivity">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:layout_marginTop="80dp"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:overScrollMode="never"
+        android:scrollbars="none">
 
-        <ImageView
-            android:layout_width="180dp"
-            android:layout_height="180dp"
-            android:layout_marginTop="30dp"
-            android:contentDescription="@string/app_name"
-            android:src="@drawable/verifyotp" >
-        </ImageView>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:text="@string/otp_verification"
-            android:textColor="@color/colorTextPrimary"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="50dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="50dp"
-            android:gravity="center"
-            android:text="@string/enter_the_6_digit_otp_sent_to_your_mobile_number"
-            android:textColor="@color/colorTextSecondary"
-            android:textSize="14sp"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/textmobile"
-            android:layout_marginStart="50dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="50dp"
-            android:gravity="center"
-            android:textColor="@color/colorTextPrimary"
-            android:textSize="14sp"
-            android:textStyle="bold"/>
-
-        <EditText
-            android:layout_width="240dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/otpInput"
-            android:layout_marginTop="20dp"
-            android:gravity="center"
-            android:inputType="number"
-            android:hint="Enter OTP"
-            android:maxLength="6"
-            android:textColor="@color/colorTextPrimary"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            tools:ignore="LabelFor"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:layout_marginTop="0dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
 
-            <Button
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/resendOTP"
-                android:layout_marginStart="0dp"
-                android:text="@string/resend_otp"
-                android:textSize="15sp"
-                android:textColor="@color/colorAccent"
-                android:backgroundTint="@color/colorWhite"
-                android:textStyle="bold"/>
-        </LinearLayout>
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="270dp"
+                android:text="OTP VERIFICATION"
+                android:textColor="#0D62F4"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <Button
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/verifyOTP"
-                android:layout_margin="30dp"
-                android:backgroundTint="@color/colorPrimary"
-                android:text="@string/verify"
-                android:textColor="@color/colorWhite"
+                android:layout_marginStart="60dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="50dp"
+                android:gravity="center"
+                android:text="@string/enter_the_6_digit_otp_sent_to_your_mobile_number"
+                android:textColor="@color/black"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/textmobile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="60dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="50dp"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/otpInput"
+                android:layout_width="240dp"
+                android:layout_height="60dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:hint="Enter OTP"
+                android:inputType="number"
+                android:maxLength="6"
+                android:paddingTop="10dp"
+                android:textColor="@color/black"
                 android:textSize="16sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                tools:ignore="LabelFor" />
 
-            <ProgressBar
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:id="@+id/progressbar"
-                android:layout_gravity="center"
-                android:visibility="gone"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:orientation="horizontal">
 
-        </FrameLayout>
-    </LinearLayout>
-</ScrollView>
+                <Button
+                    android:id="@+id/resendOTP"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="30dp"
+                    android:backgroundTint="@color/white"
+                    android:text="@string/resend_otp"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="230dp">
+
+                <Button
+                    android:id="@+id/verifyOTP"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="170dp"
+                    android:layout_marginTop="20dp"
+                    android:backgroundTint="#0D62F4"
+                    android:text="@string/verify"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <ProgressBar
+                    android:id="@+id/progressbar"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+
+            </FrameLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Border Stroke (as a Gradient) -->
+    <item android:right="2dp" android:left="2dp" android:top="2dp" android:bottom="2dp">
+        <shape>
+            <gradient
+                android:startColor="#F36249"
+                android:endColor="#E10430"
+                android:angle="450" /> <!-- Gradient colors and angle -->
+
+            <stroke
+                android:width="10dp"
+                android:color="#00000000" /> <!-- Transparent stroke to show the gradient -->
+
+            <corners android:radius="25dp" /> <!-- Border radius -->
+        </shape>
+    </item>
+</layer-list>

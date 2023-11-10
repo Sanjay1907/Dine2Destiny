@@ -18,6 +18,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
@@ -253,14 +254,30 @@ public class ReportBug extends AppCompatActivity implements NavigationView.OnNav
             Log.d(TAG, "Share item selected");
             drawerLayout.closeDrawer(GravityCompat.START);
             return true;
-        }  else if (item.getItemId() == R.id.nav_logout) {
+        } else if (item.getItemId() == R.id.nav_logout) {
             Log.d(TAG, "Logout item selected");
-            FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(this, SendOTPActivity.class));
-            finish();
+            showLogoutConfirmationDialog();
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+    private void showLogoutConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Logout");
+        builder.setMessage("Are you sure you want to logout?");
+        builder.setPositiveButton("Yes", (dialog, which) -> {
+            // User clicked Yes, log out
+            FirebaseAuth.getInstance().signOut();
+            startActivity(new Intent(ReportBug.this, SendOTPActivity.class));
+            finish();
+        });
+        builder.setNegativeButton("No", (dialog, which) -> {
+            // User clicked No, close the dialog
+            dialog.dismiss();
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     @Override
