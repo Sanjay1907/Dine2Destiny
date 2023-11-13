@@ -18,6 +18,7 @@
             android:id="@+id/clrbtn"
             android:layout_alignParentRight="true"
             android:text="Clear Filters"
+            android:fontFamily="@font/playpensans"
             android:textColor="@color/colorPrimaryDark"
             android:backgroundTint="@color/white"/>
 
@@ -39,6 +40,7 @@
                 android:layout_marginTop="15dp"
                 android:gravity="center"
                 android:text="Choose distance range"
+                android:fontFamily="@font/playpensans"
                 android:textColor="@color/white"
                 android:textSize="16dp" />
 
@@ -65,6 +67,7 @@
                     android:layout_width="80dp"
                     android:layout_height="wrap_content"
                     android:text="1 km"
+                    android:fontFamily="@font/playpensans"
                     android:textSize="16sp"
                     android:textColor="#FFFFFF"
                     android:layout_marginTop="10dp"/>
@@ -86,11 +89,12 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/foodtitle"
                 android:text="Hotel Special For"
+                android:fontFamily="@font/playpensans"
                 android:textColor="#0446B6"
                 android:textSize="18dp"
                 android:textStyle="bold"
                 android:gravity="center"
-                android:layout_marginTop="10dp"/>
+                android:layout_marginTop="15dp"/>
 
 
             <!-- Original RadioGroup -->
@@ -160,6 +164,7 @@
                 android:id="@+id/toogletitle"
                 android:layout_below="@id/foodTypeRadioGroup"
                 android:text="Choose Pure Veg"
+                android:fontFamily="@font/playpensans"
                 android:textColor="#0446B6"
                 android:textSize="18dp"
                 android:textStyle="bold"
@@ -170,7 +175,7 @@
                 android:layout_height="70dp"
                 android:layout_below="@id/foodTypeRadioGroup"
                 android:src ="@drawable/pureveg"
-                android:layout_marginTop="-10dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginStart="160dp"
                 />
 
@@ -180,7 +185,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/toogletitle"
                 android:layout_centerInParent="true"
-                android:layout_marginTop="70dp"
+                android:layout_marginTop="80dp"
                 android:drawablePadding="8dp"
                 android:paddingStart="8dp"
                 android:text="Veg"
@@ -200,11 +205,12 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/ratingtitle"
                 android:text="Choose Rating"
+                android:fontFamily="@font/playpensans"
                 android:textColor="#0446B6"
                 android:textSize="18dp"
                 android:textStyle="bold"
                 android:gravity="center"
-                android:layout_marginTop="10dp"/>
+                android:layout_marginTop="15dp"/>
 
             <!-- Original RadioGroup for Ratings -->
             <RadioGroup
@@ -214,80 +220,33 @@
                 android:layout_marginTop="10dp"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
+                android:layout_marginEnd="20dp"
+                android:layout_marginBottom="20dp"
                 android:orientation="horizontal">
 
-                <LinearLayout
+                <RadioButton
+                    android:id="@+id/rating4PlusRadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginStart="0dp"
-                    android:layout_marginTop="10dp">
-                    <RadioButton
-                        android:id="@+id/rating4PlusRadioButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="4+"/>
-                    <ImageView
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:src="@drawable/happy" />
-                </LinearLayout>
-                <LinearLayout
+                    android:text="4+"/>
+                <RadioButton
+                    android:id="@+id/rating3PlusRadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginStart="-100dp"
-                    android:layout_marginTop="60dp">
-                    <RadioButton
-                        android:id="@+id/rating3PlusRadioButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="3+"/>
-                    <ImageView
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:src="@drawable/sad3" />
-                </LinearLayout>
-                <LinearLayout
+                    android:text="3+"/>
+                <RadioButton
+                    android:id="@+id/rating2PlusRadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginStart="-98dp"
-                    android:layout_marginTop="70dp">
-                    <RadioButton
-                        android:id="@+id/rating2PlusRadioButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="2+"
-                        android:checked="false"
-                        android:layout_marginTop="40dp"/>
-                    <ImageView
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:src ="@drawable/sad2"
-                        android:layout_marginTop="40dp"/>
-                </LinearLayout>
-                <LinearLayout
+                    android:text="2+"/>
+                <RadioButton
+                    android:id="@+id/rating1PlusRadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginStart="-98dp"
-                    android:layout_marginTop="80dp">
-                    <RadioButton
-                        android:id="@+id/rating1PlusRadioButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="1+"
-                        android:checked="false"
-                        android:layout_marginTop="80dp"/>
-                    <ImageView
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:src ="@drawable/sad"
-                        android:layout_marginTop="80dp"/>
-                </LinearLayout>
-
+                    android:text="1+"/>
             </RadioGroup>
+
+
         </RelativeLayout>
 
         <RelativeLayout
@@ -303,11 +262,12 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/interesttitle"
                 android:text="Choose Food Interests"
+                android:fontFamily="@font/playpensans"
                 android:textColor="#0446B6"
                 android:textSize="18dp"
                 android:textStyle="bold"
                 android:gravity="center"
-                android:layout_marginTop="10dp"/>
+                android:layout_marginTop="15dp"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -359,6 +319,9 @@
                     android:layout_height="wrap_content"
                     android:textSize="18dp"
                     android:text="Apply"
+                    android:fontFamily="@font/playpensans"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginBottom="20dp"
                     android:backgroundTint="@color/colorAccent"/>
 
                 <!-- Reject Button -->
@@ -369,6 +332,7 @@
                     android:layout_marginLeft="10dp"
                     android:textSize="18dp"
                     android:text="Back"
+                    android:fontFamily="@font/playpensans"
                     android:backgroundTint="@color/colorAccent"/>
             </LinearLayout>
         </RelativeLayout>

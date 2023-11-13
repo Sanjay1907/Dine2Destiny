@@ -8,6 +8,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:openDrawer="start"
+    android:background="@drawable/bug"
     tools:context=".ReportBug">
 
     <!-- Content View -->
@@ -17,33 +18,57 @@
         android:layout_height="match_parent"
         android:fitsSystemWindows="true">
 
+        <ImageView
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginTop="125dp"
+            android:layout_marginStart="300dp"
+            android:src="@drawable/bugreport" />
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/title"
-            android:text="Report Bug"
-            android:textAlignment="center"
-            android:textSize="20dp"
-            android:textColor="@android:color/darker_gray"
+            android:id= "@+id/text1"
+            android:fontFamily="@font/playpensans"
+            android:text="REPORT"
+            android:textSize="25dp"
             android:textStyle="bold"
-            android:layout_marginTop="70dp"/>
+            android:textColor="@color/colorAccent"
+            android:layout_marginTop="160dp"
+            android:layout_marginStart="50dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below= "@+id/text1"
+            android:fontFamily="@font/playpensans"
+            android:text="BUG"
+            android:textSize="25dp"
+            android:textStyle="bold"
+            android:textColor="@color/colorAccent"
+            android:layout_marginTop="0dp"
+            android:layout_marginStart="100dp"/>
+
+
+
 
         <EditText
             android:id="@+id/bugDescriptionEditText"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:hint="Describe the bug"
             android:textColor="@color/black"
-            android:layout_below="@id/title"
-            android:layout_marginLeft="25dp"
-            android:layout_marginRight="25dp"
+            android:inputType="textLongMessage"
+            android:background="#ECECEC"
+            android:layout_marginLeft="35dp"
+            android:layout_marginRight="60dp"
             android:textSize="16dp"
-            android:layout_marginTop="20dp"
-            android:inputType="textLongMessage"/>
+            android:paddingTop="-160dp"
+            android:paddingLeft="20dp"
+            android:layout_marginTop="250dp"/>
 
         <LinearLayout
             android:id="@+id/media"
-            android:layout_width="match_parent"
+            android:layout_width="345dp"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_below="@id/bugDescriptionEditText"
@@ -54,13 +79,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Choose File"
+                android:layout_marginTop="30dp"
+                android:backgroundTint="#EB047EDF"
                 style="@style/Widget.Material3.Button.TextButton.Dialog.Icon"
-                android:textColor="@color/black"/>
+                android:textColor="@color/white"
+                android:layout_marginStart="20dp"/>
             <TextView
                 android:id="@+id/attachedMediaTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="12dp"
+                android:layout_marginTop="27dp"
+                android:layout_marginStart="12dp"
                 android:textColor="@android:color/darker_gray"/>
 
         </LinearLayout>
@@ -70,8 +100,8 @@
             android:layout_height="wrap_content"
             android:text="Report Bug"
             android:layout_below="@id/media"
-            android:backgroundTint="@color/black"
-            android:layout_marginTop="30dp"
+            android:backgroundTint="@color/colorAccent"
+            android:layout_marginTop="100dp"
             android:layout_centerHorizontal="true" />
 
         <LinearLayout
