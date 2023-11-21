@@ -68,6 +68,9 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        toolbar.setTitle("");
+        toolbar.setSubtitle("");
 
         drawerLayout = findViewById(R.id.drawerLayout);
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -76,6 +79,9 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_nav,
                 R.string.close_nav);
         drawerLayout.addDrawerListener(toggle);
+        toggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.black));
+        toggle.getDrawerArrowDrawable().setBarThickness(10);
+        toggle.getDrawerArrowDrawable().setBarLength(50);
         toggle.syncState();
 
         mAuth = FirebaseAuth.getInstance();

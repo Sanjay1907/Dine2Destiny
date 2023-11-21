@@ -11,7 +11,6 @@
     android:background="@drawable/bug"
     tools:context=".ReportBug">
 
-    <!-- Content View -->
     <RelativeLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
@@ -19,20 +18,19 @@
         android:fitsSystemWindows="true">
 
         <ImageView
-            android:layout_width="70dp"
-            android:layout_height="70dp"
+            android:layout_width="60dp"
+            android:layout_height="50dp"
             android:layout_marginTop="125dp"
             android:layout_marginStart="300dp"
-            android:src="@drawable/bugreport" />
+            android:src="@drawable/error"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id= "@+id/text1"
-            android:fontFamily="@font/playpensans"
+            android:fontFamily="@font/robotoslab_regular"
             android:text="REPORT"
-            android:textSize="25dp"
-            android:textStyle="bold"
-            android:textColor="@color/colorAccent"
+            android:textSize="27dp"
+            android:textColor="@color/colorPrimaryDark"
             android:layout_marginTop="160dp"
             android:layout_marginStart="50dp"/>
 
@@ -40,14 +38,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below= "@+id/text1"
-            android:fontFamily="@font/playpensans"
+            android:fontFamily="@font/robotoslab_regular"
             android:text="BUG"
-            android:textSize="25dp"
-            android:textStyle="bold"
-            android:textColor="@color/colorAccent"
+            android:textSize="27dp"
+            android:textColor="@color/colorPrimaryDark"
             android:layout_marginTop="0dp"
             android:layout_marginStart="100dp"/>
-
 
 
 
@@ -57,16 +53,16 @@
             android:layout_height="60dp"
             android:hint="Describe the bug"
             android:textColor="@color/black"
-            android:inputType="textLongMessage"
             android:background="#ECECEC"
             android:layout_marginLeft="35dp"
             android:layout_marginRight="60dp"
             android:textSize="16dp"
             android:paddingTop="-160dp"
             android:paddingLeft="20dp"
-            android:layout_marginTop="250dp"/>
+            android:layout_marginTop="250dp"
+            android:inputType="textLongMessage"/>
 
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/media"
             android:layout_width="345dp"
             android:layout_height="wrap_content"
@@ -80,20 +76,20 @@
                 android:layout_height="wrap_content"
                 android:text="Choose File"
                 android:layout_marginTop="30dp"
-                android:backgroundTint="#EB047EDF"
+                android:backgroundTint="@color/white"
                 style="@style/Widget.Material3.Button.TextButton.Dialog.Icon"
-                android:textColor="@color/white"
-                android:layout_marginStart="20dp"/>
+                android:textColor="#EB047EDF"
+                android:layout_marginStart="140dp"/>
             <TextView
                 android:id="@+id/attachedMediaTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="12dp"
-                android:layout_marginTop="27dp"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="35dp"
+                android:layout_below="@id/attachMediaButton"
+                android:layout_marginTop="10dp"
                 android:textColor="@android:color/darker_gray"/>
-
-        </LinearLayout>
+        </RelativeLayout>
         <Button
             android:id="@+id/submitBugButton"
             android:layout_width="wrap_content"
@@ -101,7 +97,7 @@
             android:text="Report Bug"
             android:layout_below="@id/media"
             android:backgroundTint="@color/colorAccent"
-            android:layout_marginTop="100dp"
+            android:layout_marginTop="130dp"
             android:layout_centerHorizontal="true" />
 
         <LinearLayout
@@ -113,8 +109,8 @@
                 android:layout_height="60dp"
                 android:id="@+id/toolbar"
                 android:elevation="4dp"
-                android:background="@color/black"
-                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+                android:background="@android:color/transparent"
+                android:theme="@style/ThemeOverlay.AppCompat.Light"
                 android:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
             <FrameLayout
                 android:layout_width="match_parent"
@@ -126,7 +122,7 @@
 
     <!-- Navigation Drawer -->
     <com.google.android.material.navigation.NavigationView
-        android:layout_width="wrap_content"
+        android:layout_width="300dp"
         android:layout_height="match_parent"
         android:id="@+id/nav_view"
         android:layout_gravity="start"

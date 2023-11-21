@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -119,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String selectedCategory;
     private ArrayList<String> selectedFoodItems;
     private boolean filterDialogShown = false;
+    private RelativeLayout container;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -128,6 +130,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        toolbar.setTitle("");
+        toolbar.setSubtitle("");
 
         drawerLayout = findViewById(R.id.drawerLayout);
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -136,12 +141,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_nav,
                 R.string.close_nav);
         drawerLayout.addDrawerListener(toggle);
+        toggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.black));
+        toggle.getDrawerArrowDrawable().setBarThickness(10);
+        toggle.getDrawerArrowDrawable().setBarLength(50);
         toggle.syncState();
-
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapFragment);
         mapFragment.getMapAsync(this);
         filter = findViewById(R.id.filterbtn);
+        container = findViewById(R.id.maincontainer);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -474,7 +482,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         alertDialog.show();
         Log.i(TAG, "showNoFollowedCreatorsDialog: Displaying 'No Favorite Creators' dialog");
     }
-
     private void showNoRecommendationsDialog() {
         if (!filterDialogShown) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -530,10 +537,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             });
 
             builder.setCancelable(false);
+            container.setVisibility(View.GONE);
             builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
                 @Override
                 public void onDismiss(DialogInterface dialog) {
-                    filterDialogShown = false; // Reset the flag when the filter dialog is dismissed
+                    filterDialogShown = false;
                 }
             });
             AlertDialog alertDialog = builder.create();

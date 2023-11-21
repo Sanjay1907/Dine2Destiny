@@ -39,15 +39,27 @@
             android:layout_below="@id/title"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"/>
+        <ToggleButton
+            android:id="@+id/filterVerifiedBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Verified"
+            android:textColor="@color/white"
+            android:layout_below="@id/searchView"
+            android:layout_marginTop="40dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="30dp"
+            android:checked="false"
+            android:background="@drawable/toggle_button_selector" />
 
         <ListView
             android:id="@+id/creatorListView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:divider="@null"
-            android:layout_below="@id/searchView"
+            android:layout_below="@id/filterVerifiedBtn"
             android:dividerHeight="0dp"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="20dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"/>
         <Button

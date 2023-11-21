@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
@@ -43,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import android.app.ProgressDialog;
 import android.util.Log;
+import android.widget.ToggleButton;
 
 public class FavCreatorfilter extends AppCompatActivity{
     private static final String TAG = "FavCreatorfilter"; // Tag for logging
@@ -55,8 +57,7 @@ public class FavCreatorfilter extends AppCompatActivity{
     private FirebaseAuth mAuth;
     private Button nextbtn;
     private ProgressDialog progressDialog;
-
-    // Define a data structure to keep track of followed creators and their states
+    private ToggleButton filterVerifiedBtn;
     private Map<String, Boolean> followedCreatorsMap = new HashMap<>();
 
     @Override
@@ -74,6 +75,14 @@ public class FavCreatorfilter extends AppCompatActivity{
         creatorListView = findViewById(R.id.creatorListView);
         searchView = findViewById(R.id.searchView);
         nextbtn = findViewById(R.id.nxtbtn);
+        filterVerifiedBtn = findViewById(R.id.filterVerifiedBtn); // Initialize the filter button
+
+        filterVerifiedBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                applyVerificationFilter(isChecked);
+            }
+        });
 
         adapter = new ArrayAdapter<>(this, R.layout.creator_item, R.id.creatorNameTextView, creatorNames);
 
@@ -333,6 +342,32 @@ public class FavCreatorfilter extends AppCompatActivity{
         } else {
             // Handle the case where the user is not signed in
             // You can redirect the user to the login screen or perform other actions.
+        }
+    }
+    private void applyVerificationFilter(boolean showVerifiedOnly) {
+        for (int i = 0; i < creatorListView.getCount(); i++) {
+            View view = creatorListView.getChildAt(i);
+            if (view != null) {
+                TextView creatorNameTextView = view.findViewById(R.id.creatorNameTextView);
+                ImageView verifiedTick = view.findViewById(R.id.verifiedIcon);
+                boolean isVerified = (verifiedTick.getVisibility() == View.VISIBLE);
+
+                if (showVerifiedOnly && !isVerified) {
+                    view.setVisibility(View.GONE);
+                } else {
+                    view.setVisibility(View.VISIBLE);
+                }
+            }
+        }
+
+        // Update button appearance based on showVerifiedOnly
+        filterVerifiedBtn.setChecked(showVerifiedOnly);
+        if (showVerifiedOnly) {
+            filterVerifiedBtn.setText("Verified Only");
+            filterVerifiedBtn.setBackgroundResource(R.color.blue); // Change button background to selected state
+        } else {
+            filterVerifiedBtn.setText("Verified");
+            filterVerifiedBtn.setBackgroundResource(R.color.black); // Change button background to default state
         }
     }
     public void onBackPressed() {

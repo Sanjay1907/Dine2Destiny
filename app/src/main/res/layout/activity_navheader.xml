@@ -10,10 +10,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Hello, User"
-        android:textStyle="bold"
-        android:textSize="16dp"
+        android:fontFamily="@font/courgetteregular"
+        android:textSize="20dp"
         android:gravity="left"
-        android:layout_marginLeft="170dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginLeft="100dp"
+        android:layout_marginTop="-40dp"
         android:textColor="@color/colorWhite" />
 </LinearLayout>
