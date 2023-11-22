@@ -19,4 +19,7 @@
     <color name="purple">#7639F4</color>
     <color name="lightred">#F66257</color>
     <color name="btncolor">#FA3939</color>
+    <color name="following">#A9A9A9</color>
+    <color name="toogleoff">#F44545</color>
+    <color name="toggleon">#5FB0FB</color>
 </resources>

@@ -12,6 +12,7 @@ import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -57,7 +58,7 @@ public class DistanceRangeActivity extends AppCompatActivity {
     private RadioButton rating1PlusRadioButton;
     private int selectedRating = 0;
     private Button clrbtn;
-    private RadioButton purevegButton;
+    private Switch purevegSwitch;
     private AutoCompleteTextView autoCompleteTextView;
     private ArrayAdapter<String> autoCompleteAdapter;
     private List<String> recommendationNames = new ArrayList<>();
@@ -97,7 +98,7 @@ public class DistanceRangeActivity extends AppCompatActivity {
         nonVegRadioButton = findViewById(R.id.nonVegRadioButton);
         both = findViewById(R.id.both);
         clrbtn = findViewById(R.id.clrbtn);
-        purevegButton = findViewById(R.id.purevegButton);
+        purevegSwitch = findViewById(R.id.purevegButton);
         selectedFoodItemsTextView = findViewById(R.id.selectedFoodItemsTextView);
         selectedFoodItemsTextView.setText("Selected Food Items:");
 
@@ -149,7 +150,7 @@ public class DistanceRangeActivity extends AppCompatActivity {
                 Log.i(TAG, "onCheckedChanged: Selected Food Type: " + selectedFoodType);
             }
         });
-        purevegButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        purevegSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -269,7 +270,7 @@ public class DistanceRangeActivity extends AppCompatActivity {
                 initialDistance = 1;
                 seekBarDistance.setProgress(0);
                 textViewSelectedDistance.setText("1 km");
-                purevegButton.setChecked(false);
+                purevegSwitch.setChecked(false);
                 selectedFoodItemsTextView.setText("Selected Food Items:");
                 selectedFoodItemsList.clear();
                 foodItemCounter = 1;

@@ -246,7 +246,8 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
                             // Update the data structure with the "Following" state
                             followedCreatorsMap.put(creatorName, true);
                             setButtonToFollowing(creatorName);
-                            followButton.setBackgroundTintList(getResources().getColorStateList(R.color.black)); // Black tint
+                            followButton.setBackgroundTintList(getResources().getColorStateList(R.color.following));
+                            followButton.setTextColor(getResources().getColorStateList(R.color.black));// Black tint
                         }
                     }
                 }

@@ -246,7 +246,8 @@ public class FavCreatorfilter extends AppCompatActivity{
                             // Update the data structure with the "Following" state
                             followedCreatorsMap.put(creatorName, true);
                             setButtonToFollowing(creatorName);
-                            followButton.setBackgroundTintList(getResources().getColorStateList(R.color.black));
+                            followButton.setBackgroundTintList(getResources().getColorStateList(R.color.following));
+                            followButton.setTextColor(getResources().getColorStateList(R.color.black));
                         }
                     }
                 }
@@ -364,10 +365,10 @@ public class FavCreatorfilter extends AppCompatActivity{
         filterVerifiedBtn.setChecked(showVerifiedOnly);
         if (showVerifiedOnly) {
             filterVerifiedBtn.setText("Verified Only");
-            filterVerifiedBtn.setBackgroundResource(R.color.blue); // Change button background to selected state
+            filterVerifiedBtn.setBackgroundResource(R.drawable.toggleon);// Change button background to selected state
         } else {
             filterVerifiedBtn.setText("Verified");
-            filterVerifiedBtn.setBackgroundResource(R.color.black); // Change button background to default state
+            filterVerifiedBtn.setBackgroundResource(R.drawable.toggleoff); // Change button background to default state
         }
     }
     public void onBackPressed() {
