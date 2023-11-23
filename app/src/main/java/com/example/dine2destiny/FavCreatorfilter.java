@@ -336,7 +336,8 @@ public class FavCreatorfilter extends AppCompatActivity{
                 userFavoritesRef.child(creatorName).setValue(true);
                 followedCreatorsMap.put(creatorName, true);
                 ((Button) view).setText("Following");
-                followButton.setBackgroundTintList(getResources().getColorStateList(R.color.black));
+                followButton.setBackgroundTintList(getResources().getColorStateList(R.color.following));
+                followButton.setTextColor(getResources().getColorStateList(R.color.black));
                 Toast.makeText(FavCreatorfilter.this, "You are now following " + creatorName, Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "followCreator: Followed - " + creatorName);
             }
