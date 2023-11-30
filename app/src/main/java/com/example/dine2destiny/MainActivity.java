@@ -93,6 +93,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = "MainActivity"; // Tag for logging
@@ -412,7 +413,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                             Log.i(TAG, "No recommendations found for followed creators");
                                                         } else {
                                                             // Calculate distance using the Distance Matrix API for filtered destinations
-                                                            calculateDistance(userLocation, destinationsList, names, creators, imgUrls, phoneNos, verifications);
+                                                            calculateAirDistance(userLocation, destinationsList, names, creators, imgUrls, phoneNos, verifications);
                                                             locationDetailsLoaded = true;
                                                             Log.i(TAG, "Location details loaded");
 
@@ -686,6 +687,65 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         }
                     });
         }
+    }
+    private void calculateAirDistance(LatLng origin, List<LatLng> destinations, List<String> names, List<String> creators, List<String> imgUrls, List<String> phoneNos, List<String> verifications) {
+        TreeMap<Float, Integer> distanceMap = new TreeMap<>(); // TreeMap to maintain sorted distances
+
+        for (int i = 0; i < destinations.size(); i++) {
+            LatLng destination = destinations.get(i);
+            float distanceInKm = calculateAirDistanceInKm(origin, destination);
+            boolean isLocationOpen = true; // Replace with your logic
+
+            if (isLocationOpen && distanceInKm <= selectedDistance) {
+                distanceMap.put(distanceInKm, i); // Store distance and index
+            }
+        }
+
+        int count = 0;
+        List<LatLng> filteredDestinations = new ArrayList<>();
+        List<String> filteredNames = new ArrayList<>();
+        List<String> filteredCreators = new ArrayList<>();
+        List<String> filteredImgUrls = new ArrayList<>();
+        List<String> filteredPhoneNos = new ArrayList<>();
+        List<String> filteredVerifications = new ArrayList<>();
+
+        for (Map.Entry<Float, Integer> entry : distanceMap.entrySet()) {
+            if (count >= 5) {
+                break; // Break the loop after storing the nearest 5 locations
+            }
+
+            int index = entry.getValue();
+            LatLng destinationLatLng = destinations.get(index);
+            float distance = entry.getKey();
+
+            filteredDestinations.add(destinationLatLng);
+            filteredNames.add(names.get(index));
+            filteredCreators.add(creators.get(index));
+            filteredImgUrls.add(imgUrls.get(index));
+            filteredPhoneNos.add(phoneNos.get(index));
+            filteredVerifications.add(verifications.get(index));
+
+            count++;
+        }
+
+        calculateDistance(origin, filteredDestinations, filteredNames, filteredCreators, filteredImgUrls, filteredPhoneNos, filteredVerifications);
+    }
+
+    private float calculateAirDistanceInKm(LatLng origin, LatLng destination) {
+        int R = 6371; // Radius of the Earth in kilometers
+
+        double lat1 = Math.toRadians(origin.latitude);
+        double lon1 = Math.toRadians(origin.longitude);
+        double lat2 = Math.toRadians(destination.latitude);
+        double lon2 = Math.toRadians(destination.longitude);
+
+        double dlon = lon2 - lon1;
+        double dlat = lat2 - lat1;
+
+        double a = Math.pow(Math.sin(dlat / 2), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dlon / 2), 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return (float) (R * c); // Distance in kilometers
     }
 
     private void calculateDistance(LatLng origin, List<LatLng> destinations, List<String> names, List<String> creators, List<String> imgUrls, List<String> phoneNos, List<String> verifications) {
