@@ -41,16 +41,7 @@ import com.google.firebase.database.ValueEventListener;
 
 public class DistanceRangeActivity extends AppCompatActivity {
     private static final String TAG = "DistanceRangeActivity";
-    private SeekBar seekBarDistance;
-    private TextView textViewSelectedDistance;
     private Button btnApplyDistance, backbtn;
-    private int initialDistance = 1;
-    private RadioGroup foodTypeRadioGroup;
-    private RadioButton vegRadioButton;
-    private RadioButton nonVegRadioButton;
-    private RadioButton both;
-    private String selectedFoodType = "All";
-    private String selectedCategory = "All";
     private RadioGroup ratingRadioGroup;
     private RadioButton rating4PlusRadioButton;
     private RadioButton rating3PlusRadioButton;
@@ -58,7 +49,6 @@ public class DistanceRangeActivity extends AppCompatActivity {
     private RadioButton rating1PlusRadioButton;
     private int selectedRating = 0;
     private Button clrbtn;
-    private Switch purevegSwitch;
     private AutoCompleteTextView autoCompleteTextView;
     private ArrayAdapter<String> autoCompleteAdapter;
     private List<String> recommendationNames = new ArrayList<>();
@@ -68,24 +58,30 @@ public class DistanceRangeActivity extends AppCompatActivity {
     private Set<String> selectedFoodSet = new HashSet<>();
     private List<String> selectedFoodItemsList = new ArrayList<>();
     private String logFilePath;
+    private int selectedDistance;
+    private String  selectedSpecialType, selectedFoodType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_distance_range);
         databaseReference = FirebaseDatabase.getInstance().getReference("Creators");
+        selectedDistance = getIntent().getIntExtra("selectedDistance", 1);
+        selectedSpecialType = getIntent().getStringExtra("selectedSpecialType");
+        if (selectedSpecialType == null) {
+            selectedSpecialType = "All";
+        }
+        selectedFoodType = getIntent().getStringExtra("selectedFoodCategory");
+        if (selectedFoodType == null){
+            selectedFoodType = "All";
+        }
         ArrayList<String> followedCreators = getIntent().getStringArrayListExtra("followedCreators");
-        // Initialize AutoCompleteTextView
         autoCompleteTextView = findViewById(R.id.autoCompleteTextView);
         autoCompleteAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, recommendationNames);
         autoCompleteTextView.setAdapter(autoCompleteAdapter);
         autoCompleteTextView.setThreshold(1); // Minimum characters to trigger suggestions
 
-        // Call this to populate recommendation names
         populateRecommendationNames();
-
-        seekBarDistance = findViewById(R.id.seekBarDistance);
-        textViewSelectedDistance = findViewById(R.id.textViewSelectedDistance);
         btnApplyDistance = findViewById(R.id.btnApplyDistance);
         backbtn = findViewById(R.id.btnback);
         ratingRadioGroup = findViewById(R.id.ratingRadioGroup);
@@ -93,21 +89,9 @@ public class DistanceRangeActivity extends AppCompatActivity {
         rating3PlusRadioButton = findViewById(R.id.rating3PlusRadioButton);
         rating2PlusRadioButton = findViewById(R.id.rating2PlusRadioButton);
         rating1PlusRadioButton = findViewById(R.id.rating1PlusRadioButton);
-        foodTypeRadioGroup = findViewById(R.id.foodTypeRadioGroup);
-        vegRadioButton = findViewById(R.id.vegRadioButton);
-        nonVegRadioButton = findViewById(R.id.nonVegRadioButton);
-        both = findViewById(R.id.both);
         clrbtn = findViewById(R.id.clrbtn);
-        purevegSwitch = findViewById(R.id.purevegButton);
         selectedFoodItemsTextView = findViewById(R.id.selectedFoodItemsTextView);
         selectedFoodItemsTextView.setText("Selected Food Items:");
-
-        // Initialize initialDistance based on the user's previous selection or a default value
-        initialDistance = getIntent().getIntExtra("selectedDistance", 1);
-
-        // Set the SeekBar's progress to match the initialDistance
-        seekBarDistance.setProgress(initialDistance - 1); // Subtract 1 to match the SeekBar's 0-based progress
-        textViewSelectedDistance.setText(initialDistance + " km");
         autoCompleteTextView.setOnItemClickListener((parent, view, position, id) -> {
             String selectedRecommendation = autoCompleteAdapter.getItem(position);
 
@@ -117,49 +101,6 @@ public class DistanceRangeActivity extends AppCompatActivity {
 
             // Add the selected food item to the TextView
             addFoodItemToTextView(selectedRecommendation);
-        });
-
-        seekBarDistance.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                initialDistance = progress + 1;
-                int roundedDistance = (int) Math.floor(initialDistance);
-                textViewSelectedDistance.setText(roundedDistance + " km");
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-            }
-        });
-        foodTypeRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if (checkedId == R.id.vegRadioButton) {
-                    selectedFoodType = "Veg";
-                } else if (checkedId == R.id.nonVegRadioButton) {
-                    selectedFoodType = "Non-Veg";
-                } else if (checkedId == R.id.both) {
-                    selectedFoodType = "Both";
-                } else {
-                    selectedFoodType = "All";
-                }
-                Log.i(TAG, "onCheckedChanged: Selected Food Type: " + selectedFoodType);
-            }
-        });
-        purevegSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    selectedCategory = "Veg";
-                } else {
-                    selectedCategory = "All";
-                }
-                Log.i(TAG, "onCheckedChanged: Selected Category: " + selectedCategory);
-            }
         });
         ratingRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -179,7 +120,6 @@ public class DistanceRangeActivity extends AppCompatActivity {
             }
         });
         btnApplyDistance.setOnClickListener(v -> {
-            int selectedDistance = seekBarDistance.getProgress() + 1; // Add 1 to match the range 1-10 km
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
             String timestamp = dateFormat.format(new Date());
 
@@ -204,8 +144,8 @@ public class DistanceRangeActivity extends AppCompatActivity {
             }
 
             // Log the selected FoodType if it's not "All"
-            if (!"All".equals(selectedFoodType)) {
-                filterMessage.append("\nSelected FoodType: ").append(selectedFoodType);
+            if (!"All".equals(selectedSpecialType)) {
+                filterMessage.append("\nSelected FoodType: ").append(selectedSpecialType);
                 totalFiltersSelected++;
             }
 
@@ -216,8 +156,8 @@ public class DistanceRangeActivity extends AppCompatActivity {
             }
 
             // Log the selected Category if it's not "All"
-            if (!"All".equals(selectedCategory)) {
-                filterMessage.append("\nSelected Category: ").append(selectedCategory);
+            if (!"All".equals(selectedFoodType)) {
+                filterMessage.append("\nSelected Category: ").append(selectedFoodType);
                 totalFiltersSelected++;
             }
 
@@ -241,9 +181,9 @@ public class DistanceRangeActivity extends AppCompatActivity {
                 // Log file created successfully, add it to the intent
                 Intent intent = new Intent(this, MainActivity.class);
                 intent.putExtra("selectedDistance", selectedDistance);
-                intent.putExtra("selectedFoodCategory", selectedFoodType);
+                intent.putExtra("selectedFoodCategory", selectedSpecialType);
                 intent.putExtra("selectedRating", selectedRating);
-                intent.putExtra("selectedCategory", selectedCategory);
+                intent.putExtra("selectedCategory", selectedFoodType);
                 intent.putExtra("timestamp", timestamp);
                 intent.putExtra("logFilePath", logFilePath); // Add the log file path
 
@@ -258,19 +198,14 @@ public class DistanceRangeActivity extends AppCompatActivity {
         backbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(DistanceRangeActivity.this, FavCreatorfilter.class);
+                Intent intent = new Intent(DistanceRangeActivity.this, MainFilter.class);
                 startActivity(intent);
             }
         });
         clrbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                foodTypeRadioGroup.clearCheck();
                 ratingRadioGroup.clearCheck();
-                initialDistance = 1;
-                seekBarDistance.setProgress(0);
-                textViewSelectedDistance.setText("1 km");
-                purevegSwitch.setChecked(false);
                 selectedFoodItemsTextView.setText("Selected Food Items:");
                 selectedFoodItemsList.clear();
                 foodItemCounter = 1;

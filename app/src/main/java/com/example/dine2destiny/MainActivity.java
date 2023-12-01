@@ -122,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ArrayList<String> selectedFoodItems;
     private boolean filterDialogShown = false;
     private RelativeLayout container;
+    private boolean recommendationMessageAdded = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -289,11 +290,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     Log.i(TAG, "Selected Food Items: " + selectedFoodItems);
                                     Log.i(TAG, "Selected Category: " + selectedCategory);
                                     Log.i(TAG, "Selected Rating: " + selectedRating);
-
-                                    // Retrieve the log file path from the intent
-                                    String logFilePath = getIntent().getStringExtra("logFilePath");
-
-                                    // Retrieve the list of creators that the user follows
                                     getFollowedCreators(new OnCompleteListener<List<String>>() {
                                         @Override
                                         public void onComplete(List<String> followedCreators) {
@@ -408,7 +404,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                         }
 
                                                         if (destinationsList.isEmpty()) {
-                                                            // No recommendations found for followed creators, show an alert dialog
                                                             showNoRecommendationsDialog();
                                                             Log.i(TAG, "No recommendations found for followed creators");
                                                         } else {
@@ -416,17 +411,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                             calculateAirDistance(userLocation, destinationsList, names, creators, imgUrls, phoneNos, verifications);
                                                             locationDetailsLoaded = true;
                                                             Log.i(TAG, "Location details loaded");
-
-                                                            // Append the location names to the log file
-                                                            String locationNames = "\nRecommendations which are been loaded are:\n";
-                                                            for (String locationName : names) {
-                                                                locationNames += locationName + "\n";
-                                                            }
-                                                            if (appendLocationNamesToLogFile(logFilePath, locationNames)) {
-                                                                Log.i(TAG, "Location names appended to the log file");
-                                                            } else {
-                                                                Log.e(TAG, "Failed to append location names to the log file");
-                                                            }
                                                         }
                                                     }
 
@@ -910,7 +894,31 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
         }
+        if (!recommendationMessageAdded) {
+            String logFilePath = getIntent().getStringExtra("logFilePath"); // Assuming logFilePath is accessible here
+
+            String recommendationMessage = "\nRecommendations showing to user are:\n";
+
+            if (appendLocationNamesToLogFile(logFilePath, recommendationMessage)) {
+                Log.i(TAG, "Recommendation message appended to the log file");
+                recommendationMessageAdded = true; // Set flag to true once the recommendation message is added
+            } else {
+                Log.e(TAG, "Failed to append recommendation message to the log file");
+            }
+        }
+
+        String logFilePath = getIntent().getStringExtra("logFilePath"); // Assuming logFilePath is accessible here
+
+        String nameWithNewline = name + "\n";
+
+        if (appendLocationNamesToLogFile(logFilePath, nameWithNewline)) {
+            Log.i(TAG, "Location name '" + name + "' appended to the log file");
+        } else {
+            Log.e(TAG, "Failed to append location name to the log file");
+        }
+
     }
+
 
     private void sortLocationDetailsViewsByDistance() {
         List<View> locationDetailsViews = new ArrayList<>();

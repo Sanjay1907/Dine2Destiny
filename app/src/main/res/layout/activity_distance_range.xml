@@ -1,342 +1,191 @@
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="@drawable/filter2">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Search by"
+        android:layout_marginTop="70dp"
+        android:textSize="24dp"
+        android:layout_marginStart="2dp"
+        android:textColor="@color/white"
+        android:fontFamily="@font/playpensans"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Filters"
+        android:textSize="24dp"
+        android:layout_marginStart="80dp"
+        android:layout_marginTop="100dp"
+        android:textColor="@color/white"
+        android:fontFamily="@font/playpensans"/>
+
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp"
-        tools:context=".DistanceRangeActivity"
-        android:layout_marginTop="0dp"
-        android:background="@drawable/bkg">
+        android:layout_height="wrap_content"
+        android:id ="@+id/ratingfilter"
+        android:layout_marginTop="235dp"
+        android:background="@drawable/border_bkg">
 
-
-
-        <RelativeLayout
-            android:id="@+id/disfilter"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
+            android:id="@+id/ratingtitle"
+            android:text="Choose Rating"
+            android:fontFamily="@font/robotoslab_regular"
+            android:textColor="#0446B6"
+            android:textSize="18dp"
+            android:gravity="center"
+            android:layout_marginTop="15dp"/>
+        <RadioGroup
+            android:id="@+id/ratingRadioGroup"
+            android:layout_below="@id/ratingtitle"
+            android:layout_width="match_parent"
             android:layout_marginTop="10dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/gradient_bkg">
-
-            <TextView
-                android:id="@+id/distitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:gravity="center"
-                android:text="Choose distance range"
-                android:fontFamily="@font/playpensans"
-                android:textColor="@color/white"
-                android:textSize="16dp" />
-
-            <!-- Original LinearLayout for SeekBar -->
-            <LinearLayout
-                android:id="@+id/distancefilter"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/distitle"
-                android:orientation="horizontal">
-
-                <SeekBar
-                    android:id="@+id/seekBarDistance"
-                    android:layout_width="250dp"
-                    android:layout_height="wrap_content"
-                    android:max="9"
-                    android:progress="0"
-                    android:layout_margin="13dp"
-                    android:progressTint="@android:color/white"
-                    android:thumb="@drawable/loc_icon"/>
-
-                <TextView
-                    android:id="@+id/textViewSelectedDistance"
-                    android:layout_width="80dp"
-                    android:layout_height="wrap_content"
-                    android:text="1 km"
-                    android:fontFamily="@font/playpensans"
-                    android:textSize="16sp"
-                    android:textColor="#FFFFFF"
-                    android:layout_marginTop="15dp"/>
-            </LinearLayout>
-
-        </RelativeLayout>
-
-
-        <RelativeLayout
-            android:id="@+id/foodfilter"
-            android:layout_width="395dp"
-            android:layout_height="355dp"
-            android:layout_below="@+id/disfilter"
-            android:layout_marginTop="5dp"
-            android:background="@drawable/border_bkg">
-
-            <TextView
-                android:id="@+id/foodtitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="135dp"
-                android:fontFamily="@font/robotoslab_regular"
-                android:gravity="center"
-                android:text="Hotel Special For"
-                android:textColor="#0446B6"
-                android:textSize="18dp" />
-
-
-            <!-- Original RadioGroup -->
-            <RadioGroup
-                android:id="@+id/foodTypeRadioGroup"
-                android:layout_width="match_parent"
-                android:layout_height="260dp"
-                android:layout_below="@id/foodtitle"
-                android:layout_marginTop="5dp"
-                android:gravity="center_horizontal"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:layout_width="55dp"
-                    android:layout_height="65dp"
-                    android:layout_marginStart="-120dp"
-                    android:layout_marginTop="10dp"
-                    android:src="@drawable/veg" />
-
-                <RadioButton
-                    android:id="@+id/vegRadioButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="-140dp"
-                    android:layout_marginTop="1dp"
-                    android:paddingStart="8dp"
-                    android:text="Veg"
-                    android:textSize="18dp" />
-
-                <ImageView
-                    android:layout_width="55dp"
-                    android:layout_height="65dp"
-                    android:layout_marginStart="-10dp"
-                    android:layout_marginTop="-110dp"
-                    android:src="@drawable/nonveg" />
-
-                <RadioButton
-                    android:id="@+id/nonVegRadioButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="-15dp"
-                    android:layout_marginTop="0dp"
-                    android:paddingStart="0dp"
-                    android:text="Non-Veg"
-                    android:textSize="18dp" />
-
-                <ImageView
-                    android:layout_width="55dp"
-                    android:layout_height="70dp"
-                    android:layout_marginStart="110dp"
-                    android:layout_marginTop="-120dp"
-                    android:src="@drawable/both" />
-
-                <RadioButton
-                    android:id="@+id/both"
-                    android:layout_width="wrap_content"
-                    android:layout_height="20dp"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginStart="110dp"
-                    android:text="Both"
-                    android:textSize="18dp" />
-            </RadioGroup>
-
-            <TextView
-                android:id="@+id/switchtitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:fontFamily="@font/robotoslab_regular"
-                android:gravity="center"
-                android:text="Choose Pure Veg"
-                android:textColor="#0446B6"
-                android:textSize="18dp"
-                app:track="@drawable/track"/>
-
-            <ImageView
-                android:layout_width="55dp"
-                android:layout_height="70dp"
-                android:layout_marginStart="140dp"
-                android:layout_marginTop="40dp"
-                android:src="@drawable/pureveg" />
-
-
-            <Switch
-                android:id="@+id/purevegButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/switchtitle"
-                android:layout_marginStart="220dp"
-                android:layout_marginTop="20dp"
-                android:drawablePadding="18dp"
-                android:paddingStart="8dp"
-                android:textSize="18dp"
-
-                />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/foodfilter"
-            android:id ="@+id/ratingfilter"
-            android:layout_marginTop="5dp"
-            android:background="@drawable/border_bkg">
+            android:gravity="center_horizontal"
+            android:layout_marginEnd="0dp"
+            android:layout_marginBottom="20dp"
+            android:orientation="horizontal">
 
-            <TextView
-                android:layout_width="match_parent"
+            <RadioButton
+                android:id="@+id/rating4PlusRadioButton"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/ratingtitle"
-                android:text="Choose Rating"
-                android:fontFamily="@font/robotoslab_regular"
-                android:textColor="#0446B6"
-                android:textSize="18dp"
-
+                android:drawableTop="@drawable/e4"
+                android:drawablePadding="0dp"
                 android:gravity="center"
-                android:layout_marginTop="15dp"/>
-
-            <!-- Original RadioGroup for Ratings -->
-            <RadioGroup
-                android:id="@+id/ratingRadioGroup"
-                android:layout_below="@id/ratingtitle"
-                android:layout_width="match_parent"
-                android:layout_marginTop="10dp"
+                android:layout_gravity="center_horizontal"
+                android:text="4+" />
+            <RadioButton
+                android:id="@+id/rating3PlusRadioButton"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:layout_marginEnd="20dp"
-                android:layout_marginBottom="20dp"
-                android:orientation="horizontal">
-
-                <RadioButton
-                    android:id="@+id/rating4PlusRadioButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="4+"/>
-                <RadioButton
-                    android:id="@+id/rating3PlusRadioButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="3+"/>
-                <RadioButton
-                    android:id="@+id/rating2PlusRadioButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="2+"/>
-                <RadioButton
-                    android:id="@+id/rating1PlusRadioButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="1+"/>
-            </RadioGroup>
-
-
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/ratingfilter"
-            android:id="@+id/interest"
-            android:layout_marginTop="5dp"
-            android:background="@drawable/border_bkg">
-
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/interesttitle"
-                android:text="Choose Food Interests"
-                android:fontFamily="@font/robotoslab_regular"
-                android:textColor="#0446B6"
-                android:textSize="18dp"
+                android:drawableTop="@drawable/e3"
+                android:drawablePadding="2dp"
                 android:gravity="center"
-                android:layout_marginTop="15dp"/>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/foodInterst"
-                android:layout_below="@id/interesttitle"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal">
-
-                <AutoCompleteTextView
-                    android:id="@+id/autoCompleteTextView"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:hint="Search for interested foods"
-                    android:inputType="text|textMultiLine"
-                    android:completionThreshold="1" />
-
-                <Button
-                    android:id="@+id/addbtn"
-                    android:layout_width="70dp"
-                    android:layout_height="wrap_content"
-                    android:drawableLeft="@drawable/baseline_arrow_right_alt_24"
-                    android:backgroundTint="@color/colorAccent" />
-            </LinearLayout>
-            <TextView
-                android:id="@+id/selectedFoodItemsTextView"
+                android:layout_gravity="center_horizontal"
+                android:text="3+"/>
+            <RadioButton
+                android:id="@+id/rating2PlusRadioButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/foodInterst"
-                android:layout_marginTop="16dp"
-                android:text="Selected Food Items:"
-                android:textColor="@color/colorTextPrimary"
-                android:textSize="18dp"
-                android:layout_marginBottom="20dp"
-                android:layout_centerHorizontal="true"/>
-
-        </RelativeLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/interest"
-            android:layout_marginTop="10dp"
-            android:layout_centerHorizontal="true">
-            <Button
+                android:drawableTop="@drawable/e2"
+                android:drawablePadding="0dp"
+                android:gravity="center"
+                android:layout_gravity="center_horizontal"
+                android:text="2+"/>
+            <RadioButton
+                android:id="@+id/rating1PlusRadioButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/clrbtn"
-                android:text="Clear"
-                android:layout_marginStart="10dp"
-                android:fontFamily="@font/playpensans"
-                android:textColor="@color/btncolor"
-                android:backgroundTint="@color/white"/>
+                android:drawableTop="@drawable/e1"
+                android:drawablePadding="0dp"
+                android:gravity="center"
+                android:layout_gravity="center_horizontal"
+                android:text="1+"/>
+        </RadioGroup>
 
-            <!-- Approve Button -->
-            <Button
-                android:id="@+id/btnApplyDistance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="18dp"
-                android:text="Apply"
-                android:layout_marginStart="10dp"
-                android:layout_marginBottom="20dp"
-                android:backgroundTint="@color/colorAccent"/>
-
-            <!-- Reject Button -->
-            <Button
-                android:id="@+id/btnback"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:textSize="18dp"
-                android:text="Back"
-                android:textColor="@color/btncolor"
-                android:backgroundTint="@color/colorWhite"/>
-        </LinearLayout>
 
     </RelativeLayout>
-</ScrollView>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/foodinterests"
+        android:layout_below="@+id/ratingfilter"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/border_bkg">
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/interesttitle"
+            android:text="Choose Food Interests"
+            android:fontFamily="@font/robotoslab_regular"
+            android:textColor="#0446B6"
+            android:textSize="18dp"
+            android:gravity="center"
+            android:layout_marginTop="15dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/foodInterst"
+            android:layout_below="@id/interesttitle"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <AutoCompleteTextView
+                android:id="@+id/autoCompleteTextView"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:hint="Search for interested foods"
+                android:inputType="text|textMultiLine"
+                android:completionThreshold="1" />
+
+            <Button
+                android:id="@+id/addbtn"
+                android:layout_width="70dp"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/baseline_arrow_right_alt_24"
+                android:backgroundTint="@color/btncolor" />
+        </LinearLayout>
+        <TextView
+            android:id="@+id/selectedFoodItemsTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/foodInterst"
+            android:layout_marginTop="16dp"
+            android:text="Selected Food Items:"
+            android:layout_marginBottom="30dp"
+            android:textColor="#343942"
+            android:textSize="18dp"
+            android:layout_centerHorizontal="true"/>
+
+    </RelativeLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/foodinterests"
+        android:layout_marginTop="30dp"
+        android:layout_centerHorizontal="true">
+        <Button
+            android:id="@+id/btnback"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:textSize="18dp"
+            android:text="Back"
+            android:textColor="@color/btncolor"
+            android:backgroundTint="@color/colorWhite"/>
+        <Button
+            android:id="@+id/btnApplyDistance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:text="Apply"
+            android:layout_marginStart="10dp"
+            android:layout_marginBottom="20dp"
+            android:backgroundTint="@color/colorAccent"/>
+        <Button
+            android:id="@+id/clrbtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:textSize="18dp"
+            android:text="Clear"
+            android:textColor="@color/btncolor"
+            android:backgroundTint="@color/colorWhite"/>
+    </LinearLayout>
+
+</RelativeLayout>

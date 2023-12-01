@@ -281,7 +281,7 @@ public class FavCreatorfilter extends AppCompatActivity{
 
                     if (followedCreators.size() >= 5) {
                         // Create an Intent to pass the list of followed creator names
-                        Intent intent = new Intent(FavCreatorfilter.this, DistanceRangeActivity.class);
+                        Intent intent = new Intent(FavCreatorfilter.this, MainFilter.class);
                         intent.putStringArrayListExtra("followedCreators", (ArrayList<String>) followedCreators);
                         startActivity(intent);
                     } else {
