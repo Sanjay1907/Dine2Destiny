@@ -4,33 +4,26 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:background="@drawable/filter2">
+    android:background="@drawable/food_bkg">
 
-    <TextView
+    <Button
+        android:id="@+id/clrbtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Search by"
-        android:layout_marginTop="70dp"
-        android:textSize="24dp"
-        android:layout_marginStart="2dp"
-        android:textColor="@color/white"
-        android:fontFamily="@font/playpensans"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Filters"
-        android:textSize="24dp"
-        android:layout_marginStart="80dp"
-        android:layout_marginTop="100dp"
-        android:textColor="@color/white"
-        android:fontFamily="@font/playpensans"/>
-
+        android:layout_marginLeft="10dp"
+        android:textSize="18dp"
+        android:layout_alignParentRight="true"
+        android:text="Clear Filters"
+        android:layout_marginTop="95dp"
+        android:fontFamily="@font/playpensans"
+        android:textColor="@color/colorPrimaryDark"
+        android:backgroundTint="@color/colorWhite"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id ="@+id/ratingfilter"
-        android:layout_marginTop="235dp"
+        android:layout_marginTop="150dp"
         android:background="@drawable/border_bkg">
 
         <TextView
@@ -100,7 +93,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/foodinterests"
         android:layout_below="@+id/ratingfilter"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="15dp"
         android:background="@drawable/border_bkg">
 
 
@@ -137,7 +130,7 @@
                 android:id="@+id/addbtn"
                 android:layout_width="70dp"
                 android:layout_height="wrap_content"
-                android:drawableLeft="@drawable/baseline_arrow_right_alt_24"
+                android:drawableLeft="@drawable/baseline_add_24"
                 android:backgroundTint="@color/btncolor" />
         </LinearLayout>
         <TextView
@@ -157,7 +150,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/foodinterests"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:layout_centerHorizontal="true">
         <Button
             android:id="@+id/btnback"
@@ -177,15 +170,7 @@
             android:layout_marginStart="10dp"
             android:layout_marginBottom="20dp"
             android:backgroundTint="@color/colorAccent"/>
-        <Button
-            android:id="@+id/clrbtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:textSize="18dp"
-            android:text="Clear"
-            android:textColor="@color/btncolor"
-            android:backgroundTint="@color/colorWhite"/>
+
     </LinearLayout>
 
 </RelativeLayout>

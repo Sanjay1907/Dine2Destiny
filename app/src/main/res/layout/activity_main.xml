@@ -54,15 +54,34 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/filtercontainer">
+
             <LinearLayout
-                android:id="@+id/locationDetailsContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_below="@id/filtercontainer"
-                android:padding="16dp">
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/locationDetailsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_below="@id/filtercontainer"
+                    android:padding="16dp">
+
+                </LinearLayout>
+                <Button
+                    android:id="@+id/loadnextbtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Load Next 5 Recommendations"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="16dp"
+                    android:backgroundTint="@color/colorAccent"
+                    android:textColor="@android:color/white" />
             </LinearLayout>
         </ScrollView>
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"

@@ -147,18 +147,25 @@ public class DistanceRangeActivity extends AppCompatActivity {
             if (!"All".equals(selectedSpecialType)) {
                 filterMessage.append("\nSelected FoodType: ").append(selectedSpecialType);
                 totalFiltersSelected++;
+            } else {
+                filterMessage.append("\nSelected FoodType: NOT SELECTED");
             }
+
 
             // Log the selected Rating if it's greater than 0
             if (selectedRating > 0) {
                 filterMessage.append("\nSelected Rating: ").append(selectedRating);
                 totalFiltersSelected++;
+            } else {
+                filterMessage.append("\nSelected Rating: NOT SELECTED");
             }
 
             // Log the selected Category if it's not "All"
             if (!"All".equals(selectedFoodType)) {
                 filterMessage.append("\nSelected Category: ").append(selectedFoodType);
                 totalFiltersSelected++;
+            } else {
+                filterMessage.append("\nSelected Category: NOT SELECTED");
             }
 
             // Log the selected food items if any
@@ -168,6 +175,8 @@ public class DistanceRangeActivity extends AppCompatActivity {
                     filterMessage.append("\n- ").append(foodItem);
                 }
                 totalFiltersSelected++;
+            } else {
+                filterMessage.append("\nSelected Interested foods: NOT SELECTED");
             }
 
             filterMessage.append("\n\nTotal Filters Selected: ").append(totalFiltersSelected);

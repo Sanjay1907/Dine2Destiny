@@ -123,6 +123,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private boolean filterDialogShown = false;
     private RelativeLayout container;
     private boolean recommendationMessageAdded = false;
+    private boolean recommendationMessageloaded = false;
+    private Button loadnxtbtn;
+    private int currentRecommendationIndex = 0;
+    private LatLng origin;  // Declare as class-level fields
+    private List<LatLng> destinations;
+    private List<String> names;
+    private List<String> creators;
+    private List<String> imgUrls;
+    private List<String> phoneNos;
+    private List<String> verifications;
+    private HashSet<String> addedNamesToLogFile = new HashSet<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -162,6 +173,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         locationRequest.setInterval(10000);
         locationRequest.setFastestInterval(5000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        loadnxtbtn = findViewById(R.id.loadnextbtn);
 
         locationCallback = new LocationCallback() {
             @Override
@@ -174,6 +186,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, FavCreatorfilter.class);
                 startActivity(intent);
+            }
+        });
+        loadnxtbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                calculateAirDistance(origin, destinations, names, creators, imgUrls, phoneNos, verifications);
             }
         });
         selectedDistance = getIntent().getIntExtra("selectedDistance", 0);
@@ -674,6 +692,105 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
     private void calculateAirDistance(LatLng origin, List<LatLng> destinations, List<String> names, List<String> creators, List<String> imgUrls, List<String> phoneNos, List<String> verifications) {
         TreeMap<Float, Integer> distanceMap = new TreeMap<>(); // TreeMap to maintain sorted distances
+        this.origin = origin;
+        this.destinations = destinations;
+        this.names = names;
+        this.creators = creators;
+        this.imgUrls = imgUrls;
+        this.phoneNos = phoneNos;
+        this.verifications = verifications;
+
+        for (int i = 0; i < destinations.size(); i++) {
+            LatLng destination = destinations.get(i);
+            float distanceInKm = calculateAirDistanceInKm(origin, destination);
+            boolean isLocationOpen = true; // Replace with your logic
+
+            if (isLocationOpen && distanceInKm <= selectedDistance) {
+                distanceMap.put(distanceInKm, i); // Store distance and index
+            }
+        }
+
+        List<Map.Entry<Float, Integer>> sortedDistances = new ArrayList<>(distanceMap.entrySet());
+
+        sortedDistances.sort(Map.Entry.comparingByKey()); // Sort distances in ascending order
+
+        int totalRecommendations = sortedDistances.size();
+        int remainingRecommendations = totalRecommendations - currentRecommendationIndex;
+
+        if (remainingRecommendations > 0) {
+            int recommendationsToLoad = Math.min(5, remainingRecommendations);
+
+            List<Map.Entry<Float, Integer>> nextRecommendations = new ArrayList<>();
+
+            for (int i = currentRecommendationIndex; i < currentRecommendationIndex + recommendationsToLoad; i++) {
+                nextRecommendations.add(sortedDistances.get(i));
+            }
+
+            currentRecommendationIndex += recommendationsToLoad;
+
+            // Extract information from nextRecommendations
+            List<LatLng> filteredDestinations = new ArrayList<>();
+            List<String> filteredNames = new ArrayList<>();
+            List<String> filteredCreators = new ArrayList<>();
+            List<String> filteredImgUrls = new ArrayList<>();
+            List<String> filteredPhoneNos = new ArrayList<>();
+            List<String> filteredVerifications = new ArrayList<>();
+
+            for (Map.Entry<Float, Integer> entry : nextRecommendations) {
+                int index = entry.getValue();
+                LatLng destinationLatLng = destinations.get(index);
+
+                filteredDestinations.add(destinationLatLng);
+                filteredNames.add(names.get(index));
+                filteredCreators.add(creators.get(index));
+                filteredImgUrls.add(imgUrls.get(index));
+                filteredPhoneNos.add(phoneNos.get(index));
+                filteredVerifications.add(verifications.get(index));
+            }
+            if (!recommendationMessageloaded) {
+                String logFilePath = getIntent().getStringExtra("logFilePath"); // Assuming logFilePath is accessible here
+
+                String recommendationMessage = "\nRecommendations loaded to user are:\n";
+
+                if (appendLocationNamesToLogFile(logFilePath, recommendationMessage)) {
+                    Log.i(TAG, "Recommendation message appended to the log file");
+                    recommendationMessageloaded = true; // Set flag to true once the recommendation message is added
+                } else {
+                    Log.e(TAG, "Failed to append recommendation message to the log file");
+                }
+            }
+
+            String logFilePath = getIntent().getStringExtra("logFilePath"); // Assuming logFilePath is accessible here
+
+            StringBuilder namesBuilder = new StringBuilder();
+
+            for (String name : names) {
+                if (!addedNamesToLogFile.contains(name)) {
+                    namesBuilder.append(name).append(",\n"); // Append each name followed by a comma and a newline character
+                    addedNamesToLogFile.add(name); // Add the name to the set to mark it as already added
+                }
+            }
+
+            if (namesBuilder.length() > 0) {
+                namesBuilder.deleteCharAt(namesBuilder.length() - 2); // Remove the last comma and newline character
+                String namesWithNewlines = namesBuilder.toString();
+
+                if (appendLocationNamesToLogFile(logFilePath, namesWithNewlines)) {
+                    Log.i(TAG, "Location names appended to the log file");
+                } else {
+                    Log.e(TAG, "Failed to append location names to the log file");
+                }
+            }
+
+            // Pass the filtered lists to calculateDistance
+            calculateDistance(origin, filteredDestinations, filteredNames, filteredCreators, filteredImgUrls, filteredPhoneNos, filteredVerifications);
+        } else {
+            Toast.makeText(MainActivity.this, "No More Recommendations Available", Toast.LENGTH_SHORT).show();
+            Log.i(TAG, "No more recommendations available");
+        }
+    }
+    /*private void calculateAirDistance(LatLng origin, List<LatLng> destinations, List<String> names, List<String> creators, List<String> imgUrls, List<String> phoneNos, List<String> verifications) {
+        TreeMap<Float, Integer> distanceMap = new TreeMap<>(); // TreeMap to maintain sorted distances
 
         for (int i = 0; i < destinations.size(); i++) {
             LatLng destination = destinations.get(i);
@@ -711,10 +828,39 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             count++;
         }
+        if (!recommendationMessageloaded) {
+            String logFilePath = getIntent().getStringExtra("logFilePath"); // Assuming logFilePath is accessible here
+
+            String recommendationMessage = "\nRecommendations loaded to user are:\n";
+
+            if (appendLocationNamesToLogFile(logFilePath, recommendationMessage)) {
+                Log.i(TAG, "Recommendation message appended to the log file");
+                recommendationMessageloaded = true; // Set flag to true once the recommendation message is added
+            } else {
+                Log.e(TAG, "Failed to append recommendation message to the log file");
+            }
+        }
+
+        String logFilePath = getIntent().getStringExtra("logFilePath"); // Assuming logFilePath is accessible here
+
+        StringBuilder namesBuilder = new StringBuilder();
+
+        for (String name : names) {
+            namesBuilder.append(name).append(",\n"); // Append each name followed by a comma and a newline character
+        }
+
+        namesBuilder.deleteCharAt(namesBuilder.length() - 2);
+
+        String namesWithNewlines = namesBuilder.toString();
+
+        if (appendLocationNamesToLogFile(logFilePath, namesWithNewlines)) {
+            Log.i(TAG, "Location names appended to the log file");
+        } else {
+            Log.e(TAG, "Failed to append location names to the log file");
+        }
 
         calculateDistance(origin, filteredDestinations, filteredNames, filteredCreators, filteredImgUrls, filteredPhoneNos, filteredVerifications);
-    }
-
+    }*/
     private float calculateAirDistanceInKm(LatLng origin, LatLng destination) {
         int R = 6371; // Radius of the Earth in kilometers
 
@@ -731,7 +877,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         return (float) (R * c); // Distance in kilometers
     }
-
     private void calculateDistance(LatLng origin, List<LatLng> destinations, List<String> names, List<String> creators, List<String> imgUrls, List<String> phoneNos, List<String> verifications) {
         String apiKey = "AIzaSyDHoXOg6fB7_Aj9u9hCCkM76W0CzN5pZHE"; // Replace with your Google Maps API Key
         StringBuilder destinationsStr = new StringBuilder();
