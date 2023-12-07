@@ -140,6 +140,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private HashSet<String> addedNamesToLogFile = new HashSet<>();
     private AlertDialog phoneNumberDialog;
     private AlertDialog otpdialog;
+    private AlertDialog nameDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -651,28 +652,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void showNameInputDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Enter Your Name");
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_name, null);
+        builder.setView(dialogView);
 
-        final EditText inputName = new EditText(this);
-        inputName.setInputType(InputType.TYPE_CLASS_TEXT);
-        builder.setView(inputName);
+        final EditText inputName = dialogView.findViewById(R.id.edit_text_name);
+        Button submitbtn = dialogView.findViewById(R.id.btn_submit);
+        nameDialog = builder.create();
+        nameDialog.setCanceledOnTouchOutside(false);
+        nameDialog.setCancelable(false);
+        nameDialog.show();
 
-        builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+        submitbtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
+            public void onClick(View view) {
                 String userName = inputName.getText().toString().trim();
                 if (!TextUtils.isEmpty(userName)) {
-                    // Save the user's name in the "Users" table
                     saveUserName(userName);
+                    nameDialog.dismiss();
                 } else {
                     // Handle empty name input
                     Toast.makeText(MainActivity.this, "Name cannot be empty", Toast.LENGTH_SHORT).show();
                 }
             }
         });
-
-        builder.setCancelable(false);
-        builder.show();
     }
 
     private void saveUserName(String userName) {
