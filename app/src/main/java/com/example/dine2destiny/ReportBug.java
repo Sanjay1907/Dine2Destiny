@@ -1,6 +1,7 @@
 package com.example.dine2destiny;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
@@ -11,6 +12,7 @@ import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -55,6 +57,7 @@ public class ReportBug extends AppCompatActivity implements NavigationView.OnNav
 
     private ProgressDialog progressDialog;
     private DrawerLayout drawerLayout;
+    private Dialog dialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -97,6 +100,10 @@ public class ReportBug extends AppCompatActivity implements NavigationView.OnNav
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Reporting Bug...");
         progressDialog.setCancelable(false);
+        dialog = new Dialog(ReportBug.this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_wait1);
+        dialog.setCanceledOnTouchOutside(false);
 
         attachMediaButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,7 +119,7 @@ public class ReportBug extends AppCompatActivity implements NavigationView.OnNav
                 final String bugDescription = bugDescriptionEditText.getText().toString();
                 if (!bugDescription.isEmpty()) {
                     // Show progress dialog while reporting the bug
-                    progressDialog.show();
+                    dialog.show();
 
                     // Generate a unique ID for the bug report
                     final String reportId = bugReportsRef.push().getKey();
@@ -138,7 +145,7 @@ public class ReportBug extends AppCompatActivity implements NavigationView.OnNav
                                                 bugReportsRef.child(reportId).setValue(bugReport);
 
                                                 // Dismiss the progress dialog
-                                                progressDialog.dismiss();
+                                                dialog.dismiss();
 
                                                 // Show a toast message for successful submission
                                                 Toast.makeText(ReportBug.this, "Bug reported successfully", Toast.LENGTH_SHORT).show();
@@ -155,7 +162,7 @@ public class ReportBug extends AppCompatActivity implements NavigationView.OnNav
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
                                         // Handle media upload failure
-                                        progressDialog.dismiss();
+                                        dialog.dismiss();
                                         Toast.makeText(ReportBug.this, "Media upload failed", Toast.LENGTH_SHORT).show();
                                     }
                                 });
@@ -167,7 +174,7 @@ public class ReportBug extends AppCompatActivity implements NavigationView.OnNav
                         bugReportsRef.child(reportId).setValue(bugReport);
 
                         // Dismiss the progress dialog
-                        progressDialog.dismiss();
+                        dialog.dismiss();
 
                         // Show a toast message for successful submission
                         Toast.makeText(ReportBug.this, "Bug reported successfully", Toast.LENGTH_SHORT).show();

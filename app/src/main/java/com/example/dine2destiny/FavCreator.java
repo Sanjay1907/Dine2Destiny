@@ -1,11 +1,13 @@
 package com.example.dine2destiny;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -58,6 +60,7 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
     private DrawerLayout drawerLayout;
     private ProgressDialog progressDialog;
     private Map<String, Boolean> followedCreatorsMap = new HashMap<>();
+    private Dialog dialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +68,10 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Fetching followers...");
         progressDialog.setCancelable(false);
+        dialog = new Dialog(FavCreator.this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_wait1);
+        dialog.setCanceledOnTouchOutside(false);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -93,7 +100,7 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
         searchView = findViewById(R.id.searchView);
         adapter = new ArrayAdapter<>(this, R.layout.creator_item, R.id.creatorNameTextView, creatorNames);
         creatorListView.setAdapter(adapter);
-        progressDialog.show();
+        dialog.show();
 
         Log.d(TAG, "onCreate: Initializing...");
 
@@ -141,13 +148,13 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
                             @Override
                             public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                                 // Handle image loading failure here (if needed)
-                                progressDialog.dismiss(); // Dismiss the progress dialog
+                                dialog.dismiss(); // Dismiss the progress dialog
                                 return false;
                             }
 
                             @Override
                             public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                                progressDialog.dismiss(); // Dismiss the progress dialog when the image loads
+                                dialog.dismiss(); // Dismiss the progress dialog when the image loads
                                 return false;
                             }
                         })
@@ -163,7 +170,7 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        progressDialog.dismiss();
+                        dialog.dismiss();
                     }
                 }, 2000); // 1000 milliseconds = 1 second
             }
@@ -185,7 +192,7 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                progressDialog.dismiss();
+                dialog.dismiss();
                 Log.e(TAG, "onCancelled: Database error - " + databaseError.getMessage());
             }
         });
