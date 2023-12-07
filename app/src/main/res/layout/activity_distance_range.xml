@@ -36,54 +36,16 @@
             android:textSize="18dp"
             android:gravity="center"
             android:layout_marginTop="15dp"/>
-        <RadioGroup
-            android:id="@+id/ratingRadioGroup"
-            android:layout_below="@id/ratingtitle"
-            android:layout_width="match_parent"
-            android:layout_marginTop="10dp"
+        <RatingBar
+            android:id="@+id/ratingBar"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:layout_marginEnd="0dp"
-            android:layout_marginBottom="20dp"
-            android:orientation="horizontal">
-
-            <RadioButton
-                android:id="@+id/rating4PlusRadioButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:drawableTop="@drawable/e4"
-                android:drawablePadding="0dp"
-                android:gravity="center"
-                android:layout_gravity="center_horizontal"
-                android:text="4+" />
-            <RadioButton
-                android:id="@+id/rating3PlusRadioButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:drawableTop="@drawable/e3"
-                android:drawablePadding="2dp"
-                android:gravity="center"
-                android:layout_gravity="center_horizontal"
-                android:text="3+"/>
-            <RadioButton
-                android:id="@+id/rating2PlusRadioButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:drawableTop="@drawable/e2"
-                android:drawablePadding="0dp"
-                android:gravity="center"
-                android:layout_gravity="center_horizontal"
-                android:text="2+"/>
-            <RadioButton
-                android:id="@+id/rating1PlusRadioButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:drawableTop="@drawable/e1"
-                android:drawablePadding="0dp"
-                android:gravity="center"
-                android:layout_gravity="center_horizontal"
-                android:text="1+"/>
-        </RadioGroup>
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/ratingtitle"
+            android:layout_marginTop="15dp"
+            android:numStars="5"
+            android:rating="0"
+            android:stepSize="1" />
 
 
     </RelativeLayout>

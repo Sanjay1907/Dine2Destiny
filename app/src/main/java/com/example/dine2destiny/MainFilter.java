@@ -4,37 +4,42 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class MainFilter extends AppCompatActivity {
+public class MainFilter extends AppCompatActivity implements View.OnTouchListener {
     private static final String TAG = "Mainfilter";
-    private int initialDistance = 1;
+    private int initialDistance = 1; // Changed initial distance to 1
     private int maxDistance = 10;
-    private TextView textViewSelectedDistance;
+    private TextView textViewSelectedDistance, textViewPreviousDistance, textViewNextDistance;
     private RadioGroup foodTypeRadioGroup;
-    private RadioButton vegRadioButton;
-    private RadioButton nonVegRadioButton;
-    private RadioButton both;
+    private RadioButton vegRadioButton, nonVegRadioButton, both;
     private String selectedFoodType = "All";
     private String selectedCategory = "All";
-    private Button clrbtn, nxtbtn, backbtn, incrementButton, decrementButton;
+    private Button clrbtn, nxtbtn;
     private Switch purevegSwitch;
+    private float startX;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_filter);
         ArrayList<String> followedCreators = getIntent().getStringArrayListExtra("followedCreators");
-        textViewSelectedDistance = findViewById(R.id.textViewSelectedDistance);
+
         foodTypeRadioGroup = findViewById(R.id.foodTypeRadioGroup);
         vegRadioButton = findViewById(R.id.vegRadioButton);
         nonVegRadioButton = findViewById(R.id.nonVegRadioButton);
@@ -42,9 +47,37 @@ public class MainFilter extends AppCompatActivity {
         clrbtn = findViewById(R.id.clrbtn);
         purevegSwitch = findViewById(R.id.purevegButton);
         nxtbtn = findViewById(R.id.nxtbtn);
-        backbtn = findViewById(R.id.btnback);
-        incrementButton = findViewById(R.id.incrementbtn);
-        decrementButton = findViewById(R.id.decrementbtn);
+        textViewSelectedDistance = findViewById(R.id.textViewSelectedDistance);
+        textViewPreviousDistance = findViewById(R.id.textViewPreviousDistance);
+        textViewNextDistance = findViewById(R.id.textViewNextDistance);
+        showOverlay();
+
+        textViewSelectedDistance.setOnTouchListener(this);
+        RelativeLayout distanceRelativeLayout = findViewById(R.id.disfilter);
+        distanceRelativeLayout.setOnTouchListener(new View.OnTouchListener() {
+            private float initialX;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        initialX = event.getX();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        float finalX = event.getX();
+                        float deltaX = finalX - initialX;
+
+                        if (deltaX > 100) { // Swiping from left to right
+                            decreaseDistance();
+                        } else if (deltaX < -100) { // Swiping from right to left
+                            increaseDistance();
+                        }
+                        break;
+                }
+                return true;
+            }
+        });
+
         foodTypeRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -60,6 +93,7 @@ public class MainFilter extends AppCompatActivity {
                 Log.i(TAG, "onCheckedChanged: Selected Food Type: " + selectedFoodType);
             }
         });
+
         purevegSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -71,19 +105,11 @@ public class MainFilter extends AppCompatActivity {
                 Log.i(TAG, "onCheckedChanged: Selected Category: " + selectedCategory);
             }
         });
+
         textViewSelectedDistance.setText(initialDistance + " km");
-        incrementButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                increaseDistance();
-            }
-        });
-        decrementButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                decreaseDistance();
-            }
-        });
+        textViewPreviousDistance.setText("");
+        textViewNextDistance.setText(String.valueOf(initialDistance + 1));
+
         nxtbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -100,27 +126,99 @@ public class MainFilter extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        backbtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainFilter.this, FavCreatorfilter.class);
-                startActivity(intent);
-            }
-        });
+
         clrbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 foodTypeRadioGroup.clearCheck();
                 initialDistance = 1;
                 textViewSelectedDistance.setText("1 km");
+                textViewPreviousDistance.setText(String.valueOf(initialDistance - 1));
+                textViewNextDistance.setText(String.valueOf(initialDistance + 1));
                 purevegSwitch.setChecked(false);
             }
         });
     }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                startX = event.getX(); // Store the initial touch position (X-axis)
+                break;
+            case MotionEvent.ACTION_UP:
+                float endX = event.getX(); // Get the ending position of touch (X-axis)
+                handleScrolling(startX, endX);
+                break;
+        }
+        return true;
+    }
+
+    private void handleScrolling(float startX, float endX) {
+        if (startX > endX) {
+            increaseDistanceWithAnimation(); // Swipe right (increase number) with animation
+        } else {
+            decreaseDistanceWithAnimation(); // Swipe left (decrease number) with animation
+        }
+    }
+
+    private void increaseDistanceWithAnimation() {
+        if (initialDistance < maxDistance) {
+            initialDistance++;
+            animateDistanceChange(true);
+            Log.i(TAG, "increaseDistance: Selected Distance: " + initialDistance + " km");
+        } else {
+            Log.i(TAG, "increaseDistance: Maximum distance reached");
+        }
+    }
+
+    private void decreaseDistanceWithAnimation() {
+        if (initialDistance > 1) {
+            initialDistance--;
+            animateDistanceChange(false);
+            Log.i(TAG, "decreaseDistance: Selected Distance: " + initialDistance + " km");
+        } else {
+            Log.i(TAG, "decreaseDistance: Minimum distance reached");
+        }
+    }
+
+    private void animateDistanceChange(final boolean isIncrease) {
+        final float distanceToMove = isIncrease ? -textViewSelectedDistance.getWidth() : textViewSelectedDistance.getWidth();
+
+        textViewSelectedDistance.animate()
+                .translationXBy(distanceToMove)
+                .setDuration(300) // Set the duration for animation in milliseconds
+                .withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        textViewSelectedDistance.setTranslationX(0); // Reset the text view position
+                        updateTextViews();
+                    }
+                })
+                .start();
+    }
+
+    private void updateTextViews() {
+        textViewSelectedDistance.setText(String.valueOf(initialDistance) + " km");
+
+        if (initialDistance > 1) {
+            textViewPreviousDistance.setText(String.valueOf(initialDistance - 1));
+        } else {
+            textViewPreviousDistance.setText(""); // Clear text or set to a default value
+        }
+
+        if (initialDistance < maxDistance) {
+            textViewNextDistance.setText(String.valueOf(initialDistance + 1));
+        } else {
+            textViewNextDistance.setText(""); // Clear text or set to a default value
+        }
+    }
+
+
     private void increaseDistance() {
         if (initialDistance < maxDistance) {
             initialDistance++;
-            textViewSelectedDistance.setText(initialDistance + " km");
+            updateTextViews();
             Log.i(TAG, "increaseDistance: Selected Distance: " + initialDistance + " km");
         } else {
             Log.i(TAG, "increaseDistance: Maximum distance reached");
@@ -130,10 +228,29 @@ public class MainFilter extends AppCompatActivity {
     private void decreaseDistance() {
         if (initialDistance > 1) {
             initialDistance--;
-            textViewSelectedDistance.setText(initialDistance + " km");
+            updateTextViews();
             Log.i(TAG, "decreaseDistance: Selected Distance: " + initialDistance + " km");
         } else {
             Log.i(TAG, "decreaseDistance: Minimum distance reached");
         }
     }
+    private void showOverlay() {
+        // Display overlay for 2 seconds
+        final RelativeLayout overlayLayout = findViewById(R.id.overlayLayout);
+        final ImageView arrowImageView = findViewById(R.id.arrowImageView);
+        overlayLayout.setVisibility(View.VISIBLE);
+
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.slide_in_out);
+        arrowImageView.setVisibility(View.VISIBLE); // Make the arrow visible before starting the animation
+        arrowImageView.startAnimation(animation);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                overlayLayout.setVisibility(View.GONE);
+                arrowImageView.clearAnimation();
+            }
+        }, 6000);
+    }
+
 }

@@ -23,8 +23,11 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.concurrent.TimeUnit;
 
@@ -51,7 +54,7 @@ public class VerifyOTPActivity extends AppCompatActivity {
         final ProgressBar progressBar = findViewById(R.id.progressbar);
         final Button verifyOTP = findViewById(R.id.verifyOTP);
 
-        verificationId = getIntent().getStringExtra("verificationId");
+        final String otpFromIntent = getIntent().getStringExtra("otp");
 
         verifyOTP.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,31 +66,43 @@ public class VerifyOTPActivity extends AppCompatActivity {
                     return;
                 }
 
-                if (verificationId != null) {
+                if (otpFromIntent != null && code.equals(otpFromIntent)) {
+                    // OTP verification successful
+
                     progressBar.setVisibility(View.VISIBLE);
                     verifyOTP.setVisibility(View.INVISIBLE);
-                    PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.getCredential(
-                            verificationId,
-                            code
-                    );
-                    FirebaseAuth.getInstance().signInWithCredential(phoneAuthCredential)
-                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+
+                    final String mobileNumber = getIntent().getStringExtra("mobile");
+
+                    // Check if the phone number exists in the database
+                    DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("Users");
+                    usersRef.orderByChild("phoneNumber").equalTo(mobileNumber)
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    progressBar.setVisibility(View.GONE);
-                                    verifyOTP.setVisibility(View.VISIBLE);
-                                    if (task.isSuccessful()) {
-                                        savePhoneNumberInDatabase(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                                        Log.d(TAG, "Phone number verification successful.");
-                                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                        startActivity(intent);
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    if (dataSnapshot.exists()) {
+                                        // Phone number exists, log in with the existing user ID
+                                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                                            String userId = snapshot.getKey();
+                                            // Log in with existing user ID
+                                            signInWithUserId(userId);
+                                            return;
+                                        }
                                     } else {
-                                        Log.e(TAG, "Phone number verification failed.");
-                                        Toast.makeText(VerifyOTPActivity.this, "The OTP entered was invalid", Toast.LENGTH_SHORT).show();
+                                        // Phone number doesn't exist, create a new user ID
+                                        createNewUser(mobileNumber);
                                     }
                                 }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+                                    Log.e(TAG, "Database error: " + databaseError.getMessage());
+                                    Toast.makeText(VerifyOTPActivity.this, "Database error occurred", Toast.LENGTH_SHORT).show();
+                                }
                             });
+                } else {
+                    // Incorrect OTP entered
+                    Toast.makeText(VerifyOTPActivity.this, "The OTP entered was invalid", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -169,7 +184,63 @@ public class VerifyOTPActivity extends AppCompatActivity {
             }
         });
     }
+    // Helper method to sign in with existing user ID
+    private void signInWithUserId(String userId) {
+        // Sign in with the existing user ID
+        Log.d(TAG, "Signing in with existing user ID: " + userId);
 
+        // Here, you will sign in the user with the provided userId.
+        // Use Firebase Authentication to sign in the user based on their UID.
+        // You may use signInWithCustomToken or other appropriate methods based on your authentication flow.
+
+        // For example, signing in with Firebase Auth using the UID:
+        FirebaseAuth.getInstance().signInWithCustomToken(userId)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "User signed in successfully with UID: " + userId);
+                            // Start the MainActivity after successful sign-in
+                            startMainActivity();
+                        } else {
+                            // If sign-in fails, log the error message
+                            Exception exception = task.getException();
+                            if (exception != null) {
+                                Log.e(TAG, "Failed to sign in with UID: " + userId + ", Reason: " + exception.getMessage());
+                            } else {
+                                Log.e(TAG, "Failed to sign in with UID: " + userId + ", Reason unknown");
+                            }
+                            Toast.makeText(VerifyOTPActivity.this, "Failed to sign in", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+    // Helper method to start MainActivity after successful sign-in
+    private void startMainActivity() {
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish(); // Optional: Finish the current activity if not needed anymore
+    }
+
+
+    // Helper method to create a new user in Firebase database
+    private void createNewUser(String mobileNumber) {
+        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("Users");
+        String userId = usersRef.push().getKey(); // Generate a new user ID
+
+        if (userId != null) {
+            usersRef.child(userId).child("phoneNumber").setValue(mobileNumber);
+            Log.e(TAG, "New user created with ID: " + userId);
+            // Handle the new user creation as needed in your app
+            // For example: You might want to log in this new user here
+            signInWithUserId(userId);
+        } else {
+            Log.e(TAG, "Failed to create a new user.");
+            Toast.makeText(VerifyOTPActivity.this, "Failed to create a new user", Toast.LENGTH_SHORT).show();
+        }
+    }
     private void savePhoneNumberInDatabase(String userId) {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
         DatabaseReference userReference = databaseReference.child(userId);

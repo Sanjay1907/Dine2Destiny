@@ -10,9 +10,11 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.telephony.SmsManager;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -83,6 +85,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import android.widget.SeekBar;
@@ -98,6 +101,7 @@ import java.util.TreeMap;
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = "MainActivity"; // Tag for logging
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
+    private static final int SMS_PERMISSION_REQUEST_CODE = 101;
     private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationClient;
     private SupportMapFragment mapFragment;
@@ -134,12 +138,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private List<String> phoneNos;
     private List<String> verifications;
     private HashSet<String> addedNamesToLogFile = new HashSet<>();
+    private AlertDialog phoneNumberDialog;
+    private AlertDialog otpdialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.i(TAG, "onCreate: Initializing MainActivity");
         checkUserName();
+        checkUserPhoneNumber();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -232,6 +239,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             mMap.setMyLocationEnabled(true);
             showFilterDialog();
             loadUserLocation();
+            moveToUserLocation();
             mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
                 @Override
                 public boolean onMyLocationButtonClick() {
@@ -674,6 +682,131 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         usersReference.child("name").setValue(userName);
 
     }
+    private void checkUserPhoneNumber() {
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        DatabaseReference usersReference = FirebaseDatabase.getInstance().getReference().child("Users").child(currentUserId);
+        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (!dataSnapshot.hasChild("phoneNumber")) {
+                    showPhoneNumberInputDialog();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+    }
+    private void showPhoneNumberInputDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_phone_number, null);
+        builder.setView(dialogView);
+
+        final EditText phoneNumberEditText = dialogView.findViewById(R.id.edit_text_phone_number);
+        Button verifyButton = dialogView.findViewById(R.id.btn_verify);
+
+        phoneNumberDialog = builder.create();
+        phoneNumberDialog.setCanceledOnTouchOutside(false); // Set dialog to not cancelable on outside touch
+        phoneNumberDialog.setCancelable(false); // Set dialog to not cancelable on back press
+        phoneNumberDialog.show();
+
+        verifyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String phoneNumber = phoneNumberEditText.getText().toString().trim();
+                if (!phoneNumber.isEmpty() && phoneNumber.length() == 10) {
+                    try {
+                        long number = Long.parseLong(phoneNumber);
+                        String otp = generateOTP(); // Generating a 6-digit OTP
+
+                        // Check if SMS permission is granted
+                        if (isSmsPermissionGranted()) {
+                            sendOTPViaSMS(phoneNumber, otp);
+                            phoneNumberDialog.dismiss();
+                            showOTPInputDialog(otp, phoneNumber);
+                        } else {
+                            requestSmsPermission();
+                        }
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(getApplicationContext(), "Invalid phone number format", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(), "Please enter a valid 10-digit phone number", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private boolean isSmsPermissionGranted() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    // Method to request SMS permission
+    private void requestSmsPermission() {
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, SMS_PERMISSION_REQUEST_CODE);
+    }
+
+    private String generateOTP() {
+        Random random = new Random();
+        int otpValue = 100000 + random.nextInt(900000); // Generating a random 6-digit number
+        return String.valueOf(otpValue);
+    }
+    private void sendOTPViaSMS(String phoneNumber, String otp) {
+        try {
+            SmsManager smsManager = SmsManager.getDefault();
+            smsManager.sendTextMessage(phoneNumber, null, "Code for Dine2Destiny : " + otp, null, null);
+            Toast.makeText(getApplicationContext(), "Verification Code sent successfully", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "Failed to send Verification Code", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
+
+    private void showOTPInputDialog(String generatedOTP, final String phoneNumber) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_otp, null);
+        builder.setView(dialogView);
+
+        final EditText otpEditText = dialogView.findViewById(R.id.edit_text_otp);
+        Button submitButton = dialogView.findViewById(R.id.btn_submit);
+
+        otpdialog = builder.create();
+        otpdialog.setCanceledOnTouchOutside(false);
+        otpdialog.setCancelable(false);
+        otpdialog.show();
+
+        final String otp = generatedOTP;
+
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String enteredOTP = otpEditText.getText().toString().trim();
+                if (!enteredOTP.isEmpty()) {
+                    if (enteredOTP.equals(otp)) {
+                        saveUserPhoneNumber(phoneNumber);
+                        otpdialog.dismiss();
+                        Toast.makeText(getApplicationContext(), "Phone number verified successfully", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Entered Verification Code is incorrect. Please re-enter the Code", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(), "Please enter the Verification Code", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+    private void saveUserPhoneNumber (String userPhoneNumber) {
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        DatabaseReference usersReference = FirebaseDatabase.getInstance().getReference().child("Users").child(currentUserId);
+        usersReference.child("phoneNumber").setValue(userPhoneNumber);
+
+    }
+
 
     private void moveToUserLocation() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -932,8 +1065,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                             Marker marker = mMap.addMarker(markerOptions);
                                             locationMarkers.add(marker);
 
-                                            // Pass the correct distanceInKm to addLocationDetails
-                                            addLocationDetails(name, creator, verification, distanceInKm, destinationLatLng, img, phoneno);
+                                            if (verification != null && !verification.isEmpty()) {
+                                                addLocationDetails(name, creator, verification, distanceInKm, destinationLatLng, img, phoneno);
+                                            } else {
+                                                showNoRecommendationsDialog();
+                                            }
                                             if (placeId != null) {
                                                 visitedPlaceIds.add(placeId);
                                             }
@@ -1176,8 +1312,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Toast.makeText(this, "Location permission denied. App cannot function properly.", Toast.LENGTH_SHORT).show();
                 Log.i("Location", "Location permission denied.");
             }
+        } else if (requestCode == SMS_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, proceed to send OTP or perform SMS-related actions
+                // Call the method for sending OTP or perform relevant actions here
+            } else {
+                Toast.makeText(this, "SMS permission denied. Cannot send OTP.", Toast.LENGTH_SHORT).show();
+                Log.i("SMS", "SMS permission denied.");
+            }
         }
     }
+
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -1221,10 +1366,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onBackPressed() {
-        // Close the app when the back button is pressed
-        moveTaskToBack(true);
-        android.os.Process.killProcess(android.os.Process.myPid());
-        System.exit(1);
+        if (phoneNumberDialog != null && phoneNumberDialog.isShowing()) {
+            Toast.makeText(this, "Please complete the phone number verification", Toast.LENGTH_SHORT).show();
+        } else if(otpdialog != null && otpdialog.isShowing()){
+            Toast.makeText(this, "Please enter the OTP for phone number verification", Toast.LENGTH_SHORT).show();
+        }else {
+            moveTaskToBack(true);
+            android.os.Process.killProcess(android.os.Process.myPid());
+            System.exit(1);
+        }
     }
 
 }

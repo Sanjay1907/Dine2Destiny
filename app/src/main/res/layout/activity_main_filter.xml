@@ -7,27 +7,28 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp"
         android:layout_marginTop="0dp"
-        android:background="@drawable/bkg">
+        android:background="@drawable/bkg"
+        android:padding="16dp">
+
 
         <Button
-            android:layout_width="wrap_content"
+            android:id="@+id/nxtbtn"
+            android:layout_width="70dp"
             android:layout_height="wrap_content"
-            android:id="@+id/clrbtn"
-            android:layout_alignParentRight="true"
-            android:text="Clear Filters"
-            android:fontFamily="@font/playpensans"
-            android:textColor="@color/colorPrimaryDark"
-            android:backgroundTint="@color/white"/>
+            android:layout_marginStart="295dp"
+            android:layout_marginTop="625dp"
+            android:layout_marginBottom="20dp"
+            android:backgroundTint="@color/white"
+            android:drawableLeft="@drawable/next"
+            android:drawablePadding="8dp" />
+
 
         <RelativeLayout
             android:id="@+id/disfilter"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/clrbtn"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
+            android:layout_width="385dp"
+            android:layout_height="112dp"
+            android:layout_marginTop="55dp"
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="10dp"
             android:background="@drawable/gradient_bkg">
@@ -37,76 +38,125 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
+                android:fontFamily="@font/robotoslab_regular"
                 android:gravity="center"
                 android:text="Choose distance range"
-                android:fontFamily="@font/playpensans"
                 android:textColor="@color/white"
-                android:textSize="16dp" />
+                android:textSize="18dp" />
 
-            <!-- Original LinearLayout for SeekBar -->
-            <LinearLayout
-                android:id="@+id/distancefilter"
-                android:layout_width="match_parent"
+            <RelativeLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
                 android:layout_below="@id/distitle"
-                android:layout_marginBottom="10dp"
-                android:orientation="horizontal">
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp">
 
-                <Button
+                <TextView
+                    android:id="@+id/textViewPreviousDistance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/decrementbtn"
-                    android:text="-"
-                    android:textSize="24dp"
-                    android:layout_marginStart="30dp"
-                    android:textColor="@color/btncolor"
-                    android:backgroundTint="@color/white"
-                    android:layout_centerVertical="true"/>
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="23dp"
+                    android:fontFamily="@font/robotoslab_regular"
+                    android:text=""
+                    android:textColor="#FFFFFF"
+                    android:textSize="25sp" />
 
                 <TextView
                     android:id="@+id/textViewSelectedDistance"
-                    android:layout_width="80dp"
-                    android:layout_height="wrap_content"
-                    android:text="1 km"
-                    android:fontFamily="@font/playpensans"
-                    android:textSize="16sp"
-                    android:textColor="#FFFFFF"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="40dp"
-                    android:layout_marginTop="1dp"/>
-                <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/incrementbtn"
-                    android:text="+"
-                    android:textSize="24dp"
-                    android:textColor="@color/btncolor"
-                    android:backgroundTint="@color/white"
-                    android:layout_centerVertical="true"/>
-            </LinearLayout>
+                    android:layout_centerHorizontal="true"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginEnd="24dp"
+                    android:fontFamily="@font/robotoslab_regular"
+                    android:text="1"
+                    android:textColor="#FFFFFF"
+                    android:textSize="50sp" />
 
+
+                <TextView
+                    android:id="@+id/textViewNextDistance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="23dp"
+                    android:fontFamily="@font/robotoslab_regular"
+                    android:text="2"
+                    android:textColor="#FFFFFF"
+                    android:textSize="40sp" />
+            </RelativeLayout>
         </RelativeLayout>
 
 
         <RelativeLayout
-            android:layout_width="match_parent"
+            android:id="@+id/onlyveg"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/disfilter"
-            android:id = "@+id/foodfilter"
+            android:layout_marginTop="0dp"
+            android:background="@drawable/border_bkg">
+
+            <TextView
+                android:id="@+id/toogletitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/robotoslab_regular"
+                android:gravity="center"
+                android:text="Only Vegetarian"
+                android:textColor="#0446B6"
+                android:textSize="18dp" />
+
+            <ImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginStart="110dp"
+                android:layout_marginTop="40dp"
+                android:layout_marginBottom="10dp"
+                android:src="@drawable/pureveg" />
+
+
+            <Switch
+                android:id="@+id/purevegButton"
+                style="@style/CustomSwitchStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="210dp"
+                android:layout_marginTop="50dp"
+                android:drawablePadding="18dp"
+                android:paddingStart="8dp"
+                android:switchMinWidth="40dp"
+                android:switchPadding="16dp"
+                android:textSize="18dp"
+
+                />
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/foodfilter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/onlyveg"
             android:layout_marginTop="5dp"
             android:background="@drawable/border_bkg">
 
             <TextView
+                android:id="@+id/foodtitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/foodtitle"
-                android:text="Hotel Special For"
+                android:layout_marginTop="10dp"
                 android:fontFamily="@font/robotoslab_regular"
-                android:textColor="#0446B6"
-                android:textSize="18dp"
                 android:gravity="center"
-                android:layout_marginTop="135dp"/>
+                android:text="Hotel Special For"
+                android:textColor="#0446B6"
+                android:textSize="18dp" />
 
 
             <!-- Original RadioGroup -->
@@ -115,13 +165,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="260dp"
                 android:layout_below="@id/foodtitle"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="15dp"
                 android:gravity="center_horizontal"
                 android:orientation="vertical">
 
                 <ImageView
-                    android:layout_width="75dp"
-                    android:layout_height="65dp"
+                    android:layout_width="70dp"
+                    android:layout_height="60dp"
                     android:layout_marginStart="-90dp"
                     android:layout_marginTop="10dp"
                     android:src="@drawable/veg" />
@@ -138,8 +188,8 @@
                     android:textSize="18dp" />
 
                 <ImageView
-                    android:layout_width="75dp"
-                    android:layout_height="65dp"
+                    android:layout_width="70dp"
+                    android:layout_height="60dp"
                     android:layout_marginStart="100dp"
                     android:layout_marginTop="-110dp"
                     android:src="@drawable/nonveg" />
@@ -156,7 +206,7 @@
                     android:textSize="18dp" />
 
                 <ImageView
-                    android:layout_width="72dp"
+                    android:layout_width="60dp"
                     android:layout_height="70dp"
                     android:layout_marginTop="-10dp"
                     android:src="@drawable/both" />
@@ -171,64 +221,47 @@
                     android:textSize="18dp" />
             </RadioGroup>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/toogletitle"
-                android:text="Choose Pure Veg"
-                android:fontFamily="@font/robotoslab_regular"
-                android:textColor="#0446B6"
-                android:textSize="18dp"
-                android:gravity="center"
-                android:layout_marginTop="10dp"/>
-            <ImageView
-                android:layout_width="70dp"
-                android:layout_height="70dp"
-                android:src ="@drawable/pureveg"
-                android:layout_marginTop="50dp"
-                android:layout_marginStart="110dp"
-                />
 
-
-            <Switch
-                android:id="@+id/purevegButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="210dp"
-                android:layout_marginTop="70dp"
-                android:drawablePadding="18dp"
-                android:paddingStart="8dp"
-                android:textSize="18dp"
-                android:switchMinWidth="45dp"
-                android:switchPadding="16dp"
-                style="@style/CustomSwitchStyle"
-
-                />
         </RelativeLayout>
-        <LinearLayout
+
+        <Button
+            android:id="@+id/clrbtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/foodfilter"
+            android:layout_marginStart="125dp"
             android:layout_marginTop="10dp"
-            android:layout_centerHorizontal="true">
-            <Button
-                android:id="@+id/btnback"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:textSize="18dp"
-                android:text="Back"
-                android:textColor="@color/btncolor"
-                android:backgroundTint="@color/colorWhite"/>
-            <Button
-                android:id="@+id/nxtbtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="18dp"
-                android:text="Next"
-                android:layout_marginStart="10dp"
-                android:layout_marginBottom="20dp"
-                android:backgroundTint="@color/colorAccent"/>
-        </LinearLayout>
+            android:backgroundTint="@color/white"
+            android:fontFamily="@font/robotoslab_regular"
+            android:text="Clear Filters"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="18dp" />
     </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/overlayLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:visibility="gone">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Swipe from left to right for increasing the distance"
+            android:textColor="#FFFFFF"
+            android:id="@+id/righttext"
+            android:textSize="14sp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="100dp" />
+        <ImageView
+            android:id="@+id/arrowImageView"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/baseline_arrow_back_24"
+            android:layout_below="@id/righttext"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="50dp"
+            android:layout_marginBottom="50dp"
+            android:visibility="invisible"
+        />
+</RelativeLayout>
 </RelativeLayout>

@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.RatingBar;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -42,11 +43,7 @@ import com.google.firebase.database.ValueEventListener;
 public class DistanceRangeActivity extends AppCompatActivity {
     private static final String TAG = "DistanceRangeActivity";
     private Button btnApplyDistance, backbtn;
-    private RadioGroup ratingRadioGroup;
-    private RadioButton rating4PlusRadioButton;
-    private RadioButton rating3PlusRadioButton;
-    private RadioButton rating2PlusRadioButton;
-    private RadioButton rating1PlusRadioButton;
+    private RatingBar ratingBar;
     private int selectedRating = 0;
     private Button clrbtn;
     private AutoCompleteTextView autoCompleteTextView;
@@ -84,41 +81,29 @@ public class DistanceRangeActivity extends AppCompatActivity {
         populateRecommendationNames();
         btnApplyDistance = findViewById(R.id.btnApplyDistance);
         backbtn = findViewById(R.id.btnback);
-        ratingRadioGroup = findViewById(R.id.ratingRadioGroup);
-        rating4PlusRadioButton = findViewById(R.id.rating4PlusRadioButton);
-        rating3PlusRadioButton = findViewById(R.id.rating3PlusRadioButton);
-        rating2PlusRadioButton = findViewById(R.id.rating2PlusRadioButton);
-        rating1PlusRadioButton = findViewById(R.id.rating1PlusRadioButton);
         clrbtn = findViewById(R.id.clrbtn);
+        ratingBar = findViewById(R.id.ratingBar);
         selectedFoodItemsTextView = findViewById(R.id.selectedFoodItemsTextView);
         selectedFoodItemsTextView.setText("Selected Food Items:");
         autoCompleteTextView.setOnItemClickListener((parent, view, position, id) -> {
             String selectedRecommendation = autoCompleteAdapter.getItem(position);
-
-            // Handle the selected recommendation as needed (e.g., display it in your app)
-            // You can perform a Firebase query based on the selected recommendation if needed.
             Log.i(TAG, "Selected Recommendation: " + selectedRecommendation);
 
             // Add the selected food item to the TextView
             addFoodItemToTextView(selectedRecommendation);
         });
-        ratingRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if (checkedId == R.id.rating4PlusRadioButton) {
-                    selectedRating = 4;
-                } else if (checkedId == R.id.rating3PlusRadioButton) {
-                    selectedRating = 3;
-                } else if (checkedId == R.id.rating2PlusRadioButton) {
-                    selectedRating = 2;
-                } else if (checkedId == R.id.rating1PlusRadioButton) {
-                    selectedRating = 1;
-                } else {
-                    selectedRating = 0;
-                }
-                Log.i(TAG, "onCheckedChanged: Selected Rating: " + selectedRating);
+            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                // Convert the float rating to an integer
+                selectedRating = (int) rating;
+
+                // Log the selected rating
+                Log.i(TAG, "onRatingChanged: Selected Rating: " + selectedRating);
             }
         });
+
+
         btnApplyDistance.setOnClickListener(v -> {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
             String timestamp = dateFormat.format(new Date());
@@ -214,7 +199,7 @@ public class DistanceRangeActivity extends AppCompatActivity {
         clrbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ratingRadioGroup.clearCheck();
+                ratingBar.setRating(0);
                 selectedFoodItemsTextView.setText("Selected Food Items:");
                 selectedFoodItemsList.clear();
                 foodItemCounter = 1;
