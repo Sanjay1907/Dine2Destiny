@@ -50,6 +50,7 @@ public class MainFilter extends AppCompatActivity implements View.OnTouchListene
         textViewSelectedDistance = findViewById(R.id.textViewSelectedDistance);
         textViewPreviousDistance = findViewById(R.id.textViewPreviousDistance);
         textViewNextDistance = findViewById(R.id.textViewNextDistance);
+        setInteractionsEnabled(false);
         showOverlay();
 
         textViewSelectedDistance.setOnTouchListener(this);
@@ -133,7 +134,7 @@ public class MainFilter extends AppCompatActivity implements View.OnTouchListene
                 foodTypeRadioGroup.clearCheck();
                 initialDistance = 1;
                 textViewSelectedDistance.setText("1 km");
-                textViewPreviousDistance.setText(String.valueOf(initialDistance - 1));
+                textViewPreviousDistance.setText("");
                 textViewNextDistance.setText(String.valueOf(initialDistance + 1));
                 purevegSwitch.setChecked(false);
             }
@@ -234,21 +235,45 @@ public class MainFilter extends AppCompatActivity implements View.OnTouchListene
             Log.i(TAG, "decreaseDistance: Minimum distance reached");
         }
     }
+    private void setInteractionsEnabled(boolean enabled) {
+        foodTypeRadioGroup.setEnabled(enabled);
+        vegRadioButton.setEnabled(enabled);
+        nonVegRadioButton.setEnabled(enabled);
+        both.setEnabled(enabled);
+        clrbtn.setEnabled(enabled);
+        purevegSwitch.setEnabled(enabled);
+        nxtbtn.setEnabled(enabled);
+        textViewSelectedDistance.setEnabled(enabled);
+        textViewPreviousDistance.setEnabled(enabled);
+        textViewNextDistance.setEnabled(enabled);
+    }
     private void showOverlay() {
-        // Display overlay for 2 seconds
         final RelativeLayout overlayLayout = findViewById(R.id.overlayLayout);
         final ImageView arrowImageView = findViewById(R.id.arrowImageView);
+        final Button skipbtn = findViewById(R.id.skipbtn);
         overlayLayout.setVisibility(View.VISIBLE);
 
         Animation animation = AnimationUtils.loadAnimation(this, R.anim.slide_in_out);
-        arrowImageView.setVisibility(View.VISIBLE); // Make the arrow visible before starting the animation
+        arrowImageView.setVisibility(View.VISIBLE);
         arrowImageView.startAnimation(animation);
+        skipbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                overlayLayout.setVisibility(View.GONE);
+                arrowImageView.clearAnimation();
+                setInteractionsEnabled(true);
+            }
+        });
+
 
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                overlayLayout.setVisibility(View.GONE);
-                arrowImageView.clearAnimation();
+                if (overlayLayout.getVisibility() == View.VISIBLE) {
+                    overlayLayout.setVisibility(View.GONE);
+                    arrowImageView.clearAnimation();
+                    setInteractionsEnabled(true);
+                }
             }
         }, 6000);
     }

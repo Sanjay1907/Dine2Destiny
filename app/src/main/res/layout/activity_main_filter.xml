@@ -243,6 +243,16 @@
         android:layout_height="match_parent"
         android:background="#80000000"
         android:visibility="gone">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/skipbtn"
+            android:text="Skip"
+            android:textStyle="bold"
+            android:backgroundTint="@color/colorAccent"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="10dp"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
