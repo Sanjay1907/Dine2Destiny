@@ -37,7 +37,7 @@
         android:layout_marginTop="5dp"
         android:fontFamily="@font/playpensans"
         android:text="ok"
-        android:textColor="@color/white"
-        android:backgroundTint="@color/black"
+        android:textColor="@color/black"
+        android:backgroundTint="@color/white"
         android:layout_centerHorizontal="true" />
 </RelativeLayout>

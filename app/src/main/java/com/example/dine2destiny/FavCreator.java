@@ -290,6 +290,7 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
                 followedCreatorsMap.put(creatorName, false);
                 ((Button) view).setText("Follow");
                 followButton.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimaryDark));
+                followButton.setTextColor(getResources().getColorStateList(R.color.white));
                 Toast.makeText(FavCreator.this, "You unfollowed " + creatorName, Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "followCreator: Unfollowed - " + creatorName);
             } else {

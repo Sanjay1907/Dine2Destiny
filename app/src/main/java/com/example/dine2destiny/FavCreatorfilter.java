@@ -16,6 +16,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,10 +60,11 @@ public class FavCreatorfilter extends AppCompatActivity{
     private FirebaseAuth mAuth;
     private Button nextbtn;
     private ProgressDialog progressDialog;
-    private ToggleButton filterVerifiedBtn;
+    private Switch filterVerifiedBtn;
     private Map<String, Boolean> followedCreatorsMap = new HashMap<>();
     private Dialog dialog;
     private List<Pair<Pair<String, String>, Pair<Integer, String>>> creatorNames = new ArrayList<>();
+    private List<Pair<Pair<String, String>, Pair<Integer, String>>> originalCreatorNames;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,7 +122,7 @@ public class FavCreatorfilter extends AppCompatActivity{
                         new Pair<>(verificationStatus, profileImageUrl)));
                 // Update the data structure with the initial state (not following)
                 followedCreatorsMap.put(creatorName, false);
-
+                originalCreatorNames = new ArrayList<>(creatorNames);
                 adapter.notifyDataSetChanged();
                 updateButtonStatus();
                 dialog.dismiss();
@@ -300,6 +302,7 @@ public class FavCreatorfilter extends AppCompatActivity{
                 followedCreatorsMap.put(creatorName, false);
                 ((Button) view).setText("Follow");
                 followButton.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimaryDark));
+                followButton.setTextColor(getResources().getColorStateList(R.color.white));
                 Toast.makeText(FavCreatorfilter.this, "You unfollowed " + creatorName, Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "followCreator: Unfollowed - " + creatorName);
             } else {
@@ -312,35 +315,29 @@ public class FavCreatorfilter extends AppCompatActivity{
                 Log.d(TAG, "followCreator: Followed - " + creatorName);
             }
         } else {
-            // Handle the case where the user is not signed in
-            // You can redirect the user to the login screen or perform other actions.
         }
     }
     private void applyVerificationFilter(boolean showVerifiedOnly) {
-        for (int i = 0; i < creatorListView.getCount(); i++) {
-            View view = creatorListView.getChildAt(i);
-            if (view != null) {
-                TextView creatorNameTextView = view.findViewById(R.id.creatorNameTextView);
-                ImageView verifiedTick = view.findViewById(R.id.verifiedIcon);
-                boolean isVerified = (verifiedTick.getVisibility() == View.VISIBLE);
+        if (showVerifiedOnly) {
+            List<Pair<Pair<String, String>, Pair<Integer, String>>> filteredList = new ArrayList<>();
 
-                if (showVerifiedOnly && !isVerified) {
-                    view.setVisibility(View.GONE);
-                } else {
-                    view.setVisibility(View.VISIBLE);
+            for (Pair<Pair<String, String>, Pair<Integer, String>> creator : creatorNames) {
+                boolean isVerified = (creator.second.first > 0);
+
+                if (isVerified) {
+                    filteredList.add(creator);
                 }
             }
+
+            creatorNames.clear();
+            creatorNames.addAll(filteredList);
+        } else {
+            // If the filter is off, revert to the original list
+            creatorNames.clear();
+            creatorNames.addAll(originalCreatorNames);
         }
 
-        // Update button appearance based on showVerifiedOnly
-        filterVerifiedBtn.setChecked(showVerifiedOnly);
-        if (showVerifiedOnly) {
-            filterVerifiedBtn.setText("Verified Only");
-            filterVerifiedBtn.setBackgroundResource(R.drawable.toggleon);// Change button background to selected state
-        } else {
-            filterVerifiedBtn.setText("Verified");
-            filterVerifiedBtn.setBackgroundResource(R.drawable.toggleoff); // Change button background to default state
-        }
+        adapter.notifyDataSetChanged();
     }
     public void onBackPressed() {
         Log.d(TAG, "Back button pressed");

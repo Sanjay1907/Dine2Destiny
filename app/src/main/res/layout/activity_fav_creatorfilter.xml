@@ -37,36 +37,47 @@
             android:queryHint="Search Creators"
             style="@style/SearchViewStyle"/>
 
-        <ToggleButton
-            android:id="@+id/filterVerifiedBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_below="@id/searchView"
-            android:layout_alignParentLeft="true"
-            android:layout_marginStart="290dp"
-            android:layout_marginTop="40dp"
-            android:background="@drawable/toggle_button_selector"
-            android:checked="false"
-            android:text="Verified"
-            android:textColor="@color/white" />
-        <TextView
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:id="@+id/verifiedfilter"
             android:layout_below="@id/searchView"
-            android:layout_marginTop="45dp"
-            android:textColor="@color/colorTextSecondary"
-            android:textSize="18dp"
-            android:layout_marginStart="20dp"
-            android:text="Verified Creators"
-            android:drawableLeft="@drawable/ic_verified_24"
-            android:drawablePadding="10dp"/>
+            android:layout_marginTop="40dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:textColor="@color/colorTextSecondary"
+                android:textSize="18dp"
+                android:layout_marginLeft="120dp"
+                android:text="Verified Creators"
+                android:drawableLeft="@drawable/ic_verified_24"
+                android:drawablePadding="10dp"/>
+            <Switch
+                android:id="@+id/filterVerifiedBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/searchView"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="40dp"
+                android:layout_marginLeft="10dp"
+                android:switchMinWidth="40dp"
+                android:switchPadding="16dp"
+                android:track="@drawable/customswitch"
+                android:checked="false"
+                android:scaleX="1.2"
+                android:scaleY="1.2"
+                android:thumbTint="@color/white" />
+        </LinearLayout>
 
         <ListView
             android:id="@+id/creatorListView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:divider="@null"
-            android:layout_below="@id/filterVerifiedBtn"
+            android:layout_below="@id/verifiedfilter"
             android:dividerHeight="0dp"
             android:layout_marginTop="20dp"
             android:layout_marginLeft="10dp"
