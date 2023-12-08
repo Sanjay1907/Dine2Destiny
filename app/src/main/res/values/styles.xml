@@ -7,6 +7,14 @@
         <style name="GoldRatingBar" parent="Widget.AppCompat.RatingBar">
             <item name="android:progressTint">@color/goldColor</item>
         </style>
+    <style name="SearchViewStyle" parent="Widget.AppCompat.SearchView">
+        <item name="android:background">@drawable/border_bkg</item>
+        <item name="android:layout_marginTop">15dp</item>
+        <item name="android:layout_below">@id/title</item>
+        <item name="android:layout_marginLeft">20dp</item>
+        <item name="android:layout_marginRight">20dp</item>
+        <item name="android:queryBackground">@null</item>
+    </style>
 
 
 </resources>

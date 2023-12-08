@@ -33,12 +33,9 @@
             android:id="@+id/searchView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:iconifiedByDefault="false"
             android:queryHint="Search Creators"
-            android:background="@drawable/border_bkg"
-            android:layout_marginTop="15dp"
-            android:layout_below="@id/title"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"/>
+            style="@style/SearchViewStyle"/>
 
         <ToggleButton
             android:id="@+id/filterVerifiedBtn"

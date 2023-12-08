@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -50,23 +52,22 @@ import android.widget.ToggleButton;
 
 public class FavCreatorfilter extends AppCompatActivity{
     private static final String TAG = "FavCreatorfilter"; // Tag for logging
-
     private DatabaseReference databaseReference;
     private ListView creatorListView;
     private SearchView searchView;
-    private List<String> creatorNames;
-    private ArrayAdapter<String> adapter;
+    private CreatorPairAdapter adapter;
     private FirebaseAuth mAuth;
     private Button nextbtn;
     private ProgressDialog progressDialog;
     private ToggleButton filterVerifiedBtn;
     private Map<String, Boolean> followedCreatorsMap = new HashMap<>();
     private Dialog dialog;
-
+    private List<Pair<Pair<String, String>, Pair<Integer, String>>> creatorNames = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fav_creatorfilter);
+
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Fetching followers...");
         progressDialog.setCancelable(false);
@@ -76,7 +77,6 @@ public class FavCreatorfilter extends AppCompatActivity{
         dialog.setCanceledOnTouchOutside(false);
 
         mAuth = FirebaseAuth.getInstance();
-
         databaseReference = FirebaseDatabase.getInstance().getReference().child("Creators");
         creatorNames = new ArrayList<>();
         creatorListView = findViewById(R.id.creatorListView);
@@ -91,8 +91,7 @@ public class FavCreatorfilter extends AppCompatActivity{
             }
         });
 
-        adapter = new ArrayAdapter<>(this, R.layout.creator_item, R.id.creatorNameTextView, creatorNames);
-
+        adapter = new CreatorPairAdapter(this, creatorNames);
         creatorListView.setAdapter(adapter);
         dialog.show();
 
@@ -104,8 +103,6 @@ public class FavCreatorfilter extends AppCompatActivity{
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 String creatorName = dataSnapshot.child("name").getValue(String.class);
                 String creatorName2 = dataSnapshot.child("name2").getValue(String.class);
-                //creatorNames.add(creatorName);
-                final String profileimg = dataSnapshot.child("profileImage").getValue(String.class);
                 String verificationStatusString = dataSnapshot.child("request_verification")
                         .child(dataSnapshot.getKey())
                         .child("verification")
@@ -116,57 +113,20 @@ public class FavCreatorfilter extends AppCompatActivity{
                     try {
                         verificationStatus = Integer.parseInt(verificationStatusString);
                     } catch (NumberFormatException e) {
-                        // Handle the case where the verification value cannot be converted to an integer
-                        // You can log an error or set a default value as needed
                     }
                 }
+                String profileImageUrl = dataSnapshot.child("profileImage").getValue(String.class);
+                creatorNames.add(new Pair<>(new Pair<>(creatorName, creatorName2),
+                        new Pair<>(verificationStatus, profileImageUrl)));
                 // Update the data structure with the initial state (not following)
                 followedCreatorsMap.put(creatorName, false);
-                View view = View.inflate(FavCreatorfilter.this, R.layout.creator_item, null);
-                creatorListView.addFooterView(view);
-
-                TextView creatorNameTextView = view.findViewById(R.id.creatorNameTextView);
-                creatorNameTextView.setText(creatorName);
-                if (verificationStatus == 1) {
-                    ImageView verifiedTick = view.findViewById(R.id.verifiedIcon);
-                    verifiedTick.setVisibility(View.VISIBLE);
-                }
-                TextView creatorName2TextView = view.findViewById(R.id.creatorName2TextView);
-                creatorName2TextView.setText(creatorName2);
-
-                ImageView profileImageView = view.findViewById(R.id.imageViewProfile);
-                Glide.with(FavCreatorfilter.this)
-                        .load(profileimg)
-                        .placeholder(R.drawable.default_profile_image)
-                        .listener(new RequestListener<Drawable>() {
-                            @Override
-                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                                // Handle image loading failure here (if needed)
-                                dialog.dismiss(); // Dismiss the progress dialog
-                                return false;
-                            }
-
-                            @Override
-                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                                dialog.dismiss(); // Dismiss the progress dialog when the image loads
-                                return false;
-                            }
-                        })
-                        .into(profileImageView);
-
 
                 adapter.notifyDataSetChanged();
+                updateButtonStatus();
+                dialog.dismiss();
 
                 Log.d(TAG, "onChildAdded: Creator added - " + creatorName);
-
-                // Call loadInitialFollowState() after the data has been loaded
                 loadInitialFollowState();
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialog.dismiss();
-                    }
-                }, 2000); // 1000 milliseconds = 1 second
             }
 
             @Override
@@ -190,7 +150,6 @@ public class FavCreatorfilter extends AppCompatActivity{
                 Log.e(TAG, "onCancelled: Database error - " + databaseError.getMessage());
             }
         });
-
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -200,24 +159,7 @@ public class FavCreatorfilter extends AppCompatActivity{
             @Override
             public boolean onQueryTextChange(String newText) {
                 adapter.getFilter().filter(newText);
-
-                // Update button states for filtered items
-                for (int i = 0; i < creatorListView.getCount(); i++) {
-                    View view = creatorListView.getChildAt(i);
-                    if (view != null) {
-                        TextView creatorNameTextView = view.findViewById(R.id.creatorNameTextView);
-                        Button followButton = view.findViewById(R.id.followButton);
-                        String creatorName = creatorNameTextView.getText().toString();
-
-                        boolean isFollowing = followedCreatorsMap.get(creatorName);
-                        if (isFollowing) {
-                            followButton.setText("Following");
-                        } else {
-                            followButton.setText("Follow");
-                        }
-                    }
-                }
-
+                updateButtonStatus();
                 return false;
             }
         });
@@ -228,7 +170,28 @@ public class FavCreatorfilter extends AppCompatActivity{
             }
         });
     }
+    private void updateButtonStatus(){
+        // Update button states for filtered items
+        for (int i = 0; i < creatorListView.getCount(); i++) {
+            View view = creatorListView.getChildAt(i);
+            if (view != null) {
+                TextView creatorNameTextView = view.findViewById(R.id.creatorNameTextView);
+                Button followButton = view.findViewById(R.id.followButton);
+                String creatorName = creatorNameTextView.getText().toString();
 
+                boolean isFollowing = followedCreatorsMap.get(creatorName);
+                if (isFollowing) {
+                    followButton.setText("Following");
+                    followButton.setBackgroundTintList(getResources().getColorStateList(R.color.following));
+                    followButton.setTextColor(getResources().getColorStateList(R.color.black));
+                } else {
+                    followButton.setText("Follow");
+                    followButton.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimaryDark));
+                    followButton.setTextColor(getResources().getColorStateList(R.color.white));
+                }
+            }
+        }
+    }
     private void loadInitialFollowState() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {

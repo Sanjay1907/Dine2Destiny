@@ -27,19 +27,15 @@
             android:textSize="20dp"
             android:textColor="#D0FFFFFF"
             android:textStyle="bold"
-            android:layout_marginTop="70dp"/>
+            android:layout_marginTop="25dp"/>
 
-        <androidx.appcompat.widget.SearchView
+        <SearchView
             android:id="@+id/searchView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:queryHint="Search Creators"
             android:iconifiedByDefault="false"
-            android:background="@drawable/border_bkg"
-            android:layout_marginTop="45dp"
-            android:layout_below="@id/title"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"/>
+            android:queryHint="Search Creators"
+            style="@style/SearchViewStyle"/>
 
         <ListView
             android:id="@+id/creatorListView"
