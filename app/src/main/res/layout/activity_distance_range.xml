@@ -4,20 +4,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:background="@drawable/bkg">
+    android:background="@drawable/bkg2">
     <Button
         android:id="@+id/btnback"
-        android:layout_width="70dp"
+        android:layout_width="60dp"
         android:layout_height="wrap_content"
         android:textSize="18dp"
         android:layout_marginTop="30dp"
-        android:backgroundTint="@color/colorWhite"
+        android:backgroundTint="#F45D5D"
         android:drawableLeft="@drawable/back"
         android:paddingStart="8dp"
         android:paddingTop="8dp"
         android:paddingEnd="8dp"
         android:paddingBottom="8dp"
         android:textColor="@color/btncolor" />
+
+
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -82,12 +84,12 @@
 
             <AutoCompleteTextView
                 android:id="@+id/autoCompleteTextView"
-                android:layout_width="2dp"
+                android:layout_width="3dp"
                 android:layout_weight="1"
                 android:layout_height="40dp"
-                android:paddingStart="10dp"
+                android:paddingStart="6dp"
                 android:paddingEnd="0dp"
-                android:hint="  Search for interested foods"
+                android:hint="Craving For.."
                 android:inputType="text|textMultiLine"
                 android:completionThreshold="1"
                 android:background="@drawable/rectangular_box" />
@@ -99,7 +101,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_height="wrap_content"
                 android:drawableLeft="@drawable/baseline_add_24"
-                android:backgroundTint="#EA2E2E"
+                android:backgroundTint="@color/white"
                 />
         </LinearLayout>
         <TextView
@@ -125,7 +127,7 @@
         android:layout_marginTop="25dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
-        android:padding="10dp"
+        android:padding="12dp"
         android:fontFamily="@font/robotoslab_regular"
         android:textColor="@color/btncolor"
         android:backgroundTint="@color/colorWhite"/>
@@ -142,9 +144,9 @@
         android:text="Apply"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
-        android:padding="10dp"
+        android:padding="12dp"
         android:layout_marginBottom="20dp"
-        android:backgroundTint="#E42A2A"/>
+        android:backgroundTint="#E84040"/>
 
 
 
