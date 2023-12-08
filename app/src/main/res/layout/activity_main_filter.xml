@@ -11,24 +11,26 @@
         android:background="@drawable/bkg"
         android:padding="16dp">
 
-
         <Button
             android:id="@+id/nxtbtn"
             android:layout_width="70dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="295dp"
-            android:layout_marginTop="625dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginStart="290dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="5dp"
             android:backgroundTint="@color/white"
             android:drawableLeft="@drawable/next"
-            android:drawablePadding="8dp" />
+            android:paddingStart="15dp"
+            android:paddingEnd="10dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"/>
 
 
         <RelativeLayout
             android:id="@+id/disfilter"
             android:layout_width="385dp"
             android:layout_height="112dp"
-            android:layout_marginTop="55dp"
+            android:layout_marginTop="65dp"
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="10dp"
             android:background="@drawable/gradient_bkg">
@@ -124,7 +126,6 @@
 
             <Switch
                 android:id="@+id/purevegButton"
-                style="@style/CustomSwitchStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="210dp"
@@ -134,6 +135,12 @@
                 android:switchMinWidth="40dp"
                 android:switchPadding="16dp"
                 android:textSize="18dp"
+                android:track="@drawable/customswitch"
+                android:checked="false"
+                android:scaleX="1.2"
+                android:scaleY="1.2"
+                android:thumbTint="@color/white"
+
 
                 />
         </RelativeLayout>
@@ -226,16 +233,19 @@
 
         <Button
             android:id="@+id/clrbtn"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/foodfilter"
-            android:layout_marginStart="125dp"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
+            android:padding="10dp"
             android:backgroundTint="@color/white"
             android:fontFamily="@font/robotoslab_regular"
             android:text="Clear Filters"
-            android:textColor="@color/colorPrimaryDark"
-            android:textSize="18dp" />
+            android:textColor="#4F66EA"
+            android:textSize="20dp" />
+
     </RelativeLayout>
     <RelativeLayout
         android:id="@+id/overlayLayout"

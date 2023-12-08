@@ -4,26 +4,26 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:background="@drawable/food_bkg">
-
+    android:background="@drawable/bkg">
     <Button
-        android:id="@+id/clrbtn"
-        android:layout_width="wrap_content"
+        android:id="@+id/btnback"
+        android:layout_width="70dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
         android:textSize="18dp"
-        android:layout_alignParentRight="true"
-        android:text="Clear Filters"
-        android:layout_marginTop="95dp"
-        android:fontFamily="@font/playpensans"
-        android:textColor="@color/colorPrimaryDark"
-        android:backgroundTint="@color/colorWhite"/>
+        android:layout_marginTop="30dp"
+        android:backgroundTint="@color/colorWhite"
+        android:drawableLeft="@drawable/back"
+        android:paddingStart="8dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="8dp"
+        android:textColor="@color/btncolor" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id ="@+id/ratingfilter"
-        android:layout_marginTop="150dp"
+        android:layout_marginTop="100dp"
         android:background="@drawable/border_bkg">
 
         <TextView
@@ -45,7 +45,8 @@
             android:layout_marginTop="15dp"
             android:numStars="5"
             android:rating="0"
-            android:stepSize="1" />
+            android:stepSize="1"
+            style="@style/GoldRatingBar"/>
 
 
     </RelativeLayout>
@@ -63,7 +64,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/interesttitle"
-            android:text="Choose Food Interests"
+            android:text="I am craving for!"
             android:fontFamily="@font/robotoslab_regular"
             android:textColor="#0446B6"
             android:textSize="18dp"
@@ -74,26 +75,32 @@
             android:layout_height="wrap_content"
             android:id="@+id/foodInterst"
             android:layout_below="@id/interesttitle"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="10dp"
             android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
             <AutoCompleteTextView
                 android:id="@+id/autoCompleteTextView"
-                android:layout_width="0dp"
+                android:layout_width="2dp"
                 android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:hint="Search for interested foods"
+                android:layout_height="40dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="0dp"
+                android:hint="  Search for interested foods"
                 android:inputType="text|textMultiLine"
-                android:completionThreshold="1" />
+                android:completionThreshold="1"
+                android:background="@drawable/rectangular_box" />
+
 
             <Button
                 android:id="@+id/addbtn"
                 android:layout_width="70dp"
+                android:layout_marginLeft="10dp"
                 android:layout_height="wrap_content"
                 android:drawableLeft="@drawable/baseline_add_24"
-                android:backgroundTint="@color/btncolor" />
+                android:backgroundTint="#EA2E2E"
+                />
         </LinearLayout>
         <TextView
             android:id="@+id/selectedFoodItemsTextView"
@@ -103,36 +110,42 @@
             android:layout_marginTop="16dp"
             android:text="Selected Food Items:"
             android:layout_marginBottom="30dp"
-            android:textColor="#343942"
+            android:textColor="#444445"
             android:textSize="18dp"
             android:layout_centerHorizontal="true"/>
 
     </RelativeLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
+    <Button
+        android:id="@+id/clrbtn"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textSize="18dp"
+        android:text="Clear Filters"
         android:layout_below="@+id/foodinterests"
-        android:layout_marginTop="20dp"
-        android:layout_centerHorizontal="true">
-        <Button
-            android:id="@+id/btnback"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:textSize="18dp"
-            android:text="Back"
-            android:textColor="@color/btncolor"
-            android:backgroundTint="@color/colorWhite"/>
-        <Button
-            android:id="@+id/btnApplyDistance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="18dp"
-            android:text="Apply"
-            android:layout_marginStart="10dp"
-            android:layout_marginBottom="20dp"
-            android:backgroundTint="@color/colorAccent"/>
+        android:layout_marginTop="25dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:padding="10dp"
+        android:fontFamily="@font/robotoslab_regular"
+        android:textColor="@color/btncolor"
+        android:backgroundTint="@color/colorWhite"/>
 
-    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnApplyDistance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18dp"
+        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/clrbtn"
+        android:text="Apply"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:padding="10dp"
+        android:layout_marginBottom="20dp"
+        android:backgroundTint="#E42A2A"/>
+
+
 
 </RelativeLayout>

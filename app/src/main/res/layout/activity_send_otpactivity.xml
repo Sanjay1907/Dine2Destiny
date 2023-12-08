@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,40 +9,34 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:paddingTop="50dp"
         android:orientation="vertical"
+        android:background="@drawable/g_otp"
         android:paddingRight="20dp"
         android:paddingLeft="20dp">
 
-
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:layout_gravity="center_horizontal"
-            android:src="@drawable/google_icon" />
-
-
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/playpensans"
+            android:fontFamily="@font/robotoslab_regular"
             android:includeFontPadding="false"
             android:paddingTop="20sp"
+            android:layout_marginTop="250dp"
             android:shadowColor="#0E0E0E"
             android:text="Sign In"
             android:textAlignment="center"
-            android:textColor="#000000"
-            android:textSize="45sp" />
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:includeFontPadding="false"
-            android:shadowColor="#0E0E0E"
-            android:text="Sign-In with Google!"
-            android:textAlignment="center"
-            android:textColor="#000000"
-            android:textSize="14sp" />
+            android:textColor="#ffffff"
+            android:textSize="30sp" />
+
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:src="@drawable/g_logo"
+            android:background="@drawable/rounded_corners"/>
 
 
         <Space
@@ -56,9 +50,15 @@
             android:layout_height="wrap_content"
             android:drawableLeft="@drawable/google"
             android:elevation="8dp"
+            android:backgroundTint="@color/white"
             android:text="Sign In with Google"
-            android:textColor="#fff" />
+            android:textSize="18dp"
+            android:textColor="@color/colorPrimaryDark" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="250dp"/>
 
     </LinearLayout>>
 
-</ScrollView>
+</RelativeLayout>

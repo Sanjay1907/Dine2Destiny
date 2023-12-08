@@ -4,5 +4,9 @@
         <item name="android:thumbTint">@color/white</item>
         <item name="android:trackTint">#87D58A</item>
     </style>
+        <style name="GoldRatingBar" parent="Widget.AppCompat.RatingBar">
+            <item name="android:progressTint">@color/goldColor</item>
+        </style>
+
 
 </resources>
