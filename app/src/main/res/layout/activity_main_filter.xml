@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="0dp"
-        android:background="@drawable/bkg"
+        android:background="@drawable/bkg2"
         android:padding="16dp">
 
         <Button
@@ -16,9 +16,10 @@
             android:layout_width="70dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="290dp"
-            android:layout_marginTop="0dp"
-            android:layout_marginBottom="5dp"
-            android:backgroundTint="#F45D5D"
+            android:layout_below="@+id/clrbtn"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="9dp"
+            android:backgroundTint="#F84343"
             android:drawableLeft="@drawable/next"
             android:paddingStart="15dp"
             android:paddingEnd="10dp"
@@ -30,7 +31,7 @@
             android:id="@+id/disfilter"
             android:layout_width="385dp"
             android:layout_height="112dp"
-            android:layout_marginTop="65dp"
+            android:layout_marginTop="25dp"
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="10dp"
             android:background="@drawable/gradient_bkg">
@@ -51,7 +52,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/distitle"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="5dp">
+                android:layout_marginTop="10dp">
 
                 <TextView
                     android:id="@+id/textViewPreviousDistance"
@@ -60,7 +61,7 @@
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
                     android:layout_gravity="center"
-                    android:layout_marginStart="23dp"
+                    android:layout_marginStart="70dp"
                     android:fontFamily="@font/robotoslab_regular"
                     android:text=""
                     android:textColor="#FFFFFF"
@@ -77,7 +78,7 @@
                     android:fontFamily="@font/robotoslab_regular"
                     android:text="1"
                     android:textColor="#FFFFFF"
-                    android:textSize="50sp" />
+                    android:textSize="35sp" />
 
 
                 <TextView
@@ -87,11 +88,11 @@
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:layout_gravity="center"
-                    android:layout_marginEnd="23dp"
+                    android:layout_marginEnd="70dp"
                     android:fontFamily="@font/robotoslab_regular"
                     android:text="2"
                     android:textColor="#FFFFFF"
-                    android:textSize="40sp" />
+                    android:textSize="25sp" />
             </RelativeLayout>
         </RelativeLayout>
 
@@ -237,14 +238,14 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/foodfilter"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="5dp"
             android:layout_marginEnd="20dp"
             android:padding="10dp"
             android:backgroundTint="@color/white"
             android:fontFamily="@font/robotoslab_regular"
             android:text="Clear Filters"
             android:textColor="#4F66EA"
-            android:textSize="20dp" />
+            android:textSize="16dp" />
 
     </RelativeLayout>
     <RelativeLayout
@@ -271,7 +272,7 @@
             android:id="@+id/righttext"
             android:textSize="14sp"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="100dp" />
+            android:layout_marginTop="80dp" />
         <ImageView
             android:id="@+id/arrowImageView"
             android:layout_width="100dp"
@@ -279,9 +280,9 @@
             android:src="@drawable/baseline_arrow_back_24"
             android:layout_below="@id/righttext"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="30dp"
             android:layout_marginBottom="50dp"
             android:visibility="invisible"
-        />
-</RelativeLayout>
+            />
+    </RelativeLayout>
 </RelativeLayout>

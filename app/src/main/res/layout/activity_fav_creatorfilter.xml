@@ -9,9 +9,8 @@
     android:fitsSystemWindows="true"
     tools:openDrawer="start"
     android:background="@drawable/fav_creator"
-    tools:context=".FavCreator">
+    tools:context=".FavCreatorfilter">
 
-    <!-- Content View -->
     <RelativeLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
@@ -41,9 +40,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:id="@+id/verifiedfilter"
+            android:id="@+id/topheader"
             android:layout_below="@id/searchView"
-            android:layout_marginTop="40dp">
+            android:layout_marginTop="25dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:id="@+id/verifiedfilter"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="35dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -51,9 +58,8 @@
                 android:layout_alignParentLeft="true"
                 android:textColor="@color/colorTextSecondary"
                 android:textSize="18dp"
-                android:layout_marginLeft="120dp"
+                android:layout_marginTop="10dp"
                 android:text="Verified Creators"
-                android:drawableLeft="@drawable/ic_verified_24"
                 android:drawablePadding="10dp"/>
             <Switch
                 android:id="@+id/filterVerifiedBtn"
@@ -62,14 +68,27 @@
                 android:layout_below="@id/searchView"
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="40dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginLeft="10dp"
                 android:switchMinWidth="40dp"
                 android:switchPadding="16dp"
-                android:track="@drawable/customswitch"
+                android:track="@drawable/fcustomswitch"
+                android:thumb="@drawable/fcustomthumb"
                 android:checked="false"
-                android:scaleX="1.2"
-                android:scaleY="1.2"
                 android:thumbTint="@color/white" />
+        </LinearLayout>
+            <Button
+                android:layout_width="65dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/nxtbtn"
+                android:backgroundTint="#F84343"
+                android:textColor="@color/colorWhite"
+                android:layout_marginLeft="30dp"
+                android:drawableLeft="@drawable/next"
+                android:paddingStart="15dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"/>
         </LinearLayout>
 
         <ListView
@@ -77,21 +96,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:divider="@null"
-            android:layout_below="@id/verifiedfilter"
+            android:layout_below="@id/topheader"
             android:dividerHeight="0dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"/>
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/creatorListView"
-            android:id="@+id/nxtbtn"
-            android:layout_centerInParent="true"
-            android:layout_marginTop="10dp"
-            android:text="Next"
-            android:backgroundTint="@color/btncolor"
-            android:textColor="@color/colorWhite"/>
 
     </RelativeLayout>
 </androidx.drawerlayout.widget.DrawerLayout>

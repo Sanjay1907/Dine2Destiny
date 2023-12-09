@@ -2,9 +2,11 @@ package com.example.dine2destiny;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -26,6 +28,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import androidx.core.app.ActivityCompat;
 
 public class SendOTPActivity extends AppCompatActivity {
 
@@ -34,6 +39,7 @@ public class SendOTPActivity extends AppCompatActivity {
     GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mAuth;
     Dialog dialog;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +54,9 @@ public class SendOTPActivity extends AppCompatActivity {
         }
         setContentView(R.layout.activity_send_otpactivity);
         mAuth = FirebaseAuth.getInstance();
+        if (!checkLocationPermission()) {
+            requestLocationPermission();
+        }
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -115,8 +124,6 @@ public class SendOTPActivity extends AppCompatActivity {
                     }
                 });
     }
-
-    // Method to save user email and name under the Users node in the Realtime Database
     private void saveUserDataToDatabase(String userId, String email, String name) {
         DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("Users");
         usersRef.child(userId).child("email").setValue(email);
@@ -131,5 +138,25 @@ public class SendOTPActivity extends AppCompatActivity {
                         }
                     }
                 });
+    }
+    private boolean checkLocationPermission() {
+        return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+    private void requestLocationPermission() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                LOCATION_PERMISSION_REQUEST_CODE);
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, you can proceed with your logic
+            } else {
+                // Permission denied, show a message or handle accordingly
+                Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

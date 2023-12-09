@@ -1,138 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:openDrawer="start"
     android:background="@drawable/report"
     tools:context=".ReportBug">
 
-    <RelativeLayout
-        android:id="@+id/container"
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/text1"
+        android:fontFamily="@font/robotoslab_regular"
+        android:text="REPORT "
+        android:textSize="27dp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:layout_marginTop="80dp"
+        android:layout_marginStart="50dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/text1"
+        android:fontFamily="@font/robotoslab_regular"
+        android:text=" BUG"
+        android:textSize="27dp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="100dp"/>
+
+    <EditText
+        android:id="@+id/bugDescriptionEditText"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true">
+        android:layout_height="60dp"
+        android:hint="Describe the bug"
+        android:textColor="@color/black"
+        android:background="#fff"
+        android:layout_marginLeft="49dp"
+        android:layout_marginRight="45dp"
+        android:textSize="16dp"
+        android:paddingTop="-160dp"
+        android:paddingLeft="20dp"
+        android:layout_marginTop="250dp"
+        android:inputType="textLongMessage"/>
 
+    <RelativeLayout
+        android:id="@+id/media"
+        android:layout_width="345dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@id/bugDescriptionEditText"
+        android:layout_marginLeft="10dp">
 
         <TextView
+            android:id="@+id/attachedMediaTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id= "@+id/text1"
-            android:fontFamily="@font/robotoslab_regular"
-            android:text="REPORT "
-            android:textSize="27dp"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:layout_marginTop="80dp"
-            android:layout_marginStart="50dp"/>
+            android:textSize="12dp"
+            android:layout_marginStart="75dp"
+            android:layout_marginTop="50dp"
+            android:textColor="#5C5B5B"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below= "@+id/text1"
-            android:fontFamily="@font/robotoslab_regular"
-            android:text=" BUG"
-            android:textSize="27dp"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="100dp"/>
-
-
-
-        <EditText
-            android:id="@+id/bugDescriptionEditText"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:hint="Describe the bug"
-            android:textColor="@color/black"
-            android:background="#fff"
-            android:layout_marginLeft="49dp"
-            android:layout_marginRight="45dp"
-            android:textSize="16dp"
-            android:paddingTop="-160dp"
-            android:paddingLeft="20dp"
-            android:layout_marginTop="250dp"
-            android:inputType="textLongMessage"/>
-
-        <RelativeLayout
-            android:id="@+id/media"
-            android:layout_width="345dp"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_below="@id/bugDescriptionEditText"
-            android:layout_marginLeft="10dp">
-
-
-            <TextView
-                android:id="@+id/attachedMediaTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="12dp"
-                android:layout_marginStart="75dp"
-                android:layout_marginTop="50dp"
-                android:textColor="#5C5B5B"/>
-            <Button
-                android:id="@+id/attachMediaButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/attachedMediaTextView"
-                android:text="Choose File"
-                android:layout_marginTop="30dp"
-                android:backgroundTint="#EB047EDF"
-                style="@style/Widget.Material3.Button.TextButton.Dialog.Icon"
-                android:textColor="@color/white"
-                android:layout_marginStart="140dp"/>
-        </RelativeLayout>
         <Button
-            android:id="@+id/submitBugButton"
+            android:id="@+id/attachMediaButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Report Bug"
-            android:layout_below="@id/media"
-            android:backgroundTint="@color/white"
-            android:textColor="@color/colorAccent"
-            android:layout_marginTop="130dp"
-            android:layout_centerHorizontal="true" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-            <androidx.appcompat.widget.Toolbar
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:id="@+id/toolbar"
-                android:elevation="4dp"
-                android:background="@android:color/transparent"
-                android:theme="@style/ThemeOverlay.AppCompat.Light"
-                android:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/fragment_container"/>
-
-        </LinearLayout>
+            android:layout_below="@id/attachedMediaTextView"
+            android:text="Choose File"
+            android:layout_marginTop="30dp"
+            android:backgroundTint="#EB047EDF"
+            style="@style/Widget.Material3.Button.TextButton.Dialog.Icon"
+            android:textColor="@color/white"
+            android:layout_marginStart="140dp"/>
     </RelativeLayout>
 
-    <com.google.android.material.navigation.NavigationView
-        android:layout_width="330dp"
-        android:layout_height="match_parent"
-        android:id="@+id/nav_view"
-        android:layout_gravity="start"
-        app:headerLayout="@layout/activity_navheader"
-        app:menu="@menu/nav_menu"
-        app:itemIconTint="#C81538"
-        app:itemTextColor="@color/black">
+    <Button
+        android:id="@+id/submitBugButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Report Bug"
+        android:layout_below="@id/media"
+        android:backgroundTint="@color/white"
+        android:textColor="@color/colorAccent"
+        android:layout_marginTop="130dp"
+        android:layout_centerHorizontal="true" />
 
-
-    </com.google.android.material.navigation.NavigationView>
-
-
-
-
-</androidx.drawerlayout.widget.DrawerLayout>
+</RelativeLayout>

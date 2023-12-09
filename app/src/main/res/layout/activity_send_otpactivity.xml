@@ -10,55 +10,71 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="50dp"
         android:orientation="vertical"
         android:background="@drawable/g_otp"
-        android:paddingRight="20dp"
-        android:paddingLeft="20dp">
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="50dp"
+        android:paddingBottom="20dp">
 
         <TextView
+            android:id="@+id/dineToDestiny"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DinetoDestiny"
+            android:textColor="@color/white"
+            android:textSize="30sp"
+            android:fontFamily="@font/playpensans"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="210dp" />
+
+        <TextView
+            android:id="@+id/signin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="Sign In"
+            android:textSize="27sp"
+            android:textColor="#ffffff"
+            android:textAlignment="center"
             android:fontFamily="@font/robotoslab_regular"
             android:includeFontPadding="false"
-            android:paddingTop="20sp"
-            android:layout_marginTop="250dp"
-            android:shadowColor="#0E0E0E"
-            android:text="Sign In"
-            android:textAlignment="center"
-            android:textColor="#ffffff"
-            android:textSize="30sp" />
-
-
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="20dp"
-            android:src="@drawable/g_logo"
-            android:background="@drawable/rounded_corners"/>
-
+            android:paddingTop="10dp"
+            android:layout_marginTop="0dp"
+            android:shadowColor="#0E0E0E" />
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="100dp"/>
+            android:layout_height="100dp" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:text="Sign in with"
+            android:textColor="@color/colorTextSecondary"
+            android:layout_marginTop="30dp"
+            android:layout_gravity="center_horizontal" />
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/g_logo"
+            android:background="@drawable/rounded_corners"
+            android:layout_marginTop="10dp" />
 
         <Button
             android:id="@+id/google_signIn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/google"
-            android:elevation="8dp"
-            android:backgroundTint="@color/white"
             android:text="Sign In with Google"
-            android:textSize="18dp"
-            android:textColor="@color/colorPrimaryDark" />
+            android:textSize="18sp"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/blue"
+            android:elevation="8dp"
+            android:padding="15dp"
+            android:layout_marginTop="40dp" />
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="250dp"/>
-
-    </LinearLayout>>
+    </LinearLayout>
 
 </RelativeLayout>

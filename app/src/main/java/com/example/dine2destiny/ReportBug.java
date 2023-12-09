@@ -40,23 +40,19 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-public class ReportBug extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
+public class ReportBug extends AppCompatActivity {
 
     private static final int REQUEST_IMAGE_PICK = 1;
     private static final String TAG = "ReportBugActivity"; // Added for debugging
-
     private EditText bugDescriptionEditText;
     private Button attachMediaButton;
     private Button submitBugButton;
     private TextView attachedMediaTextView;
-
     private FirebaseAuth mAuth;
     private DatabaseReference bugReportsRef;
     private StorageReference storageRef;
-    private Uri mediaUri; // URI of the attached media
-
+    private Uri mediaUri;
     private ProgressDialog progressDialog;
-    private DrawerLayout drawerLayout;
     private Dialog dialog;
 
     @Override
@@ -64,26 +60,7 @@ public class ReportBug extends AppCompatActivity implements NavigationView.OnNav
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_report_bug);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        toolbar.setTitle("");
-        toolbar.setSubtitle("");
-
-        drawerLayout = findViewById(R.id.drawerLayout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_nav,
-                R.string.close_nav);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.black));
-        toggle.getDrawerArrowDrawable().setBarThickness(10);
-        toggle.getDrawerArrowDrawable().setBarLength(50);
-        toggle.syncState();
-
         mAuth = FirebaseAuth.getInstance();
-        updateUserNameInNavigationHeader();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         bugReportsRef = database.getReference("Users")
                 .child(mAuth.getCurrentUser().getUid())
@@ -227,72 +204,6 @@ public class ReportBug extends AppCompatActivity implements NavigationView.OnNav
         }
         return result;
     }
-    private void updateUserNameInNavigationHeader() {
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            String currentUserId = currentUser.getUid();
-
-            DatabaseReference usersReference = FirebaseDatabase.getInstance().getReference().child("Users").child(currentUserId);
-            usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.hasChild("name")) {
-                        String userName = dataSnapshot.child("name").getValue(String.class);
-                        if (userName != null) {
-                            TextView userNameTextView = findViewById(R.id.userGreeting);
-                            userNameTextView.setText("Hello, " + userName);
-                        }
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    // Handle database error
-                }
-            });
-        }
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.nav_home) {
-            Log.d(TAG, "Home item selected");
-            startActivity(new Intent(ReportBug.this, MainActivity.class));
-            finish();
-        } else if (item.getItemId() == R.id.nav_settings) {
-            Log.d(TAG, "Settings item selected");
-            startActivity(new Intent(ReportBug.this, FavCreator.class));
-            finish();
-        } else if (item.getItemId() == R.id.nav_share) {
-            Log.d(TAG, "Share item selected");
-            drawerLayout.closeDrawer(GravityCompat.START);
-            return true;
-        } else if (item.getItemId() == R.id.nav_logout) {
-            Log.d(TAG, "Logout item selected");
-            showLogoutConfirmationDialog();
-        }
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
-    }
-    private void showLogoutConfirmationDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Logout");
-        builder.setMessage("Are you sure you want to logout?");
-        builder.setPositiveButton("Yes", (dialog, which) -> {
-            // User clicked Yes, log out
-            FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(ReportBug.this, SendOTPActivity.class));
-            finish();
-        });
-        builder.setNegativeButton("No", (dialog, which) -> {
-            // User clicked No, close the dialog
-            dialog.dismiss();
-        });
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
-
     @Override
     public void onBackPressed() {
         // Create an intent to navigate back to MainActivity

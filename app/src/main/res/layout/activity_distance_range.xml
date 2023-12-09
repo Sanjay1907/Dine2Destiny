@@ -5,27 +5,12 @@
     android:layout_height="match_parent"
     android:padding="16dp"
     android:background="@drawable/bkg2">
-    <Button
-        android:id="@+id/btnback"
-        android:layout_width="60dp"
-        android:layout_height="wrap_content"
-        android:textSize="18dp"
-        android:layout_marginTop="30dp"
-        android:backgroundTint="#F45D5D"
-        android:drawableLeft="@drawable/back"
-        android:paddingStart="8dp"
-        android:paddingTop="8dp"
-        android:paddingEnd="8dp"
-        android:paddingBottom="8dp"
-        android:textColor="@color/btncolor" />
-
-
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id ="@+id/ratingfilter"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="50dp"
         android:background="@drawable/border_bkg">
 
         <TextView
@@ -84,25 +69,27 @@
 
             <AutoCompleteTextView
                 android:id="@+id/autoCompleteTextView"
-                android:layout_width="3dp"
+                android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="40dp"
-                android:paddingStart="6dp"
-                android:paddingEnd="0dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
                 android:hint="Craving For.."
-                android:inputType="text|textMultiLine"
-                android:completionThreshold="1"
-                android:background="@drawable/rectangular_box" />
-
-
+                android:inputType="text"
+                android:background="@drawable/custom_autocomplete_background"
+                android:popupBackground="@drawable/custom_autocomplete_popup_background"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"/>
             <Button
                 android:id="@+id/addbtn"
-                android:layout_width="70dp"
-                android:layout_marginLeft="10dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:backgroundTint="#DAFFFFFF"
                 android:drawableLeft="@drawable/baseline_add_24"
-                android:backgroundTint="@color/white"
-                />
+                android:drawablePadding="8dp"
+                android:gravity="center_vertical|center_horizontal" />
+
         </LinearLayout>
         <TextView
             android:id="@+id/selectedFoodItemsTextView"
@@ -121,7 +108,7 @@
         android:id="@+id/clrbtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="18dp"
+        android:textSize="16dp"
         android:text="Clear Filters"
         android:layout_below="@+id/foodinterests"
         android:layout_marginTop="25dp"
@@ -137,8 +124,8 @@
         android:id="@+id/btnApplyDistance"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="18dp"
-        android:layout_marginTop="20dp"
+        android:textSize="16dp"
+        android:layout_marginTop="15dp"
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/clrbtn"
         android:text="Apply"
@@ -148,6 +135,18 @@
         android:layout_marginBottom="20dp"
         android:backgroundTint="#E84040"/>
 
-
+    <Button
+        android:id="@+id/btnback"
+        android:layout_width="65dp"
+        android:layout_height="wrap_content"
+        android:textSize="18dp"
+        android:layout_marginTop="15dp"
+        android:layout_below="@+id/btnApplyDistance"
+        android:backgroundTint="#F84343"
+        android:drawableLeft="@drawable/back"
+        android:paddingStart="8dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="8dp" />
 
 </RelativeLayout>

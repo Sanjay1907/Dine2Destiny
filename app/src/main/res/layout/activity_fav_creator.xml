@@ -1,86 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:openDrawer="start"
     android:background="@drawable/fav_creator"
     tools:context=".FavCreator">
 
-    <!-- Content View -->
-    <RelativeLayout
-        android:id="@+id/container"
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true">
+        android:layout_height="wrap_content"
+        android:id="@+id/title"
+        android:text="Follow Favourite Creator"
+        android:textAlignment="center"
+        android:textSize="20dp"
+        android:textColor="#D0FFFFFF"
+        android:textStyle="bold"
+        android:layout_marginTop="25dp"/>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/title"
-            android:text="Follow Favourite Creator"
-            android:textAlignment="center"
-            android:textSize="20dp"
-            android:textColor="#D0FFFFFF"
-            android:textStyle="bold"
-            android:layout_marginTop="25dp"/>
+    <SearchView
+        android:id="@+id/searchView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:iconifiedByDefault="false"
+        android:queryHint="Search Creators"
+        style="@style/SearchViewStyle"
+        android:layout_below="@id/title"/>
 
-        <SearchView
-            android:id="@+id/searchView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:iconifiedByDefault="false"
-            android:queryHint="Search Creators"
-            style="@style/SearchViewStyle"/>
-
-        <ListView
-            android:id="@+id/creatorListView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:divider="@null"
-            android:layout_below="@id/searchView"
-            android:dividerHeight="0dp"
-            android:layout_marginTop="40dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-            <androidx.appcompat.widget.Toolbar
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:id="@+id/toolbar"
-                android:elevation="4dp"
-                android:background="@android:color/transparent"
-                android:theme="@style/ThemeOverlay.AppCompat.Light"
-                android:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/fragment_container"/>
-
-        </LinearLayout>
-    </RelativeLayout>
-
-    <!-- Navigation Drawer -->
-    <com.google.android.material.navigation.NavigationView
-        android:layout_width="300dp"
-        android:layout_height="match_parent"
-        android:id="@+id/nav_view"
-        android:layout_gravity="start"
-        app:headerLayout="@layout/activity_navheader"
-        app:menu="@menu/nav_menu"
-        app:itemIconTint="#C81538"
-        app:itemTextColor="@color/black">
-
-
-    </com.google.android.material.navigation.NavigationView>
-
-
-</androidx.drawerlayout.widget.DrawerLayout>
+    <ListView
+        android:id="@+id/creatorListView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="@null"
+        android:layout_below="@id/searchView"
+        android:dividerHeight="0dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"/>
+</RelativeLayout>

@@ -50,7 +50,7 @@ import java.util.Map;
 import android.app.ProgressDialog;
 import android.util.Log;
 
-public class FavCreator extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class FavCreator extends AppCompatActivity{
     private static final String TAG = "FavCreator"; // Tag for logging
     private DatabaseReference databaseReference;
     private ListView creatorListView;
@@ -58,7 +58,6 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
     private List<Pair<Pair<String, String>, Pair<Integer, String>>> creatorNames = new ArrayList<>();
     private CreatorPairAdapter adapter;
     private FirebaseAuth mAuth;
-    private DrawerLayout drawerLayout;
     private ProgressDialog progressDialog;
     private Map<String, Boolean> followedCreatorsMap = new HashMap<>();
     private Dialog dialog;
@@ -73,28 +72,7 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_wait1);
         dialog.setCanceledOnTouchOutside(false);
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        toolbar.setTitle("");
-        toolbar.setSubtitle("");
-
-        drawerLayout = findViewById(R.id.drawerLayout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_nav,
-                R.string.close_nav);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.black));
-        toggle.getDrawerArrowDrawable().setBarThickness(10);
-        toggle.getDrawerArrowDrawable().setBarLength(50);
-        toggle.syncState();
-
         mAuth = FirebaseAuth.getInstance();
-        updateUserNameInNavigationHeader();
-
         databaseReference = FirebaseDatabase.getInstance().getReference().child("Creators");
         creatorNames = new ArrayList<>();
         creatorListView = findViewById(R.id.creatorListView);
@@ -244,31 +222,6 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
             }
         }
     }
-    private void updateUserNameInNavigationHeader() {
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            String currentUserId = currentUser.getUid();
-
-            DatabaseReference usersReference = FirebaseDatabase.getInstance().getReference().child("Users").child(currentUserId);
-            usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.hasChild("name")) {
-                        String userName = dataSnapshot.child("name").getValue(String.class);
-                        if (userName != null) {
-                            TextView userNameTextView = findViewById(R.id.userGreeting);
-                            userNameTextView.setText("Hello, " + userName);
-                        }
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    // Handle database error
-                }
-            });
-        }
-    }
     public void followCreator(View view) {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
@@ -306,46 +259,6 @@ public class FavCreator extends AppCompatActivity implements NavigationView.OnNa
             // Handle the case where the user is not signed in
             // You can redirect the user to the login screen or perform other actions.
         }
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.nav_home) {
-            Log.d(TAG, "Navigation: Home selected");
-            startActivity(new Intent(FavCreator.this, MainActivity.class));
-            finish();
-        } else if (item.getItemId() == R.id.nav_settings) {
-            Log.d(TAG, "Navigation: Settings selected");
-            drawerLayout.closeDrawer(GravityCompat.START);
-            return true;
-        } else if (item.getItemId() == R.id.nav_share) {
-            Log.d(TAG, "Navigation: Share selected");
-            startActivity(new Intent(FavCreator.this, ReportBug.class));
-            finish();
-        } else if (item.getItemId() == R.id.nav_logout) {
-            Log.d(TAG, "Navigation: Logout selected");
-            showLogoutConfirmationDialog();
-        }
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
-    }
-    private void showLogoutConfirmationDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Logout");
-        builder.setMessage("Are you sure you want to logout?");
-        builder.setPositiveButton("Yes", (dialog, which) -> {
-            // User clicked Yes, log out
-            FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(FavCreator.this, SendOTPActivity.class));
-            finish();
-        });
-        builder.setNegativeButton("No", (dialog, which) -> {
-            // User clicked No, close the dialog
-            dialog.dismiss();
-        });
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
     }
     @Override
     public void onBackPressed() {

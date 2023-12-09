@@ -1,10 +1,15 @@
 package com.example.dine2destiny;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -18,6 +23,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.database.FirebaseDatabase;
@@ -231,11 +238,9 @@ public class DistanceRangeActivity extends AppCompatActivity {
                         String hashtagString = recommendationSnapshot.child("hashtag").getValue(String.class);
 
                         if (hashtagString != null) {
-                            // Split the hashtags using various delimiters: space, comma, or no space
                             String[] hashtags = hashtagString.split("\\s+|,|(?<=\\S)(?=[#])");
 
                             for (String hashtag : hashtags) {
-                                // Remove leading '#' and any leading/trailing whitespaces
                                 String cleanHashtag = hashtag.trim().replaceFirst("^#", "").toLowerCase();
 
                                 if (!cleanHashtag.isEmpty()) {
@@ -245,18 +250,31 @@ public class DistanceRangeActivity extends AppCompatActivity {
                         }
                     }
                 }
+                autoCompleteAdapter = new ArrayAdapter<String>(DistanceRangeActivity.this, android.R.layout.simple_dropdown_item_1line) {
+                    @NonNull
+                    @Override
+                    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                        TextView textView = (TextView) super.getView(position, convertView, parent);
 
-                // Update the adapter with the unique hashtags
-                recommendationNames.clear();
-                recommendationNames.addAll(uniqueHashtags);
+                        String searchQuery = autoCompleteTextView.getText().toString().toLowerCase();
+                        String item = getItem(position).toLowerCase();
+                        SpannableStringBuilder builder = new SpannableStringBuilder(item);
+                        if (item.contains(searchQuery)) {
+                            int startPos = item.indexOf(searchQuery);
+                            int endPos = startPos + searchQuery.length();
+                            builder.setSpan(new ForegroundColorSpan(Color.RED), startPos, endPos, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
 
-                // Sort the hashtags for a better user experience
-                List<String> sortedHashtags = new ArrayList<>(recommendationNames);
+                        textView.setText(builder);
+                        return textView;
+                    }
+                };
+
+                List<String> sortedHashtags = new ArrayList<>(uniqueHashtags);
                 Collections.sort(sortedHashtags);
 
-                // Update the AutoCompleteTextView adapter
-                autoCompleteAdapter.clear();
                 autoCompleteAdapter.addAll(sortedHashtags);
+                autoCompleteTextView.setAdapter(autoCompleteAdapter);
             }
 
             @Override
@@ -265,6 +283,7 @@ public class DistanceRangeActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private boolean createLogTextFile(String logMessage) {
         try {
@@ -288,7 +307,7 @@ public class DistanceRangeActivity extends AppCompatActivity {
             logFilePath = logFile.getAbsolutePath();
 
             // Display a toast message indicating the log file creation
-            Toast.makeText(this, "Log file created: " + logFileName, Toast.LENGTH_LONG).show();
+            //Toast.makeText(this, "Log file created: " + logFileName, Toast.LENGTH_LONG).show();
             return true; // Return true to indicate success
         } catch (IOException e) {
             e.printStackTrace();

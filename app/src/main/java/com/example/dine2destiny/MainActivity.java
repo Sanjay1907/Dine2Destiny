@@ -10,6 +10,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.telephony.SmsManager;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -17,6 +18,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.ScaleAnimation;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -60,6 +63,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -98,7 +102,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TreeMap;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback{
     private static final String TAG = "MainActivity"; // Tag for logging
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     private static final int SMS_PERMISSION_REQUEST_CODE = 101;
@@ -108,13 +112,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private DatabaseReference databaseReference;
     private boolean cameraMoved = false;
     private LinearLayout locationDetailsContainer;
-    private DrawerLayout drawerLayout;
     private LocationCallback locationCallback;
-
     private boolean locationDetailsLoaded = false; // Flag to control location details loading
     private LocationRequest locationRequest;
-
-    // List to store markers on the map
     private List<Marker> locationMarkers = new ArrayList<>();
     private Set<String> visitedPlaceIds = new HashSet<>();
     private Map<String, List<String>> locationCreatorsMap = new HashMap<>();
@@ -125,12 +125,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String selectedCategory;
     private ArrayList<String> selectedFoodItems;
     private boolean filterDialogShown = false;
-    private RelativeLayout container;
     private boolean recommendationMessageAdded = false;
     private boolean recommendationMessageloaded = false;
     private Button loadnxtbtn;
     private int currentRecommendationIndex = 0;
-    private LatLng origin;  // Declare as class-level fields
+    private LatLng origin;
     private List<LatLng> destinations;
     private List<String> names;
     private List<String> creators;
@@ -141,6 +140,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private AlertDialog phoneNumberDialog;
     private AlertDialog otpdialog;
     private AlertDialog nameDialog;
+    private FloatingActionButton add, reportbug, logout;
+    private boolean aBoolean = true;
+    private RelativeLayout container;
+    private boolean doubleBackToExitPressedOnce = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -148,29 +151,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.i(TAG, "onCreate: Initializing MainActivity");
         checkUserName();
         checkUserPhoneNumber();
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        toolbar.setTitle("");
-        toolbar.setSubtitle("");
-
-        drawerLayout = findViewById(R.id.drawerLayout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_nav,
-                R.string.close_nav);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.black));
-        toggle.getDrawerArrowDrawable().setBarThickness(10);
-        toggle.getDrawerArrowDrawable().setBarLength(50);
-        toggle.syncState();
+        showFilterDialog();
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapFragment);
         mapFragment.getMapAsync(this);
         filter = findViewById(R.id.filterbtn);
-        container = findViewById(R.id.maincontainer);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -183,6 +168,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         loadnxtbtn = findViewById(R.id.loadnextbtn);
 
+        add = findViewById(R.id.add);
+        reportbug = findViewById(R.id.reportbug);
+        logout = findViewById(R.id.logout);
+        container = findViewById(R.id.maincontainer);
+
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -193,6 +183,36 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, FavCreatorfilter.class);
+                startActivity(intent);
+            }
+        });
+        add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (aBoolean) {
+                    showButtonsWithAnimation(reportbug);
+                    showButtonsWithAnimation(logout);
+                    add.setImageResource(R.drawable.baseline_close_24);
+                    aBoolean = false;
+                } else {
+                    hideButtonsWithAnimation(reportbug);
+                    hideButtonsWithAnimation(logout);
+                    add.setImageResource(R.drawable.ic_menu);
+                    aBoolean = true;
+                }
+            }
+        });
+
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showLogoutConfirmationDialog();
+            }
+        });
+        reportbug.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, ReportBug.class);
                 startActivity(intent);
             }
         });
@@ -216,7 +236,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             selectedCategory = "All";
         }
         selectedFoodItems = getIntent().getStringArrayListExtra("selectedFoodItems");
-        // If no food items are selected, initialize the list to empty
         if (selectedFoodItems == null) {
             selectedFoodItems = new ArrayList<>();
         }
@@ -230,7 +249,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
     }
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -244,7 +262,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
                 @Override
                 public boolean onMyLocationButtonClick() {
-                    // Move the camera to the user's current location
                     moveToUserLocation();
                     Log.i(TAG, "onMyLocationButtonClick: User's location button clicked");
                     return true; // Return true to consume the event
@@ -272,7 +289,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
     }
+    private void showButtonsWithAnimation(View view) {
+        view.setVisibility(View.VISIBLE);
+        ScaleAnimation scaleAnimation = new ScaleAnimation(0, 1, 0, 1, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        scaleAnimation.setDuration(300);
+        view.startAnimation(scaleAnimation);
+    }
 
+    private void hideButtonsWithAnimation(View view) {
+        ScaleAnimation scaleAnimation = new ScaleAnimation(1, 0, 1, 0, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        scaleAnimation.setDuration(300);
+        view.startAnimation(scaleAnimation);
+        view.setVisibility(View.INVISIBLE);
+    }
     private void requestLocationPermission() {
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
@@ -635,7 +664,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     if (userName != null) {
                         // Update the user greeting in the navigation header
                         TextView userGreetingTextView = findViewById(R.id.userGreeting);
-                        userGreetingTextView.setText("Hello,  " + userName);
+                        //userGreetingTextView.setText("Hello,  " + userName);
                     }
                 } else {
                     // The user's name is not present, show a dialog to get the name
@@ -715,6 +744,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         phoneNumberDialog.setCanceledOnTouchOutside(false); // Set dialog to not cancelable on outside touch
         phoneNumberDialog.setCancelable(false); // Set dialog to not cancelable on back press
         phoneNumberDialog.show();
+        phoneNumberDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
         verifyButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -781,6 +811,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         otpdialog.setCanceledOnTouchOutside(false);
         otpdialog.setCancelable(false);
         otpdialog.show();
+        otpdialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
         final String otp = generatedOTP;
 
@@ -852,6 +883,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         int totalRecommendations = sortedDistances.size();
         int remainingRecommendations = totalRecommendations - currentRecommendationIndex;
+        loadnxtbtn.setVisibility(View.VISIBLE);
 
         if (remainingRecommendations > 0) {
             int recommendationsToLoad = Math.min(5, remainingRecommendations);
@@ -864,7 +896,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             currentRecommendationIndex += recommendationsToLoad;
 
-            // Extract information from nextRecommendations
             List<LatLng> filteredDestinations = new ArrayList<>();
             List<String> filteredNames = new ArrayList<>();
             List<String> filteredCreators = new ArrayList<>();
@@ -918,11 +949,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
 
-            // Pass the filtered lists to calculateDistance
             calculateDistance(origin, filteredDestinations, filteredNames, filteredCreators, filteredImgUrls, filteredPhoneNos, filteredVerifications);
         } else {
             Toast.makeText(MainActivity.this, "No More Recommendations Available", Toast.LENGTH_SHORT).show();
             Log.i(TAG, "No more recommendations available");
+            loadnxtbtn.setVisibility(View.GONE);
         }
     }
     /*private void calculateAirDistance(LatLng origin, List<LatLng> destinations, List<String> names, List<String> creators, List<String> imgUrls, List<String> phoneNos, List<String> verifications) {
@@ -1285,7 +1316,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         float multiplier = (float) Math.pow(10, decimalPlaces);
         return Math.round(distance * multiplier) / multiplier;
     }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -1294,7 +1324,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             fusedLocationClient.removeLocationUpdates(locationCallback);
         }
     }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -1325,29 +1354,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
     }
-
-
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.nav_home) {
-            Log.i("Navigation", "Home item selected");
-            drawerLayout.closeDrawer(GravityCompat.START);
-            return true;
-        } else if (item.getItemId() == R.id.nav_settings) {
-            Log.i("Navigation", "Fav creator item selected");
-            startActivity(new Intent(MainActivity.this, FavCreator.class));
-            finish();
-        } else if (item.getItemId() == R.id.nav_share) {
-            Log.i("Navigation", "Report Bug item selected");
-            startActivity(new Intent(MainActivity.this, ReportBug.class));
-            finish();
-        } else if (item.getItemId() == R.id.nav_logout) {
-            Log.i("Navigation", "Logout item selected");
-            showLogoutConfirmationDialog();
-        }
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
-    }
     private void showLogoutConfirmationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Logout");
@@ -1371,12 +1377,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onBackPressed() {
         if (phoneNumberDialog != null && phoneNumberDialog.isShowing()) {
             Toast.makeText(this, "Please complete the phone number verification", Toast.LENGTH_SHORT).show();
-        } else if(otpdialog != null && otpdialog.isShowing()){
+        } else if (otpdialog != null && otpdialog.isShowing()) {
             Toast.makeText(this, "Please enter the OTP for phone number verification", Toast.LENGTH_SHORT).show();
-        }else {
-            moveTaskToBack(true);
-            android.os.Process.killProcess(android.os.Process.myPid());
-            System.exit(1);
+        } else {
+            if (doubleBackToExitPressedOnce) {
+                moveTaskToBack(true);
+                android.os.Process.killProcess(android.os.Process.myPid());
+                System.exit(1);
+            } else {
+                this.doubleBackToExitPressedOnce = true;
+                Toast.makeText(this, "Press BACK twice to exit", Toast.LENGTH_SHORT).show();
+                new Handler().postDelayed(() -> doubleBackToExitPressedOnce = false, 2000); // Reset after 2 seconds
+            }
         }
     }
 
