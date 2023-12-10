@@ -212,8 +212,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         reportbug.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, ReportBug.class);
-                startActivity(intent);
+                showReportBugDialog();
             }
         });
         loadnxtbtn.setOnClickListener(new View.OnClickListener() {
@@ -1362,6 +1361,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             // User clicked Yes, log out
             FirebaseAuth.getInstance().signOut();
             startActivity(new Intent(MainActivity.this, SendOTPActivity.class));
+            finish();
+        });
+        builder.setNegativeButton("No", (dialog, which) -> {
+            // User clicked No, close the dialog
+            dialog.dismiss();
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    private void showReportBugDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Report Bug");
+        builder.setMessage("Are you sure you want to report a bug ?");
+        builder.setPositiveButton("Yes", (dialog, which) -> {
+            startActivity(new Intent(MainActivity.this, ReportBug.class));
             finish();
         });
         builder.setNegativeButton("No", (dialog, which) -> {
