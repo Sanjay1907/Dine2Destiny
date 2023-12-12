@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private AlertDialog phoneNumberDialog;
     private AlertDialog otpdialog;
     private AlertDialog nameDialog;
-    private FloatingActionButton add, reportbug, logout;
+    private FloatingActionButton reportbug;
     private boolean aBoolean = true;
     private RelativeLayout container;
     private boolean doubleBackToExitPressedOnce = false;
@@ -168,9 +168,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         loadnxtbtn = findViewById(R.id.loadnextbtn);
 
-        add = findViewById(R.id.add);
         reportbug = findViewById(R.id.reportbug);
-        logout = findViewById(R.id.logout);
         container = findViewById(R.id.maincontainer);
 
         locationCallback = new LocationCallback() {
@@ -184,29 +182,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, FavCreatorfilter.class);
                 startActivity(intent);
-            }
-        });
-        add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (aBoolean) {
-                    showButtonsWithAnimation(reportbug);
-                    showButtonsWithAnimation(logout);
-                    add.setImageResource(R.drawable.baseline_close_24);
-                    aBoolean = false;
-                } else {
-                    hideButtonsWithAnimation(reportbug);
-                    hideButtonsWithAnimation(logout);
-                    add.setImageResource(R.drawable.ic_menu);
-                    aBoolean = true;
-                }
-            }
-        });
-
-        logout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showLogoutConfirmationDialog();
             }
         });
         reportbug.setOnClickListener(new View.OnClickListener() {
@@ -287,19 +262,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Log.i(TAG, "onCameraMove: Camera moved");
             }
         });
-    }
-    private void showButtonsWithAnimation(View view) {
-        view.setVisibility(View.VISIBLE);
-        ScaleAnimation scaleAnimation = new ScaleAnimation(0, 1, 0, 1, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        scaleAnimation.setDuration(300);
-        view.startAnimation(scaleAnimation);
-    }
-
-    private void hideButtonsWithAnimation(View view) {
-        ScaleAnimation scaleAnimation = new ScaleAnimation(1, 0, 1, 0, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        scaleAnimation.setDuration(300);
-        view.startAnimation(scaleAnimation);
-        view.setVisibility(View.INVISIBLE);
     }
     private void requestLocationPermission() {
         ActivityCompat.requestPermissions(this,
@@ -587,6 +549,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             AlertDialog alertDialog = builder.create();
             alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT)); // Set a transparent background
             alertDialog.show();
+            reportbug.setEnabled(true);
             Log.i(TAG, "showFilterDialog: Displaying the filter dialog");
         }
     }

@@ -6,14 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
-    <RelativeLayout
-        android:id="@+id/maincontainer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true">
-
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/add"
+        android:id="@+id/reportbug"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
@@ -22,42 +16,16 @@
         android:layout_marginRight="30dp"
         android:layout_marginBottom="30dp"
         app:fabSize="auto"
-        app:backgroundTint="@color/colorPrimaryDark"
-        app:srcCompat="@drawable/ic_menu"
-        app:tint="@color/white"
-        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.Circular" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/reportbug"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="30dp"
-        android:layout_marginBottom="10dp"
-        android:layout_above="@+id/add"
-        app:fabSize="auto"
         app:backgroundTint="@color/colorAccent"
         app:srcCompat="@drawable/baseline_bug_report_24"
         app:tint="@color/white"
-        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.Circular"
-        android:visibility="gone"/>
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.Circular" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/logout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="30dp"
-        android:layout_marginBottom="10dp"
-        android:layout_above="@+id/reportbug"
-        app:fabSize="auto"
-        app:backgroundTint="@color/colorAccent"
-        app:srcCompat="@drawable/baseline_login_24"
-        app:tint="@color/white"
-        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.Circular"
-        android:visibility="gone"/>
+    <RelativeLayout
+        android:id="@+id/maincontainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
 
     <fragment
         android:id="@+id/mapFragment"

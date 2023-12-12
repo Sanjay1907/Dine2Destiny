@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
@@ -27,6 +28,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.BufferedWriter;
@@ -46,6 +55,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.google.android.gms.ads.AdRequest;
 
 public class DistanceRangeActivity extends AppCompatActivity {
     private static final String TAG = "DistanceRangeActivity";
@@ -64,6 +74,8 @@ public class DistanceRangeActivity extends AppCompatActivity {
     private String logFilePath;
     private int selectedDistance;
     private String  selectedSpecialType, selectedFoodType;
+    private InterstitialAd mInterstitialAd;
+    private ArrayList<String> followedCreators;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +91,7 @@ public class DistanceRangeActivity extends AppCompatActivity {
         if (selectedFoodType == null){
             selectedFoodType = "All";
         }
-        ArrayList<String> followedCreators = getIntent().getStringArrayListExtra("followedCreators");
+        followedCreators = getIntent().getStringArrayListExtra("followedCreators");
         autoCompleteTextView = findViewById(R.id.autoCompleteTextView);
         autoCompleteAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, recommendationNames);
         autoCompleteTextView.setAdapter(autoCompleteAdapter);
@@ -110,92 +122,44 @@ public class DistanceRangeActivity extends AppCompatActivity {
             }
         });
 
-
         btnApplyDistance.setOnClickListener(v -> {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-            String timestamp = dateFormat.format(new Date());
+            AdRequest adRequest = new AdRequest.Builder().build();
 
-            // Initialize the filter message
-            StringBuilder filterMessage = new StringBuilder("Filters selected by the user:");
+            InterstitialAd.load(this,"ca-app-pub-3940256099942544/1033173712", adRequest,
+                    new InterstitialAdLoadCallback() {
+                        @Override
+                        public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                            // The mInterstitialAd reference will be null until an ad is loaded.
+                            mInterstitialAd = interstitialAd;
+                            Log.i(TAG, "onAdLoaded");
 
-            // Calculate and append the total number of filters selected
-            int totalFiltersSelected = 0;
-            // Log the list of followed creators if it's not empty
-            if (followedCreators != null && !followedCreators.isEmpty()) {
-                filterMessage.append("\nFollowed Creators:");
-                for (String creator : followedCreators) {
-                    filterMessage.append("\n- ").append(creator);
-                }
-                totalFiltersSelected++;
-            }
+                            if (mInterstitialAd != null) {
+                                mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                                    @Override
+                                    public void onAdDismissedFullScreenContent() {
+                                        navigateToNextPage();
+                                    }
 
-            // Log the selected Distance if it's greater than 0
-            if (selectedDistance > 0) {
-                filterMessage.append("\nSelected Distance: ").append(selectedDistance).append(" km");
-                totalFiltersSelected++;
-            }
+                                    @Override
+                                    public void onAdFailedToShowFullScreenContent(AdError adError) {
+                                        navigateToNextPage();
+                                    }
+                                });
+                                mInterstitialAd.show(DistanceRangeActivity.this);
+                            } else {
+                                navigateToNextPage();
+                            }
+                        }
 
-            // Log the selected FoodType if it's not "All"
-            if (!"All".equals(selectedSpecialType)) {
-                filterMessage.append("\nSelected FoodType: ").append(selectedSpecialType);
-                totalFiltersSelected++;
-            } else {
-                filterMessage.append("\nSelected FoodType: NOT SELECTED");
-            }
-
-
-            // Log the selected Rating if it's greater than 0
-            if (selectedRating > 0) {
-                filterMessage.append("\nSelected Rating: ").append(selectedRating);
-                totalFiltersSelected++;
-            } else {
-                filterMessage.append("\nSelected Rating: NOT SELECTED");
-            }
-
-            // Log the selected Category if it's not "All"
-            if (!"All".equals(selectedFoodType)) {
-                filterMessage.append("\nSelected Category: ").append(selectedFoodType);
-                totalFiltersSelected++;
-            } else {
-                filterMessage.append("\nSelected Category: NOT SELECTED");
-            }
-
-            // Log the selected food items if any
-            if (!selectedFoodItemsList.isEmpty()) {
-                filterMessage.append("\nSelected Food Items:");
-                for (String foodItem : selectedFoodItemsList) {
-                    filterMessage.append("\n- ").append(foodItem);
-                }
-                totalFiltersSelected++;
-            } else {
-                filterMessage.append("\nSelected Interested foods: NOT SELECTED");
-            }
-
-            filterMessage.append("\n\nTotal Filters Selected: ").append(totalFiltersSelected);
-
-            Log.i(TAG, "Timestamp when Apply button was clicked: " + timestamp);
-            // Log the filter message
-            Log.i(TAG, filterMessage.toString());
-
-            if (createLogTextFile("Timestamp when Search operation started: " + timestamp + "\n" +
-                    filterMessage.toString())) {
-                // Log file created successfully, add it to the intent
-                Intent intent = new Intent(this, MainActivity.class);
-                intent.putExtra("selectedDistance", selectedDistance);
-                intent.putExtra("selectedFoodCategory", selectedSpecialType);
-                intent.putExtra("selectedRating", selectedRating);
-                intent.putExtra("selectedCategory", selectedFoodType);
-                intent.putExtra("timestamp", timestamp);
-                intent.putExtra("logFilePath", logFilePath); // Add the log file path
-
-                // Pass the selected food items list to the MainActivity
-                intent.putStringArrayListExtra("selectedFoodItems", new ArrayList<>(selectedFoodItemsList));
-
-                startActivity(intent);
-                finish();
-            }
+                        @Override
+                        public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                            // Handle the error
+                            Log.d(TAG, loadAdError.toString());
+                            mInterstitialAd = null;
+                            navigateToNextPage();
+                        }
+                    });
         });
-
         backbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -225,7 +189,90 @@ public class DistanceRangeActivity extends AppCompatActivity {
             }
         });
     }
+    private void navigateToNextPage() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        String timestamp = dateFormat.format(new Date());
 
+        // Initialize the filter message
+        StringBuilder filterMessage = new StringBuilder("Filters selected by the user:");
+
+        // Calculate and append the total number of filters selected
+        int totalFiltersSelected = 0;
+        // Log the list of followed creators if it's not empty
+        if (followedCreators != null && !followedCreators.isEmpty()) {
+            filterMessage.append("\nFollowed Creators:");
+            for (String creator : followedCreators) {
+                filterMessage.append("\n- ").append(creator);
+            }
+            totalFiltersSelected++;
+        }
+
+        // Log the selected Distance if it's greater than 0
+        if (selectedDistance > 0) {
+            filterMessage.append("\nSelected Distance: ").append(selectedDistance).append(" km");
+            totalFiltersSelected++;
+        }
+
+        // Log the selected FoodType if it's not "All"
+        if (!"All".equals(selectedSpecialType)) {
+            filterMessage.append("\nSelected FoodType: ").append(selectedSpecialType);
+            totalFiltersSelected++;
+        } else {
+            filterMessage.append("\nSelected FoodType: NOT SELECTED");
+        }
+
+
+        // Log the selected Rating if it's greater than 0
+        if (selectedRating > 0) {
+            filterMessage.append("\nSelected Rating: ").append(selectedRating);
+            totalFiltersSelected++;
+        } else {
+            filterMessage.append("\nSelected Rating: NOT SELECTED");
+        }
+
+        // Log the selected Category if it's not "All"
+        if (!"All".equals(selectedFoodType)) {
+            filterMessage.append("\nSelected Category: ").append(selectedFoodType);
+            totalFiltersSelected++;
+        } else {
+            filterMessage.append("\nSelected Category: NOT SELECTED");
+        }
+
+        // Log the selected food items if any
+        if (!selectedFoodItemsList.isEmpty()) {
+            filterMessage.append("\nSelected Food Items:");
+            for (String foodItem : selectedFoodItemsList) {
+                filterMessage.append("\n- ").append(foodItem);
+            }
+            totalFiltersSelected++;
+        } else {
+            filterMessage.append("\nSelected Interested foods: NOT SELECTED");
+        }
+
+        filterMessage.append("\n\nTotal Filters Selected: ").append(totalFiltersSelected);
+
+        Log.i(TAG, "Timestamp when Apply button was clicked: " + timestamp);
+        // Log the filter message
+        Log.i(TAG, filterMessage.toString());
+
+        if (createLogTextFile("Timestamp when Search operation started: " + timestamp + "\n" +
+                filterMessage.toString())) {
+            // Log file created successfully, add it to the intent
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra("selectedDistance", selectedDistance);
+            intent.putExtra("selectedFoodCategory", selectedSpecialType);
+            intent.putExtra("selectedRating", selectedRating);
+            intent.putExtra("selectedCategory", selectedFoodType);
+            intent.putExtra("timestamp", timestamp);
+            intent.putExtra("logFilePath", logFilePath); // Add the log file path
+
+            // Pass the selected food items list to the MainActivity
+            intent.putStringArrayListExtra("selectedFoodItems", new ArrayList<>(selectedFoodItemsList));
+
+            startActivity(intent);
+            finish();
+        }
+    }
     private void populateRecommendationNames() {
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
