@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
         android:layout_marginRight="30dp"
         android:layout_marginBottom="30dp"
@@ -20,7 +20,6 @@
         app:srcCompat="@drawable/baseline_bug_report_24"
         app:tint="@color/white"
         app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.Circular" />
-
     <RelativeLayout
         android:id="@+id/maincontainer"
         android:layout_width="match_parent"
