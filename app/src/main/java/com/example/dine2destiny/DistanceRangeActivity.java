@@ -1,5 +1,6 @@
 package com.example.dine2destiny;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -76,6 +78,7 @@ public class DistanceRangeActivity extends AppCompatActivity {
     private String  selectedSpecialType, selectedFoodType;
     private InterstitialAd mInterstitialAd;
     private ArrayList<String> followedCreators;
+    private Dialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +107,10 @@ public class DistanceRangeActivity extends AppCompatActivity {
         ratingBar = findViewById(R.id.ratingBar);
         selectedFoodItemsTextView = findViewById(R.id.selectedFoodItemsTextView);
         selectedFoodItemsTextView.setText("Selected Food Items:");
+        dialog = new Dialog(DistanceRangeActivity.this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_wait1);
+        dialog.setCanceledOnTouchOutside(false);
         autoCompleteTextView.setOnItemClickListener((parent, view, position, id) -> {
             String selectedRecommendation = autoCompleteAdapter.getItem(position);
             Log.i(TAG, "Selected Recommendation: " + selectedRecommendation);
@@ -123,13 +130,15 @@ public class DistanceRangeActivity extends AppCompatActivity {
         });
 
         btnApplyDistance.setOnClickListener(v -> {
+            dialog.show();
             AdRequest adRequest = new AdRequest.Builder().build();
 
-            InterstitialAd.load(this,"ca-app-pub-3940256099942544/1033173712", adRequest,
+            InterstitialAd.load(this,"ca-app-pub-6500906048555901/1675315806", adRequest,
                     new InterstitialAdLoadCallback() {
                         @Override
                         public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
                             // The mInterstitialAd reference will be null until an ad is loaded.
+                            dialog.dismiss();
                             mInterstitialAd = interstitialAd;
                             Log.i(TAG, "onAdLoaded");
 
@@ -154,6 +163,7 @@ public class DistanceRangeActivity extends AppCompatActivity {
                         @Override
                         public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
                             // Handle the error
+                            dialog.dismiss();
                             Log.d(TAG, loadAdError.toString());
                             mInterstitialAd = null;
                             navigateToNextPage();
