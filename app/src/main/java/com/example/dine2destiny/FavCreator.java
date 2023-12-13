@@ -89,30 +89,32 @@ public class FavCreator extends AppCompatActivity{
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 String creatorName = dataSnapshot.child("name").getValue(String.class);
                 String creatorName2 = dataSnapshot.child("name2").getValue(String.class);
-                String verificationStatusString = dataSnapshot.child("request_verification")
-                        .child(dataSnapshot.getKey())
-                        .child("verification")
-                        .getValue(String.class);
-                int verificationStatus = 0;
+                if (creatorName != null && !creatorName.isEmpty()) {
+                    String verificationStatusString = dataSnapshot.child("request_verification")
+                            .child(dataSnapshot.getKey())
+                            .child("verification")
+                            .getValue(String.class);
+                    int verificationStatus = 0;
 
-                if (verificationStatusString != null && !verificationStatusString.isEmpty()) {
-                    try {
-                        verificationStatus = Integer.parseInt(verificationStatusString);
-                    } catch (NumberFormatException e) {
+                    if (verificationStatusString != null && !verificationStatusString.isEmpty()) {
+                        try {
+                            verificationStatus = Integer.parseInt(verificationStatusString);
+                        } catch (NumberFormatException e) {
+                        }
                     }
+                    String profileImageUrl = dataSnapshot.child("profileImage").getValue(String.class);
+                    creatorNames.add(new Pair<>(new Pair<>(creatorName, creatorName2),
+                            new Pair<>(verificationStatus, profileImageUrl)));
+                    // Update the data structure with the initial state (not following)
+                    followedCreatorsMap.put(creatorName, false);
+
+                    adapter.notifyDataSetChanged();
+                    updateButtonStatus();
+                    dialog.dismiss();
+
+                    Log.d(TAG, "onChildAdded: Creator added - " + creatorName);
+                    loadInitialFollowState();
                 }
-                String profileImageUrl = dataSnapshot.child("profileImage").getValue(String.class);
-                creatorNames.add(new Pair<>(new Pair<>(creatorName, creatorName2),
-                        new Pair<>(verificationStatus, profileImageUrl)));
-                // Update the data structure with the initial state (not following)
-                followedCreatorsMap.put(creatorName, false);
-
-                adapter.notifyDataSetChanged();
-                updateButtonStatus();
-                dialog.dismiss();
-
-                Log.d(TAG, "onChildAdded: Creator added - " + creatorName);
-                loadInitialFollowState();
             }
 
             @Override
